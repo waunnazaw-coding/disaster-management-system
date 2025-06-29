@@ -1,7 +1,10 @@
 import { TriangleAlert } from 'lucide-react';
 
+
 const RootLayout = () => {
-  return <TriangleAlert className='text-red-700' />;
+  return <>
+  <TriangleAlert />
+  </>
 };
 
 export default RootLayout;
