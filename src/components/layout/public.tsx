@@ -1,8 +1,7 @@
-import React from 'react'
 
 const Public = () => {
   return (
-    <div>public</div>
+    <div className='text-red-500'>public</div>
   )
 }
 
