@@ -1,0 +1,27 @@
+// src/hooks/useAuthRedirect.ts
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/authStore";
+import { Roles } from "../types/index";
+
+export const useAuthRedirect = () => {
+  const { isAuthenticated, userRole } = useAuthStore();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated && userRole) {
+      switch (userRole) {
+        case Roles.Admin:
+        case Roles.SysAdmin:
+          navigate("/admin/dashboard", { replace: true });
+          break;
+        case Roles.ReliefTeam:
+          navigate("/relief/dashboard", { replace: true });
+          break;
+        default:
+          navigate("/", { replace: true });
+          break;
+      }
+    }
+  }, [isAuthenticated, userRole, navigate]);
+};
