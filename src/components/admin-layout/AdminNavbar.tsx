@@ -14,9 +14,14 @@ import { Bell, LogOut, Settings, User, RefreshCw } from "lucide-react"
 
 export function AdminNavbar() {
   const { currentUser, logout, dashboardStats } = useAdminStore()
-
+  
   const totalPendingItems =
     dashboardStats.pendingReports + dashboardStats.pendingRequests + dashboardStats.pendingDonations
+
+  // Early return if no currentUser (optional)
+  if (!currentUser) {
+    return <div>Loading...</div>
+  }
 
   return (
     <header className="bg-gradient-to-r from-white via-blue-50 to-indigo-100 border-b border-indigo-200/50 shadow-lg backdrop-blur-sm">
@@ -53,9 +58,12 @@ export function AdminNavbar() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                 <Avatar className="h-10 w-10 ring-2 ring-blue-200 ring-offset-2">
-                  <AvatarImage src={currentUser?.avatar || "/placeholder.svg"} alt={currentUser?.name} />
+                  <AvatarImage 
+                    src={currentUser.avatar ?? "/placeholder.svg"} 
+                    alt={currentUser.name ?? "User avatar"} 
+                  />
                   <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold">
-                    {currentUser?.name?.charAt(0) || "A"}
+                    {currentUser.name?.charAt(0) ?? "A"}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -63,13 +71,13 @@ export function AdminNavbar() {
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{currentUser?.name}</p>
-                  <p className="text-xs leading-none text-muted-foreground">{currentUser?.email}</p>
+                  <p className="text-sm font-medium leading-none">{currentUser.name}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{currentUser.email}</p>
                   <Badge
                     variant="secondary"
                     className="w-fit mt-1 bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border-blue-200"
                   >
-                    {currentUser?.role}
+                    {currentUser.role}
                   </Badge>
                 </div>
               </DropdownMenuLabel>

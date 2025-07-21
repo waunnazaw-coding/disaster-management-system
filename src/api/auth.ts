@@ -19,10 +19,12 @@ interface AuthResponse {
 }
 
 export type UserResponseDto = {
-  id: string;      // GUID represented as a string
+  id: string;
   name: string;
   email: string;
-  profile: string;
+  profile: string | null;
+  createdAt: string | null;
+  // Note: phone, role, and status are not in the API response
 };
 
 interface GoogleLoginDto {
@@ -129,19 +131,29 @@ export const authService = {
     }
   },
 
-  async getCurrentUser(): Promise<UserResponseDto | null> {
+  // Get current user profile
+ async getCurrentUser(): Promise<ApiResult<UserResponseDto>> {
     try {
       const response = await api.get<ApiResult<UserResponseDto>>("/auth/profile");
-
+      
+      // The response.data already has the ApiResult structure
       if (response.data.isSuccess && response.data.data) {
         storeUserData(response.data.data);
-        return response.data.data;
       }
-
-      return null;
+      
+      return response.data;
     } catch (error) {
-      console.error("Failed to fetch current user:", error);
-      return getUserData(); // fallback to cached user data if any
+      console.error("Failed to fetch user profile:", error);
+      
+      // Return error structure
+      return {
+        isSuccess: false,
+        isError: true,
+        isNotFoundError: false,
+        isValidationError: false,
+        data: null,
+        message: "Failed to fetch user profile"
+      };
     }
   },
 
