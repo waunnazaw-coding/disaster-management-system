@@ -14,6 +14,7 @@ import ActiveDisastersSection from "../components/disaster/ActiveDisasterSection
 import { useActiveDisasterEventStore } from "../store/activeDisasterEventStore";
 import { DisasterEvent } from "../types/disaster";
 import QuickActionsSection from "../components/user-layout/QuickActionsSection";
+import DonationToast from "@/components/donations/DonationToast";
 
 
 const activeDisastersSample: DisasterEvent[] = [
@@ -202,6 +203,7 @@ export default function HomePage() {
           })}
         </div>
       </div>
+      <DonationToast/>
     </div>
   );
 }
