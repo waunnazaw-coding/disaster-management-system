@@ -1,7 +1,7 @@
 import axios, { AxiosError } from "axios";
 import type { InternalAxiosRequestConfig } from "axios";
 
-const BASE_URL = "https://localhost:7148/api";
+const BASE_URL = "http://localhost:5188/api";
 const AUTH_TOKEN_KEY = "authToken";
 const USER_DATA_KEY = "userData";
 
@@ -18,7 +18,7 @@ const logout = () => {
 const api = axios.create({
   baseURL: BASE_URL,
   headers: {
-    "Content-Type": "application/json",
+    // no content-type set globally, it will be set automatically based on request data
   },
 });
 

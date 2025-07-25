@@ -41,7 +41,7 @@ export default function HeroSection() {
             size="lg"
             className=" bg-white border-white text-blue-900 font-semibold px-10 py-4 rounded-lg text-base hover:bg-white"  // no hover
           >
-            <Link to="/requests/assistant/new" className="flex items-center gap-3">
+            <Link to="/disasters/report" className="flex items-center gap-3">
               <AlertTriangle className="h-6 w-6" />
               Report Disaster
             </Link>

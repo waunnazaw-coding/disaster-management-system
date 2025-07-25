@@ -1,0 +1,115 @@
+/* Container around the input and button */
+.ol-geocoder.gcd-gl-container {
+  width: 200px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  font-family: "Georgia", serif;
+  font-size: 14px;
+  color: #333;
+  user-select: none;
+}
+
+/* Inner control wrapper - flex layout */
+.gcd-gl-control {
+    width: 100% !important;
+}
+
+#gcd-container {
+    position: absolute !important;
+    top: 0 !important;
+    margin-top: 10px !important;
+}
+
+/* Input field */
+.gcd-gl-input {
+  font-family: "Georgia", serif;
+  font-size: 14px;
+  color: #222;
+  background: #fff;
+  border-radius: 4px 0 0 4px;
+  outline: none;
+  box-shadow: inset 0 0 6px rgba(0,0,0,0.1);
+  transition: box-shadow 0.25s ease;
+  margin-left: -23px;
+  width: 200px !important;
+  height: 100% !important;
+  margin-top: -3px;
+}
+
+/* Input placeholder */
+.gcd-gl-input::placeholder {
+  color: black;
+  font-style: italic;
+}
+
+/* Input focus */
+.gcd-gl-input:focus {
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.25);
+}
+
+/* Results dropdown */
+.gcd-gl-result {
+  background: #fff;
+  border: 1.5px solid #999;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: "Georgia", serif;
+  font-size: 14px;
+  color: #222;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  z-index: 9999;
+  position: absolute;
+  width: 280px;
+}
+
+/* Result items */
+.gcd-gl-result li {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #ddd;
+}
+
+.gcd-gl-result li:last-child {
+  border-bottom: none;
+}
+
+/* Result item hover */
+.gcd-gl-result li:hover {
+  background: #eee;
+}
+
+.gcd-gl-search:after {
+    color: white !important;
+    background-color: #222;
+    width: 30px !important;
+    border-radius: 2px !important;
+    text-align: center !important;
+    margin-left: 30px !important;
+}
+
+/* List */
+.gcd-gl-result {
+    margin-left: -21px !important;
+}
+
+/* zoom control */
+.custom-zoom-in,
+.custom-zoom-out {
+  position: absolute;
+  bottom: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  padding: 10px;
+}
+.custom-zoom-in {
+  right: 10px;
+}
+.custom-zoom-out {
+  right: 10px;
+  bottom: 50px;
+}
