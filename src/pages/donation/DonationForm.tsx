@@ -261,7 +261,7 @@ export default function DonationForm() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-sky-600 text-white py-3">
+      <div className="bg-gradient-to-r from-blue-900  to-blue-600 text-white py-3">
         <div className="max-w-4xl mx-auto px-6">
           <Button variant="ghost" onClick={() => navigate("/")} className="text-white hover:bg-white/20 mb-6">
             <ArrowLeft className="h-4 w-4 mr-2" />

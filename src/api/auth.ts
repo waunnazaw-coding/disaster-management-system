@@ -24,6 +24,7 @@ export type UserResponseDto = {
   email: string;
   profile: string | null;
   createdAt: string | null;
+  role:string
   // Note: phone, role, and status are not in the API response
 };
 
