@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useAdminStore } from "../../store/adminStore"
-import { cn } from "../../lib/utils"
+import { useAdminStore } from "../../store/adminStore";
+import { cn } from "../../lib/utils";
 import {
   LayoutDashboard,
   AlertTriangle,
@@ -12,134 +12,189 @@ import {
   ChevronLeft,
   ChevronRight,
   Shield,
-} from "lucide-react"
-import { Button } from "../ui/button"
-import { useNavigate } from "react-router-dom"
+  Home,
+} from "lucide-react";
+import { Button } from "../ui/button";
+import { useNavigate } from "react-router-dom";
 
 const navigation = [
-  { id: "dashboard", name: "Overview", icon: LayoutDashboard, path: "dashboard" },
+  {
+    id: "dashboard",
+    name: "Overview",
+    icon: LayoutDashboard,
+    path: "dashboard",
+  },
   { id: "events", name: "Disaster Events", icon: Calendar, path: "events" },
   { id: "reports", name: "Reports", icon: AlertTriangle, path: "reports" },
   { id: "requests", name: "Requests", icon: HelpCircle, path: "requests" },
   { id: "teams", name: "Relief Teams", icon: Users, path: "teams" },
-  { id: "donations", name: "Donators", icon: Heart, path: "donations" },
-]
+  { id: "donations", name: "Donations", icon: Heart, path: "donations" },
+  { id: "users", name: "Users", icon: Users, path: "users" },
+];
 
-export function AdminSidebar() {
-  const { dashboardStats, sidebarCollapsed, toggleSidebar, setActiveTab } = useAdminStore()
-  const navigate = useNavigate()
+interface AdminSidebarProps {
+  isMobile: boolean;
+  sidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
+}
+
+export function AdminSidebar({
+  isMobile,
+  sidebarOpen,
+  setSidebarOpen,
+}: AdminSidebarProps) {
+  const { dashboardStats, sidebarCollapsed, toggleSidebar, setActiveTab } =
+    useAdminStore();
+  const navigate = useNavigate();
 
   const handleNavigation = (path: string, tabId: string) => {
-    setActiveTab(tabId)
-    navigate(`/admin/${path}`)
-  }
+    setActiveTab(tabId);
+    navigate(`/admin/${path}`);
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  };
+
+  const handleHomeClick = () => {
+    navigate("/");
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  };
 
   const getBadgeCount = (tabId: string) => {
     switch (tabId) {
       case "reports":
-        return dashboardStats.pendingReports
+        return dashboardStats.pendingReports;
       case "requests":
-        return dashboardStats.pendingRequests
+        return dashboardStats.pendingRequests;
       case "donations":
-        return dashboardStats.pendingDonations
+        return dashboardStats.pendingDonations;
       default:
-        return 0
+        return 0;
     }
-  }
+  };
 
   return (
-      <div
-          className={cn(
-              "fixed left-0 top-0 h-full bg-gradient-to-b from-blue-950 via-blue-900 to-blue-800 shadow-lg border-r border-blue-800 transition-all duration-300 z-50",
-              sidebarCollapsed ? "w-16" : "w-64"
-          )}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-blue-700 bg-blue-900">
-          {!sidebarCollapsed && (
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow">
-                  <Shield className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-lg font-bold text-white">DisasterAdmin</h1>
-                  <p className="text-xs text-blue-300">Management Portal</p>
-                </div>
-              </div>
-          )}
+    <div
+      className={cn(
+        "fixed left-0 top-0 h-full z-50 transition-all duration-300",
+        "border-r border-gray-200 bg-white",
+        isMobile ? "w-64" : sidebarCollapsed ? "w-20" : "w-64",
+        isMobile
+          ? sidebarOpen
+            ? "translate-x-0 shadow-xl"
+            : "-translate-x-full"
+          : ""
+      )}
+    >
+      <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-slate-800 text-white">
+        {(!sidebarCollapsed || isMobile) && (
+          <div className="flex items-center space-x-2">
+            <Shield className="w-6 h-6 text-white" />
+            <span className="font-semibold">Admin Menu</span>
+          </div>
+        )}
+        {!isMobile && (
           <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleSidebar}
-              className="p-1.5 hover:bg-blue-700/50 text-white"
-              aria-label="Toggle Sidebar"
+            variant="ghost"
+            size="icon"
+            onClick={toggleSidebar}
+            className="text-white hover:bg-slate-700"
           >
-            {sidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+            {sidebarCollapsed ? (
+              <ChevronRight className="w-4 h-4" />
+            ) : (
+              <ChevronLeft className="w-4 h-4" />
+            )}
           </Button>
-        </div>
-
-        {/* Navigation */}
-        <nav className="mt-6 px-2">
-          {navigation.map((item) => {
-            const Icon = item.icon
-            const badgeCount = getBadgeCount(item.id)
-            const active = item.id === useAdminStore.getState().activeTab
-
-            return (
-                <div
-                    key={item.id}
-                    onClick={() => handleNavigation(item.path, item.id)}
-                    className={cn(
-                        "w-full flex items-center justify-between px-3 py-3 mb-1 rounded-lg cursor-pointer text-sm font-medium transition",
-                        active
-                            ? "bg-blue-700 text-blue-300 shadow-md border border-blue-600"
-                            : "text-blue-300 hover:bg-blue-800 hover:text-white"
-                    )}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") handleNavigation(item.path, item.id)
-                    }}
-                    aria-current={active ? "page" : undefined}
-                >
-                  <div className="flex items-center">
-                    <Icon className={cn("w-5 h-5", active ? "text-blue-400" : "text-blue-400/70")} />
-                    {!sidebarCollapsed && <span className="ml-3 truncate">{item.name}</span>}
-                  </div>
-                  {!sidebarCollapsed && badgeCount > 0 && (
-                      <span className="bg-red-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow select-none">
-                  {badgeCount}
-                </span>
-                  )}
-                </div>
-            )
-          })}
-        </nav>
-
-        {/* Stats Summary */}
-        {!sidebarCollapsed && (
-            <div className="absolute bottom-4 left-4 right-4">
-              <div className="bg-blue-800 rounded-lg p-3 border border-blue-700 shadow-sm">
-                <h3 className="text-sm font-semibold text-white mb-2">Quick Stats</h3>
-                <div className="space-y-1 text-xs text-blue-300">
-                  <div className="flex justify-between">
-                    <span>Active Events:</span>
-                    <span className="font-medium text-blue-400">{dashboardStats.activeEvents}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Pending Items:</span>
-                    <span className="font-medium text-orange-400">
-                  {dashboardStats.pendingReports + dashboardStats.pendingRequests + dashboardStats.pendingDonations}
-                </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Active Teams:</span>
-                    <span className="font-medium text-green-400">{dashboardStats.activeTeams}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
         )}
       </div>
-  )
+
+      <nav className="mt-4 px-2">
+        {/* Back to Home Button */}
+        {/* <div
+          onClick={handleHomeClick}
+          className={cn(
+            "flex items-center px-3 py-3 mb-2 rounded-lg cursor-pointer",
+            "text-sm font-medium transition-all",
+            "text-slate-600 hover:bg-gray-50"
+          )}
+        >
+          <Home className="w-5 h-5 text-slate-500" />
+          {(!sidebarCollapsed || isMobile) && (
+            <span className="ml-3">Back to Home</span>
+          )}
+        </div> */}
+
+        {/* Navigation Items */}
+        {navigation.map((item) => {
+          const active = item.id === useAdminStore.getState().activeTab;
+          const badgeCount = getBadgeCount(item.id);
+
+          return (
+            <div
+              key={item.id}
+              onClick={() => handleNavigation(item.path, item.id)}
+              className={cn(
+                "flex items-center px-3 py-3 mb-1 rounded-lg cursor-pointer",
+                "text-sm font-medium transition-all",
+                active
+                  ? "bg-slate-100 text-slate-800 font-semibold"
+                  : "text-slate-600 hover:bg-gray-50"
+              )}
+            >
+              <item.icon
+                className={cn(
+                  "w-5 h-5",
+                  active ? "text-slate-800" : "text-slate-500"
+                )}
+              />
+              {(!sidebarCollapsed || isMobile) && (
+                <div className="flex items-center w-full">
+                  <span className="ml-3 flex-grow">{item.name}</span>
+                  {badgeCount > 0 && (
+                    <span className="ml-auto bg-rose-500 text-white text-xs px-2 py-0.5 rounded-full">
+                      {badgeCount}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+        
+      </nav>
+
+      {(!sidebarCollapsed || isMobile) && (
+        <div className="absolute bottom-4 left-4 right-4 p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
+          <h3 className="text-sm font-semibold text-slate-800 mb-2">
+            Quick Stats
+          </h3>
+          <div className="space-y-1 text-xs text-slate-700">
+            <div className="flex justify-between">
+              <span>Active Events:</span>
+              <span className="font-medium text-slate-800">
+                {dashboardStats.activeEvents}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>Pending Items:</span>
+              <span className="font-medium text-rose-500">
+                {dashboardStats.pendingReports +
+                  dashboardStats.pendingRequests +
+                  dashboardStats.pendingDonations}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>Active Teams:</span>
+              <span className="font-medium text-emerald-500">
+                {dashboardStats.activeTeams}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }

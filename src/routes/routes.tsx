@@ -1,8 +1,12 @@
 import { lazy, Suspense } from "react"
 import { createBrowserRouter } from "react-router-dom"
-import ProtectedRoute from "../routes/ProtectedRoute"
+
 import UserProfile from "@/pages/user/Profile"
 import DonationManagement from "@/components/admin-layout/DonationManagement"
+import UserManagementPage from "@/pages/admin/UserManagementPage"
+import ProtectedRoute from "./ProtectedRoute"
+import { ReliefTeamSidebar } from "@/components/reliefteam-layout/Sidebar"
+import ReliefDashboard from "@/pages/relief/ReliefDashboard"
 
 const PublicLayout = lazy(() => import("@/components/user-layout/PublicLayout"))
 const AdminLayout = lazy(() => import("../components/admin-layout/Adminlayout"))
@@ -66,8 +70,13 @@ const router = createBrowserRouter([
         <PublicLayout />
       </Suspense>
     ),
-    children: [
-      { index: true, element: <HomePage /> },
+     children: [
+      // Home page - always accessible
+      {
+        index: true,
+        element: <HomePage />, // No ProtectedRoute here
+      },
+      
       { path: "disasters", element: <DisasterEventPage /> },
       { path: "disasters/report", element: <DisasterReportForm /> },
       { path: "requests/assistant", element: <AssistantRequestPage /> },
@@ -106,6 +115,7 @@ const router = createBrowserRouter([
         children: [
           { path: "admin/dashboard", element: <AdminDashboard /> },
           { path: "admin/donations", element: <DonationManagement /> },
+          { path: "admin/users", element: <UserManagementPage /> },
           // Add more admin routes here if needed
         ],
       },
@@ -121,7 +131,7 @@ const router = createBrowserRouter([
             <ReliefLayout />
           </Suspense>
         ),
-        children: [{ path: "relief/dashboard", element: <AdminDashboard /> }],
+        children: [{ path: "relief/dashboard", element: <ReliefDashboard /> }],
       },
     ],
   },
