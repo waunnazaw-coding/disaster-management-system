@@ -23,6 +23,7 @@ const navigation = [
   { id: "requests", name: "Requests", icon: HelpCircle, path: "requests" },
   { id: "teams", name: "Relief Teams", icon: Users, path: "teams" },
   { id: "donations", name: "Donators", icon: Heart, path: "donations" },
+  { id: "new-event", name: "New Event", icon: Calendar, path: "events/new" },
 ]
 
 export function AdminSidebar() {
@@ -48,98 +49,98 @@ export function AdminSidebar() {
   }
 
   return (
-      <div
-          className={cn(
-              "fixed left-0 top-0 h-full bg-gradient-to-b from-blue-950 via-blue-900 to-blue-800 shadow-lg border-r border-blue-800 transition-all duration-300 z-50",
-              sidebarCollapsed ? "w-16" : "w-64"
-          )}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-blue-700 bg-blue-900">
-          {!sidebarCollapsed && (
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow">
-                  <Shield className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-lg font-bold text-white">DisasterAdmin</h1>
-                  <p className="text-xs text-blue-300">Management Portal</p>
-                </div>
+    <div
+      className={cn(
+        "fixed left-0 top-0 h-full bg-gradient-to-b from-blue-950 via-blue-900 to-blue-800 shadow-lg border-r border-blue-800 transition-all duration-300 z-50",
+        sidebarCollapsed ? "w-16" : "w-64"
+      )}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-blue-700 bg-blue-900">
+        {!sidebarCollapsed && (
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow">
+              <Shield className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-white">DisasterAdmin</h1>
+              <p className="text-xs text-blue-300">Management Portal</p>
+            </div>
+          </div>
+        )}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggleSidebar}
+          className="p-1.5 hover:bg-blue-700/50 text-white"
+          aria-label="Toggle Sidebar"
+        >
+          {sidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+        </Button>
+      </div>
+
+      {/* Navigation */}
+      <nav className="mt-6 px-2">
+        {navigation.map((item) => {
+          const Icon = item.icon
+          const badgeCount = getBadgeCount(item.id)
+          const active = item.id === useAdminStore.getState().activeTab
+
+          return (
+            <div
+              key={item.id}
+              onClick={() => handleNavigation(item.path, item.id)}
+              className={cn(
+                "w-full flex items-center justify-between px-3 py-3 mb-1 rounded-lg cursor-pointer text-sm font-medium transition",
+                active
+                  ? "bg-blue-700 text-blue-300 shadow-md border border-blue-600"
+                  : "text-blue-300 hover:bg-blue-800 hover:text-white"
+              )}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") handleNavigation(item.path, item.id)
+              }}
+              aria-current={active ? "page" : undefined}
+            >
+              <div className="flex items-center">
+                <Icon className={cn("w-5 h-5", active ? "text-blue-400" : "text-blue-400/70")} />
+                {!sidebarCollapsed && <span className="ml-3 truncate">{item.name}</span>}
               </div>
-          )}
-          <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleSidebar}
-              className="p-1.5 hover:bg-blue-700/50 text-white"
-              aria-label="Toggle Sidebar"
-          >
-            {sidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-          </Button>
-        </div>
-
-        {/* Navigation */}
-        <nav className="mt-6 px-2">
-          {navigation.map((item) => {
-            const Icon = item.icon
-            const badgeCount = getBadgeCount(item.id)
-            const active = item.id === useAdminStore.getState().activeTab
-
-            return (
-                <div
-                    key={item.id}
-                    onClick={() => handleNavigation(item.path, item.id)}
-                    className={cn(
-                        "w-full flex items-center justify-between px-3 py-3 mb-1 rounded-lg cursor-pointer text-sm font-medium transition",
-                        active
-                            ? "bg-blue-700 text-blue-300 shadow-md border border-blue-600"
-                            : "text-blue-300 hover:bg-blue-800 hover:text-white"
-                    )}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") handleNavigation(item.path, item.id)
-                    }}
-                    aria-current={active ? "page" : undefined}
-                >
-                  <div className="flex items-center">
-                    <Icon className={cn("w-5 h-5", active ? "text-blue-400" : "text-blue-400/70")} />
-                    {!sidebarCollapsed && <span className="ml-3 truncate">{item.name}</span>}
-                  </div>
-                  {!sidebarCollapsed && badgeCount > 0 && (
-                      <span className="bg-red-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow select-none">
+              {!sidebarCollapsed && badgeCount > 0 && (
+                <span className="bg-red-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow select-none">
                   {badgeCount}
                 </span>
-                  )}
-                </div>
-            )
-          })}
-        </nav>
+              )}
+            </div>
+          )
+        })}
+      </nav>
 
-        {/* Stats Summary */}
-        {!sidebarCollapsed && (
-            <div className="absolute bottom-4 left-4 right-4">
-              <div className="bg-blue-800 rounded-lg p-3 border border-blue-700 shadow-sm">
-                <h3 className="text-sm font-semibold text-white mb-2">Quick Stats</h3>
-                <div className="space-y-1 text-xs text-blue-300">
-                  <div className="flex justify-between">
-                    <span>Active Events:</span>
-                    <span className="font-medium text-blue-400">{dashboardStats.activeEvents}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Pending Items:</span>
-                    <span className="font-medium text-orange-400">
+      {/* Stats Summary */}
+      {!sidebarCollapsed && (
+        <div className="absolute bottom-4 left-4 right-4">
+          <div className="bg-blue-800 rounded-lg p-3 border border-blue-700 shadow-sm">
+            <h3 className="text-sm font-semibold text-white mb-2">Quick Stats</h3>
+            <div className="space-y-1 text-xs text-blue-300">
+              <div className="flex justify-between">
+                <span>Active Events:</span>
+                <span className="font-medium text-blue-400">{dashboardStats.activeEvents}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Pending Items:</span>
+                <span className="font-medium text-orange-400">
                   {dashboardStats.pendingReports + dashboardStats.pendingRequests + dashboardStats.pendingDonations}
                 </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Active Teams:</span>
-                    <span className="font-medium text-green-400">{dashboardStats.activeTeams}</span>
-                  </div>
-                </div>
+              </div>
+              <div className="flex justify-between">
+                <span>Active Teams:</span>
+                <span className="font-medium text-green-400">{dashboardStats.activeTeams}</span>
               </div>
             </div>
-        )}
-      </div>
+          </div>
+        </div>
+      )}
+    </div>
   )
 }

@@ -1,6 +1,8 @@
 import { lazy, Suspense } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import ProtectedRoute from "../routes/ProtectedRoute";
+import DisasterEventWizard from "../pages/admin/DisasterEventWizard";
+import DisasterEventList from "@/components/disaster/DisasterEventLists";
 
 const PublicLayout = lazy(() => import("@/components/user-layout/PublicLayout"));
 const AdminLayout = lazy(() => import("../components/admin-layout/Adminlayout"));
@@ -69,6 +71,7 @@ const router = createBrowserRouter([
 
             { path: "disasters", element: <DisasterEventPage /> },
             { path: "disasters/report", element: <DisasterReportForm /> },
+            { path: "disasters/lists", element: <DisasterEventList /> },
 
             { path: "requests/assistant", element: <AssistantRequestPage /> },
             { path: "requests/assistant/new", element: <AssistantRequestForm /> },
@@ -95,7 +98,8 @@ const router = createBrowserRouter([
                 ),
                 children: [
                     { path: "admin/dashboard", element: <AdminDashboard /> },
-                    // Add more admin routes here if needed
+                    { path: "admin/events", element: <DisasterEventPage /> },
+                    { path: "admin/events/new", element: <DisasterEventWizard /> },
                 ],
             },
         ],
