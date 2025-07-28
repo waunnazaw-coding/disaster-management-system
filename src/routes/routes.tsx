@@ -5,7 +5,6 @@ import UserProfile from "@/pages/user/Profile"
 import DonationManagement from "@/components/admin-layout/DonationManagement"
 import UserManagementPage from "@/pages/admin/UserManagementPage"
 import ProtectedRoute from "./ProtectedRoute"
-import { ReliefTeamSidebar } from "@/components/reliefteam-layout/Sidebar"
 import ReliefDashboard from "@/pages/relief/ReliefDashboard"
 
 const PublicLayout = lazy(() => import("@/components/user-layout/PublicLayout"))

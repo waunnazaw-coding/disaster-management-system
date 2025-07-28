@@ -45,12 +45,12 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
         {/* Sidebar Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
   {!sidebarCollapsed && (
-    <div className="text-lg font-semibold text-green-700">DisasterGuard</div>
+    <div className="text-lg font-semibold text-gray-700">DisasterGuard</div>
   )}
   <button
     onClick={toggleSidebar}
     aria-label="Toggle sidebar"
-    className="text-green-700 hover:text-green-800 focus:outline-none"
+    className="text-gray-700 hover:text-gray-800 focus:outline-none"
   >
     {sidebarCollapsed ? (
       <ChevronRight className="w-5 h-5" />
@@ -72,7 +72,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
           sidebarCollapsed ? "ml-16" : "ml-64"
         )}
       >
-        <nav className="h-14 bg-green-600 flex items-center px-4 text-white shadow">
+        <nav className="h-14 bg-gray-600 flex items-center px-4 text-white shadow">
   <h1 className="text-xl font-semibold">Relief Team Dashboard</h1>
   <ReliefTeamNavbarExtras />
 </nav>
