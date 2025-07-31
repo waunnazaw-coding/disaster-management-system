@@ -1,9 +1,14 @@
 import { Link, useLocation } from "react-router-dom";
-import { Shield, User } from "lucide-react";
+import { Shield, User, Bell } from "lucide-react";
 import { Button } from "../ui/button";
 import LanguageMenu from "../user-layout/LanguageMenu";
-import { useAuthStore } from "@/store/authStore.ts";
+import { useAuthStore } from "@/store/authStore";
 import { useState, useEffect, useRef } from "react";
+import { NotificationDropdown } from "../Notification/NotificationDropdown";
+import { useSignalR } from "@/hooks/useSignalR";
+import { useNotificationStore } from "@/store/notificationStore";
+
+import { useRoleNavigation } from "@/hooks/useRoleNavigation";
 
 const navItems = [
   { href: "/", label: "Home" },
@@ -18,6 +23,30 @@ export default function Navbar() {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const connection = useSignalR();
+  const { addNotification, incrementUnreadCount } = useNotificationStore();
+  const { getDashboardPath, getDashboardLabel } = useRoleNavigation();
+
+  // Setup SignalR connection and notification handling
+  useEffect(() => {
+    if (!connection) return;
+
+    const handler = (notification: any) => {
+      addNotification({
+        ...notification,
+        createdAt: notification.createdAt
+          ? new Date(notification.createdAt)
+          : new Date(),
+      });
+      incrementUnreadCount();
+    };
+
+    connection.on("ReceiveNotification", handler);
+
+    return () => {
+      connection.off("ReceiveNotification", handler);
+    };
+  }, [connection, addNotification, incrementUnreadCount]);
 
   // Close dropdown if clicked outside
   useEffect(() => {
@@ -35,7 +64,10 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto px-6">
         <div className="flex h-20 items-center justify-between">
           {/* Logo and title with increased gap */}
-          <Link to="/" className="flex items-center gap-4 hover:opacity-80 transition">
+          <Link
+            to="/"
+            className="flex items-center gap-4 hover:opacity-80 transition"
+          >
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 backdrop-blur">
               <Shield className="h-6 w-6 text-yellow-400" />
             </div>
@@ -64,6 +96,13 @@ export default function Navbar() {
             })}
             <LanguageMenu />
 
+            {/* Notification dropdown for authenticated users */}
+            {isAuthenticated && (
+              <div className="relative">
+                <NotificationDropdown />
+              </div>
+            )}
+
             {/* Authenticated User */}
             {isAuthenticated ? (
               <div className="relative" ref={menuRef}>
@@ -78,17 +117,26 @@ export default function Navbar() {
                       <User className="h-5 w-5 text-blue-900" />
                     )}
                   </div>
-                  <span className="text-white/90 hidden md:block text-sm">{userName}</span>
+                  <span className="text-white/90 hidden md:block text-sm">
+                    {userName}
+                  </span>
                 </button>
 
                 {menuOpen && (
                   <div className="absolute right-0 mt-2 w-40 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 z-50">
                     <Link
-                      to="/profile"
+                      to={getDashboardPath()}
                       className="block px-4 py-2 text-sm text-blue-900 hover:bg-blue-100"
                       onClick={() => setMenuOpen(false)}
                     >
-                      Profile
+                      {getDashboardLabel()}
+                    </Link>
+                    <Link
+                      to="/notifications"
+                      className="block px-4 py-2 text-sm text-blue-900 hover:bg-blue-100"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Notifications
                     </Link>
                     <button
                       type="button"

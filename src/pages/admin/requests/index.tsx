@@ -1,53 +1,35 @@
-// UserRequestsPage.tsx
 import { useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAssistanceRequestsStore } from '@/store/assistanceRequestStore';
-import { UserRequestsTable } from '@/components/assistance_requests/UserRequestTable';
+import { AdminRequestsTable } from '@/components/assistance_requests/AdminRequestsTable';
 
-// ✅ Correct import for react-hot-toast
-import toast from 'react-hot-toast';
-
-export default function UserRequestsPage() {
+export default function AdminRequestsPage() {
   const navigate = useNavigate();
   const {
     requests,
     loading,
     error,
-    fetchUserRequests,
-    deleteRequest,
+    fetchAllRequests,
+    updateStatus,
+    deleteRequest
   } = useAssistanceRequestsStore();
 
   useEffect(() => {
-    fetchUserRequests();
-  }, [fetchUserRequests]);
+    fetchAllRequests();
+  }, [fetchAllRequests]);
 
   const handleRefresh = () => {
-    fetchUserRequests();
-  };
-
-  const handleEdit = (id: number) => {
-    navigate(`/requests/assistant/edit/${id}`);
-  };
-
-  const handleDelete = async (id: number) => {
-    try {
-      await deleteRequest(id);
-      toast.success('Request deleted successfully');
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to delete request'
-      );
-    }
+    fetchAllRequests();
   };
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">My Assistance Requests</h1>
-        <div className="flex gap-2">
+        <h1 className="text-2xl font-bold">Assistance Requests</h1>
+        {/* <div className="flex gap-2">
           <Button
             variant="outline"
             onClick={handleRefresh}
@@ -56,11 +38,11 @@ export default function UserRequestsPage() {
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
-          <Button onClick={() => navigate('/requests/assistant/new')}>
+          <Button onClick={() => navigate('/requests/new')}>
             <Plus className="h-4 w-4 mr-2" />
             New Request
           </Button>
-        </div>
+        </div> */}
       </div>
 
       {error && (
@@ -71,14 +53,14 @@ export default function UserRequestsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Request History</CardTitle>
+          <CardTitle>All Requests</CardTitle>
         </CardHeader>
         <CardContent>
-          <UserRequestsTable
+          <AdminRequestsTable
             requests={requests}
             loading={loading}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
+            onStatusChange={updateStatus}
+            onDelete={deleteRequest}
           />
         </CardContent>
       </Card>

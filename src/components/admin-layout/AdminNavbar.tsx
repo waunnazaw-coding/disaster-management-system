@@ -10,7 +10,13 @@ import {
 } from "../ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { Badge } from "../ui/badge"
-import { Bell, LogOut, Settings, User, RefreshCw, Menu, X } from "lucide-react"
+import { LogOut, Settings, User, Menu, X } from "lucide-react"
+import { NotificationDropdown } from "../Notification/NotificationDropdown"
+import { useSignalR } from "@/hooks/useSignalR"
+import { useNotificationStore } from "@/store/notificationStore"
+import { useEffect } from "react"
+import { HubConnection } from '@microsoft/signalr';
+import { Notification } from "@/types/signalr";
 
 interface AdminNavbarProps {
   isMobile: boolean
@@ -20,6 +26,26 @@ interface AdminNavbarProps {
 
 export function AdminNavbar({ isMobile, onToggleSidebar, sidebarOpen }: AdminNavbarProps) {
   const { currentUser, logout, dashboardStats } = useAdminStore()
+  const connection = useSignalR() as HubConnection | null;
+  const { addNotification, incrementUnreadCount } = useNotificationStore();
+
+  useEffect(() => {
+    if (!connection) return;
+
+    const handler = (notification: Notification) => {
+      addNotification({
+        ...notification,
+        createdAt: notification.createdAt ? new Date(notification.createdAt) : new Date()
+      });
+      incrementUnreadCount();
+    };
+
+    connection.on('ReceiveNotification', handler);
+
+    return () => {
+      connection.off('ReceiveNotification', handler);
+    };
+  }, [connection, addNotification, incrementUnreadCount]);
   
   const totalPendingItems =
     dashboardStats.pendingReports + dashboardStats.pendingRequests + dashboardStats.pendingDonations
@@ -47,15 +73,8 @@ export function AdminNavbar({ isMobile, onToggleSidebar, sidebarOpen }: AdminNav
         </div>
 
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="icon" className="relative text-slate-200 hover:bg-slate-700">
-            <Bell className="w-5 h-5" />
-            {totalPendingItems > 0 && (
-              <Badge className="absolute -top-1 -right-1 bg-rose-500 text-white">
-                {totalPendingItems}
-              </Badge>
-            )}
-          </Button>
-
+          <NotificationDropdown/>
+        
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-9 w-9 rounded-full hover:bg-slate-700">

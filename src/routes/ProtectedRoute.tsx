@@ -5,16 +5,15 @@ import { useAuthStore } from "../store/authStore";
 interface Props {
   allowedRoles: string[];
   redirectPath?: string;
+  children?: React.ReactNode; // ✅ Add this!
 }
 
 const ProtectedRoute: React.FC<Props> = ({
   allowedRoles,
   redirectPath = "/login",
+  children,
 }) => {
   const { isAuthenticated, userRole } = useAuthStore();
-
-  // Debug log to verify role and allowedRoles
-  console.log("ProtectedRoute:", { userRole, allowedRoles });
 
   if (!isAuthenticated) {
     return <Navigate to={redirectPath} replace />;
@@ -24,6 +23,12 @@ const ProtectedRoute: React.FC<Props> = ({
     return <Navigate to="/unauthorized" replace />;
   }
 
+  // ✅ If children provided, render them
+  if (children) {
+    return <>{children}</>;
+  }
+
+  // ✅ Otherwise fallback to Outlet for nested routes
   return <Outlet />;
 };
 

@@ -17,11 +17,11 @@ const mockUser: User = {
   id: "123e4567-e89b-12d3-a456-426614174000",
   name: "Aye Thida Aung",
   email: "aye@gmail.com",
-  phone: "+9591234567",
+  //phone: "+9591234567",
   role: "User",
   status: "Active",
   createdAt: "2023-01-15T08:30:00Z",
-  profilePhoto: "/professional-headshot.png",
+  //profilePhoto: "/professional-headshot.png",
 }
 
 const mockReports: DisasterReport[] = [
@@ -119,10 +119,7 @@ const mockNotifications: Notification[] = [
 ]
 
 export default function ProfilePage() {
-  const [user, setUser] = useState<User>(mockUser)
   const [reports, setReports] = useState<DisasterReport[]>(mockReports)
-  const [requests, setRequests] = useState<AssistanceRequest[]>(mockRequests)
-  const [donations, setDonations] = useState<Donation[]>(mockDonations)
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications)
   const [activeTab, setActiveTab] = useState("reports")
 
@@ -198,11 +195,11 @@ export default function ProfilePage() {
           </TabsContent>
 
           <TabsContent value="requests">
-    <RequestsTab requests={requests} />
+    <RequestsTab />
           </TabsContent>
 
           <TabsContent value="donations">
-            <DonationsTab donations={donations} />
+            <DonationsTab  />
           </TabsContent>
 
           <TabsContent value="notifications">

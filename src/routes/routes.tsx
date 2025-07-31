@@ -1,39 +1,39 @@
-import { lazy, Suspense } from "react"
-import { createBrowserRouter } from "react-router-dom"
+import { lazy, Suspense } from "react";
+import { createBrowserRouter } from "react-router-dom";
 
-import UserProfile from "@/pages/user/Profile"
-import DonationManagement from "@/components/admin-layout/DonationManagement"
-import UserManagementPage from "@/pages/admin/UserManagementPage"
-import ProtectedRoute from "./ProtectedRoute"
-import ReliefDashboard from "@/pages/relief/ReliefDashboard"
+import UserProfile from "@/pages/user/Profile";
+import DonationManagement from "@/components/admin-layout/DonationManagement";
+import UserManagementPage from "@/pages/admin/UserManagementPage";
+import ProtectedRoute from "./ProtectedRoute";
+import ReliefDashboard from "@/pages/relief/ReliefDashboard";
+import AdminRequestsPage from "@/pages/admin/requests";
+import { RequestFormPage } from "../pages/disaster/AssistantRequestForm";
+import { NotificationsPage } from "@/pages/NotificationPage";
 
-const PublicLayout = lazy(() => import("@/components/user-layout/PublicLayout"))
-const AdminLayout = lazy(() => import("../components/admin-layout/Adminlayout"))
-const ReliefLayout = lazy(() => import("../components/reliefteam-layout/ReliefTeamLayout"))
+const PublicLayout = lazy(() => import("@/components/user-layout/PublicLayout"));
+const AdminLayout = lazy(() => import("../components/admin-layout/Adminlayout"));
+const ReliefLayout = lazy(() => import("../components/reliefteam-layout/ReliefTeamLayout"));
 
 // Lazy loaded pages
-const Login = lazy(() => import("../pages/auth/Login"))
-const SignUp = lazy(() => import("../pages/auth/SignUpPage"))
-const Unauthorized = lazy(() => import("../pages/Unauthorized"))
-const HomePage = lazy(() => import("@/pages/HomePage"))
-const DisasterEventPage = lazy(() => import("../pages/disaster/DisasterEventsPage"))
-const DisasterReportForm = lazy(() => import("../pages/disaster/DisasterReportForm"))
-const AssistantRequestPage = lazy(() => import("@/pages/disaster/AssistantRequestPage"))
-const AssistantRequestForm = lazy(() => import("../pages/disaster/AssistantRequestForm"))
-const ReliefTeamListPage = lazy(() => import("@/pages/relief/ReliefTeamListPage"))
-const DonationFormPage = lazy(() => import("@/pages/donation/DonationForm"))
-const VolunteerForm = lazy(() => import("@/pages/donation/VolunteerForm"))
-const AboutUsPage = lazy(() => import("@/pages/AboutUs"))
-const AdminDashboard = lazy(() => import("../pages/admin/Dashboard"))
-
-// Profile page
+const Login = lazy(() => import("../pages/auth/Login"));
+const SignUp = lazy(() => import("../pages/auth/SignUpPage"));
+const Unauthorized = lazy(() => import("../pages/Unauthorized"));
+const HomePage = lazy(() => import("@/pages/HomePage"));
+const DisasterEventPage = lazy(() => import("../pages/disaster/DisasterEventsPage"));
+const DisasterReportForm = lazy(() => import("../pages/disaster/DisasterReportForm"));
+const AssistantRequestPage = lazy(() => import("@/pages/disaster/AssistantRequestPage"));
+const ReliefTeamListPage = lazy(() => import("@/pages/relief/ReliefTeamListPage"));
+const DonationFormPage = lazy(() => import("@/pages/donation/DonationForm"));
+const VolunteerForm = lazy(() => import("@/pages/donation/VolunteerForm"));
+const AboutUsPage = lazy(() => import("@/pages/AboutUs"));
+const AdminDashboard = lazy(() => import("../pages/admin/Dashboard"));
 
 // Loading fallback UI
 const LoadingFallback = () => (
   <div className="flex justify-center items-center h-screen">
     <div className="text-lg">Loading...</div>
   </div>
-)
+);
 
 const router = createBrowserRouter([
   // Public authentication routes (no layout)
@@ -69,25 +69,56 @@ const router = createBrowserRouter([
         <PublicLayout />
       </Suspense>
     ),
-     children: [
+    children: [
       // Home page - always accessible
       {
         index: true,
-        element: <HomePage />, // No ProtectedRoute here
+        element: <HomePage />,
       },
-      
       { path: "disasters", element: <DisasterEventPage /> },
       { path: "disasters/report", element: <DisasterReportForm /> },
-      { path: "requests/assistant", element: <AssistantRequestPage /> },
-      { path: "requests/assistant/new", element: <AssistantRequestForm /> },
+      {
+        path: "requests",
+        children: [
+          { 
+            path: "assistant", 
+            element: <AssistantRequestPage /> 
+          },
+          { 
+            path: "assistant/new", 
+            element: <RequestFormPage /> 
+          },
+          { 
+            path: "assistant/edit/:id", 
+            element: (
+              <ProtectedRoute allowedRoles={["User", "Admin", "SysAdmin", "ReliefTeam", "Org"]}>
+                <RequestFormPage editMode={true} />
+              </ProtectedRoute>
+            ) 
+          },
+        ],
+      },
       { path: "teams/relief", element: <ReliefTeamListPage /> },
       { path: "donations/new", element: <DonationFormPage /> },
       { path: "volunteers/apply", element: <VolunteerForm /> },
       { path: "about", element: <AboutUsPage /> },
+      // Notifications page
+      {
+        path: "notifications",
+        element: (
+          <ProtectedRoute allowedRoles={["User", "Admin", "SysAdmin", "ReliefTeam", "Org"]}>
+            <Suspense fallback={<LoadingFallback />}>
+              <NotificationsPage/>
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
       // Profile page - protected route for authenticated users
       {
         path: "profile",
-        element: <ProtectedRoute allowedRoles={["User", "Admin", "SysAdmin", "ReliefTeam", "Org"]} />,
+        element: (
+          <ProtectedRoute allowedRoles={["User", "Admin", "SysAdmin", "ReliefTeam", "Org"]} />
+        ),
         children: [
           {
             index: true,
@@ -115,7 +146,7 @@ const router = createBrowserRouter([
           { path: "admin/dashboard", element: <AdminDashboard /> },
           { path: "admin/donations", element: <DonationManagement /> },
           { path: "admin/users", element: <UserManagementPage /> },
-          // Add more admin routes here if needed
+          { path: "admin/requests", element: <AdminRequestsPage /> },
         ],
       },
     ],
@@ -137,8 +168,10 @@ const router = createBrowserRouter([
   // Catch-all 404 fallback route
   {
     path: "*",
-    element: <h2 className="text-center mt-20 text-2xl">404: Page Not Found</h2>,
+    element: (
+      <h2 className="text-center mt-20 text-2xl">404: Page Not Found</h2>
+    ),
   },
-])
+]);
 
-export default router
+export default router;

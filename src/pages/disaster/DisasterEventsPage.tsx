@@ -1,40 +1,81 @@
+// src/pages/disaster/DisasterEventsPage.tsx
+import { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  MapPin,
+  Calendar,
+  Users,
+  AlertTriangle,
+  Building2,
+  Heart,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { DisasterEvent } from "@/types";
+import { getAllDisasterEvents } from "@/api/DisasterEvent";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card"
-import { Button } from "../../components/ui/button"
-import { Badge } from "../../components/ui/badge"
-import { MapPin, Calendar, Users, AlertTriangle, Building2, Heart } from "lucide-react"
-import { useDisasterStore } from "../../store/disasterStore"
-import { useNavigate } from "react-router-dom"
-function DisasterEvents() {
-  const { events } = useDisasterStore()
-  const navigate = useNavigate()
+function DisasterEventsPage() {
+  const [events, setEvents] = useState<DisasterEvent[]>([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const data = await getAllDisasterEvents();
+        setEvents(data);
+      } catch (error) {
+        console.error("Failed to load events:", error);
+      }
+    };
+    fetchEvents();
+  }, []);
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case "Critical": return "bg-red-500"
-      case "High": return "bg-orange-500"
-      case "Medium": return "bg-yellow-500"
-      default: return "bg-green-500"
+      case "Critical":
+        return "bg-red-500";
+      case "High":
+        return "bg-orange-500";
+      case "Medium":
+        return "bg-yellow-500";
+      default:
+        return "bg-green-500";
     }
-  }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Active": return "bg-red-100 text-red-800 border-red-200"
-      case "Warning": return "bg-orange-100 text-orange-800 border-orange-200"
-      case "Recovery": return "bg-blue-100 text-blue-800 border-blue-200"
-      case "Resolved": return "bg-green-100 text-green-800 border-green-200"
-      default: return "bg-gray-100 text-gray-800 border-gray-200"
+      case "Active":
+        return "bg-red-100 text-red-800 border-red-200";
+      case "Warning":
+        return "bg-orange-100 text-orange-800 border-orange-200";
+      case "Recovery":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case "Resolved":
+        return "bg-green-100 text-green-800 border-green-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
-  }
+  };
 
   return (
     <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white ">
       <div className="max-w-[1500px] mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-blue-900 mb-4">Active Disaster Events</h2>
+          <h2 className="text-4xl font-bold text-blue-900 mb-4">
+            Active Disaster Events
+          </h2>
           <p className="text-xl text-blue-700 max-w-3xl mx-auto">
-            Current verified disasters requiring attention and support. Each event is created from community reports and verified by our admin team.
+            Current verified disasters requiring attention and support. Each
+            event is created from community reports and verified by our admin
+            team.
           </p>
         </div>
 
@@ -47,8 +88,15 @@ function DisasterEvents() {
               <div className="h-48 bg-blue-700 relative">
                 <div className="absolute inset-0 bg-black/20" />
                 <div className="absolute top-4 left-4 flex items-center space-x-2">
-                  <div className={`w-3 h-3 rounded-full ${getSeverityColor(event.severity)}`} />
-                  <Badge variant="outline" className={`${getStatusColor(event.status)} font-medium`}>
+                  <div
+                    className={`w-3 h-3 rounded-full ${getSeverityColor(
+                      event.severity
+                    )}`}
+                  />
+                  <Badge
+                    variant="outline"
+                    className={`${getStatusColor(event.status)} font-medium`}
+                  >
                     {event.status}
                   </Badge>
                 </div>
@@ -59,35 +107,25 @@ function DisasterEvents() {
 
               <CardHeader className="pb-4">
                 <CardTitle className="text-xl font-bold text-blue-900 group-hover:text-blue-600 transition-colors">
-                  {event.title}
+                  {event.name}
                 </CardTitle>
-                <CardDescription className="text-blue-700 line-clamp-2">{event.description}</CardDescription>
+                <CardDescription className="text-blue-700 line-clamp-2">
+                  {event.description}
+                </CardDescription>
               </CardHeader>
 
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   <div className="flex items-center space-x-3 text-sm text-blue-600">
                     <MapPin className="h-4 w-4 text-green-500" />
-                    <span>{event.location}</span>
+                    <span>{event.locationId}</span>
                   </div>
                   <div className="flex items-center space-x-3 text-sm text-blue-600">
                     <Calendar className="h-4 w-4 text-blue-500" />
-                    <span>{new Date(event.date).toLocaleDateString()}</span>
-                  </div>
-                  <div className="flex items-center space-x-3 text-sm text-blue-600">
-                    <Users className="h-4 w-4 text-indigo-500" />
-                    <span>{event.affectedPeople.toLocaleString()} people affected</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between pt-2 border-t border-blue-100 text-xs text-blue-500">
-                  <div className="flex items-center space-x-1">
-                    <Heart className="h-3 w-3 text-red-400" />
-                  
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Building2 className="h-3 w-3 text-blue-400" />
-                  
+                    <span>
+                      {new Date(event.startDate).toLocaleDateString()} -{" "}
+                      {new Date(event.endDate).toLocaleDateString()}
+                    </span>
                   </div>
                 </div>
 
@@ -95,11 +133,14 @@ function DisasterEvents() {
                   <Button
                     size="sm"
                     className="flex-1 bg-blue-700 text-white hover:from-blue-700 hover:to-indigo-700 shadow-md"
-                    onClick={() => navigate(`/events/${event.id}`)}
+                    onClick={() =>
+                      navigate(`/requests/assistant/new?eventId=${event.id}`)
+                    }
                   >
                     <Heart className="h-4 w-4 mr-2" />
                     Request Help
                   </Button>
+
                   <Button
                     size="sm"
                     variant="outline"
@@ -117,14 +158,18 @@ function DisasterEvents() {
         {events.length === 0 && (
           <div className="text-center py-16">
             <AlertTriangle className="mx-auto h-16 w-16 text-gray-400 mb-4" />
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">No Active Events</h3>
-            <p className="text-gray-500">There are currently no active disaster events requiring assistance.</p>
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">
+              No Active Events
+            </h3>
+            <p className="text-gray-500">
+              There are currently no active disaster events requiring
+              assistance.
+            </p>
           </div>
         )}
       </div>
     </section>
-  )
+  );
 }
 
-
-export default DisasterEvents;
+export default DisasterEventsPage;
