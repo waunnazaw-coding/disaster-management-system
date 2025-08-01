@@ -1,4 +1,3 @@
-// components/assistance_requests/AdminRequestsTable.tsx
 import { useState, useMemo } from "react";
 import {
   Table,
@@ -49,6 +48,7 @@ import {
   PaginationPrevious,
 } from "../ui/pagination";
 import { toast } from "sonner";
+import { RequestActionDialog } from "./RequestActionDialog";
 
 interface AdminRequestsTableProps {
   requests: AssistanceRequest[];
@@ -76,6 +76,13 @@ export const AdminRequestsTable = ({
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [currentAction, setCurrentAction] = useState<
+    "approve" | "reject" | "fulfill"
+  >("approve");
+  const [currentRequest, setCurrentRequest] =
+    useState<AssistanceRequest | null>(null);
+  const [dialogLoading, setDialogLoading] = useState(false);
 
   const processedRequests = useMemo(() => {
     let filtered = filterRequests(requests, filters);
@@ -98,14 +105,43 @@ export const AdminRequestsTable = ({
     setCurrentPage(1);
   };
 
-  const handleStatusUpdate = async (id: number, status: string) => {
+  const handleActionClick = (
+    request: AssistanceRequest,
+    action: "approve" | "reject" | "fulfill"
+  ) => {
+    setCurrentRequest(request);
+    setCurrentAction(action);
+    setDialogOpen(true);
+  };
+
+  const handleConfirmAction = async () => {
+    if (!currentRequest) return;
+
     try {
-      await onStatusChange(id, status);
-      toast.success(`Request status updated to ${status}`);
+      setDialogLoading(true);
+      let status = "";
+
+      switch (currentAction) {
+        case "approve":
+          status = "Approved";
+          break;
+        case "reject":
+          status = "Rejected";
+          break;
+        case "fulfill":
+          status = "Fulfilled";
+          break;
+      }
+
+      await onStatusChange(currentRequest.id, status);
+      toast.success(`Request has been ${currentAction}d`);
+      setDialogOpen(false);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to update status"
       );
+    } finally {
+      setDialogLoading(false);
     }
   };
 
@@ -120,6 +156,25 @@ export const AdminRequestsTable = ({
 
   return (
     <div className="space-y-4">
+      <RequestActionDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        action={currentAction}
+        requestId={currentRequest?.id || 0}
+        requestDetails={
+          currentRequest
+            ? {
+                userName: currentRequest.userName || null,
+                supportType: currentRequest.supportType,
+                quantity: currentRequest.quantity || null,
+                unit: currentRequest.unit || null,
+              }
+            : undefined
+        }
+        onConfirm={handleConfirmAction}
+        loading={dialogLoading}
+      />
+
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -250,9 +305,7 @@ export const AdminRequestsTable = ({
               processedRequests.map((request) => (
                 <TableRow key={request.id}>
                   <TableCell className="font-medium">#{request.id}</TableCell>
-                  <TableCell>
-                    {request.disasterEventName || 'N/A'}
-                  </TableCell>
+                  <TableCell>{request.disasterEventName || "N/A"}</TableCell>
                   <TableCell>
                     <div className="flex flex-col">
                       <span className="font-medium">{request.userName}</span>
@@ -284,34 +337,35 @@ export const AdminRequestsTable = ({
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
-                          onClick={() =>
-                            handleStatusUpdate(request.id, "Approved")
+                          onClick={() => handleActionClick(request, "approve")}
+                          disabled={
+                            request.status === "Approved" ||
+                            request.status === "Rejected" ||
+                            request.status === "Fulfilled"
                           }
-                          disabled={request.status === "Approved"}
                         >
                           <Check className="mr-2 h-4 w-4 text-green-600" />
                           Approve
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() =>
-                            handleStatusUpdate(request.id, "Rejected")
+                          onClick={() => handleActionClick(request, "reject")}
+                          disabled={
+                            request.status === "Rejected" ||
+                            request.status === "Fulfilled"
                           }
-                          disabled={request.status === "Rejected"}
                         >
                           <X className="mr-2 h-4 w-4 text-red-600" />
                           Reject
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() =>
-                            handleStatusUpdate(request.id, "Fulfilled")
-                          }
+                          onClick={() => handleActionClick(request, "fulfill")}
                           disabled={
                             request.status === "Fulfilled" ||
-                            !["Approved"].includes(request.status)
+                            request.status !== "Approved"
                           }
                         >
-                          <Check className="mr-2 h-4 w-4 text-purple-600" />
-                          Fulfilled
+                          <Truck className="mr-2 h-4 w-4 text-purple-600" />
+                          Fulfill
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

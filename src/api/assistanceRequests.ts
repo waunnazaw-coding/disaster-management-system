@@ -1,6 +1,7 @@
 import type {
   AssistanceRequest,
   CreateAssistanceRequestDto,
+  RequestStats,
   UpdateAssistanceRequestDto,
   UpdateRequestStatusDto
 } from '@/types/assistanceRequests';
@@ -32,7 +33,12 @@ export const updateAssistanceRequest = async (
   id: number,
   data: UpdateAssistanceRequestDto
 ): Promise<AssistanceRequest> => {
-  const response = await api.put(`/AssistanceRequests/${id}`, data);
+  // Remove null/undefined values from the payload
+  const payload = Object.fromEntries(
+    Object.entries(data).filter(([_, v]) => v != null)
+  );
+  
+  const response = await api.put(`/AssistanceRequests/${id}`, payload);
   return response.data.data;
 };
 
@@ -46,4 +52,11 @@ export const updateRequestStatus = async (
 
 export const deleteAssistanceRequest = async (id: number): Promise<void> => {
   await api.delete(`/AssistanceRequests/${id}`);
+};
+
+
+
+export const getRequestStats = async (): Promise<RequestStats> => {
+  const response = await api.get('/AssistanceRequests/stats');
+  return response.data.data;
 };

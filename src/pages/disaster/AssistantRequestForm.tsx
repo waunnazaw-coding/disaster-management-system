@@ -47,25 +47,32 @@ export const RequestFormPage = ({ editMode = false }: { editMode?: boolean }) =>
     };
   }, [editMode, id, fetchRequestById, resetCurrentRequest, navigate]);
 
-  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-    try {
-      const payload = {
-        ...values,
-        disasterEventId: disasterEventId || values.disasterEventId,
-      };
+ // Update the handleSubmit function in RequestFormPage.tsx
+// In your RequestFormPage component
+const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+  try {
+    const payload = {
+      ...values,
+      disasterEventId: disasterEventId || values.disasterEventId,
+      // Convert empty strings to null for optional fields
+      email: values.email || null,
+      description: values.description || null,
+      unit: values.unit || null,
+      quantity: values.quantity || null
+    };
 
-      if (editMode && id) {
-        await updateRequest(Number(id), payload);
-        toast.success('Request updated successfully');
-      } else {
-        await createRequest(payload);
-        toast.success('Request created successfully');
-      }
-      navigate('/requests/assistant');
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to submit request');
+    if (editMode && id) {
+      await updateRequest(Number(id), payload);
+      toast.success('Request updated successfully');
+    } else {
+      await createRequest(payload);
+      toast.success('Request created successfully');
     }
-  };
+    navigate('/requests/assistant');
+  } catch (error) {
+    toast.error(error instanceof Error ? error.message : 'Failed to submit request');
+  }
+};
 
   const initialFormValues: Partial<z.infer<typeof formSchema>> = {
     disasterEventId: currentRequest?.disasterEventId || disasterEventId,

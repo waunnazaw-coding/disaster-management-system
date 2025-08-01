@@ -38,20 +38,32 @@ export interface CreateAssistanceRequestDto {
 }
 
 export interface UpdateAssistanceRequestDto {
-  disasterEventId?: number
-  disasterReportId?: number
-  locationId?: number
+  disasterEventId?: number | null
+  disasterReportId?: number | null
+  locationId?: number | null
   supportType?: string
-  quantity?: number
-  unit?: string
-  description?: string
+  quantity?: number | null
+  unit?: string | null
+  description?: string | null
   priority?: string
-  contactName?: string
-  email?: string
-  contactPhone?: string
-  detailedAddress?: string
+  contactName?: string | null
+  email?: string | null
+  contactPhone?: string | null
+  detailedAddress?: string | null
 }
 
 export interface UpdateRequestStatusDto {
   status: string
+}
+
+
+
+// In your types/assistanceRequests.ts
+export interface RequestStats {
+  totalCount: number;
+  pendingCount: number;
+  approvedCount: number;
+  inProgressCount: number;
+  fulfilledCount: number;
+  rejectedCount: number;
 }

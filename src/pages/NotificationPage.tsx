@@ -1,23 +1,26 @@
+// src/pages/NotificationPage.tsx
 import { useEffect } from 'react';
-import { useNotificationStore } from '../store/notificationStore';
+import { useNotificationStore } from '@/store/notificationStore';
 import { getNotifications } from '@/api/notification';
 import { NotificationItem } from '@/components/Notification/NotificationItem';
 
 export const NotificationsPage = () => {
-  const { notifications, addNotifications } = useNotificationStore();
+  const { notifications, addNotifications, setUnreadCount } = useNotificationStore();
 
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
         const data = await getNotifications();
         addNotifications(data);
+        const unread = data.filter(n => !n.isRead).length;
+        setUnreadCount(unread);
       } catch (error) {
         console.error('Failed to fetch notifications:', error);
       }
     };
 
     fetchNotifications();
-  }, [addNotifications]);
+  }, [addNotifications, setUnreadCount]);
 
   return (
     <div className="container mx-auto px-4 py-8">

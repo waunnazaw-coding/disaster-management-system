@@ -38,22 +38,18 @@ import { Progress } from "@/components/ui/progress";
 import { useNavigate } from "react-router-dom";
 
 // Form schema remains the same but we'll add some refinements
+
 export const formSchema = z.object({
   disasterEventId: z.number().optional(),
   supportType: z.string().min(1, "Support type is required"),
   quantity: z.number().min(1, "Quantity must be at least 1").optional(),
   unit: z.string().optional(),
-  description: z
-    .string()
-    .min(10, "Description should be at least 10 characters")
-    .optional(),
+  description: z.string().min(10, "Description should be at least 10 characters").optional(),
   priority: z.enum(["Low", "Medium", "High", "Critical"]),
   contactName: z.string().min(1, "Contact name is required"),
   email: z.string().email("Invalid email format").optional().or(z.literal("")),
   contactPhone: z.string().min(10, "Phone number should be at least 10 digits"),
-  detailedAddress: z
-    .string()
-    .min(10, "Address should be at least 10 characters"),
+  detailedAddress: z.string().min(10, "Address should be at least 10 characters"),
 });
 
 type RequestFormInputs = z.infer<typeof formSchema>;

@@ -4,13 +4,23 @@ import { devtools } from 'zustand/middleware';
 import * as api from '@/api/assistanceRequests';
 import type { AssistanceRequest, CreateAssistanceRequestDto, UpdateAssistanceRequestDto } from '@/types/assistanceRequests';
 
+interface RequestStats {
+  totalCount: number;
+  pendingCount: number;
+  approvedCount: number;
+  // inProgressCount: number;
+  fulfilledCount: number;
+  rejectedCount: number;
+}
 interface AssistanceRequestsState {
   requests: AssistanceRequest[];
+    stats: RequestStats;
   currentRequest: AssistanceRequest | null;
   loading: boolean;
   error: string | null;
   fetchAllRequests: () => Promise<void>;
   fetchUserRequests: () => Promise<void>;
+  fetchRequestStats: () => Promise<void>;
   fetchRequestById: (id: number) => Promise<void>;
   createRequest: (data: CreateAssistanceRequestDto) => Promise<AssistanceRequest>;
   updateRequest: (id: number, data: UpdateAssistanceRequestDto) => Promise<void>;
@@ -23,6 +33,14 @@ export const useAssistanceRequestsStore = create<AssistanceRequestsState>()(
   devtools(
     (set, get) => ({
       requests: [],
+       stats: {
+        totalCount: 0,
+        pendingCount: 0,
+        approvedCount: 0,
+        // inProgressCount: 0,
+        fulfilledCount: 0,
+        rejectedCount: 0
+      },
       currentRequest: null,
       loading: false,
       error: null,
@@ -145,6 +163,19 @@ updateStatus: async (id, status) => {
           throw error;
         }
       },
+
+fetchRequestStats: async () => {
+        set({ loading: true, error: null });
+        try {
+          const stats = await api.getRequestStats();
+          set({ stats, loading: false });
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Failed to fetch stats';
+          set({ error: errorMessage, loading: false });
+          throw new Error(errorMessage);
+        }
+      },
+
 
       resetCurrentRequest: () => set({ currentRequest: null })
     }),

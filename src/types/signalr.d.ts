@@ -13,7 +13,6 @@ export type Notification = {
   message: string;
   isRead: boolean;
   createdAt?: string;
-  type?: string;
-  relatedEntityId?: number;
+   type?: 'Report' | 'Request' | 'Donation' | 'System';
   status?: string;
 };

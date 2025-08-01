@@ -1,29 +1,31 @@
-import { useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Plus, RefreshCw } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useAssistanceRequestsStore } from '@/store/assistanceRequestStore';
-import { AdminRequestsTable } from '@/components/assistance_requests/AdminRequestsTable';
+import { useEffect } from "react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+
+import { useAssistanceRequestsStore } from "@/store/assistanceRequestStore";
+import { AdminRequestsTable } from "@/components/assistance_requests/AdminRequestsTable";
+import RequestStats from "@/components/assistance_requests/RequestStats";
 
 export default function AdminRequestsPage() {
-  const navigate = useNavigate();
   const {
     requests,
     loading,
     error,
     fetchAllRequests,
+     fetchRequestStats,
     updateStatus,
-    deleteRequest
+    deleteRequest,
+    stats
   } = useAssistanceRequestsStore();
 
   useEffect(() => {
-    fetchAllRequests();
-  }, [fetchAllRequests]);
-
-  const handleRefresh = () => {
-    fetchAllRequests();
-  };
+    const loadData = async () => {
+      await Promise.all([fetchAllRequests(), fetchRequestStats()])
+    }
+    loadData()
+  }, [fetchAllRequests, fetchRequestStats])
+  // const handleRefresh = () => {
+  //   fetchAllRequests();
+  // };
 
   return (
     <div className="space-y-4">
@@ -50,6 +52,17 @@ export default function AdminRequestsPage() {
           {error}
         </div>
       )}
+
+      
+      {/* Stats Cards */}
+      <RequestStats
+        totalCount={stats.totalCount}
+        pendingCount={stats.pendingCount}
+        approvedCount={stats.approvedCount}
+        //inProgressCount={stats.inProgressCount}
+        fulfilledCount={stats.fulfilledCount}
+        rejectedCount={stats.rejectedCount}
+      />
 
       <Card>
         <CardHeader>
