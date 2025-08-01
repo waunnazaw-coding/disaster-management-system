@@ -9,7 +9,7 @@ import DisasterMap from "@/components/locaiton/Map/DisasterMap";
 import api from "@/api/axioInstance";
 import { toast } from "sonner";
 import { getAllDisasterTypes } from "@/api/disasterTypeApi";
-import PhotoUploader from "@/components/PhotoUploader";
+import "@/styles/new.css"
 
 interface DisasterType {
     id: number;
@@ -152,8 +152,6 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
             }
         });
 
-        console.log("Form data before appending photos:", formData);
-
         // Append geoJson if present
         if (formData.geoJson) {
             form.append("GeoJson", formData.geoJson);
@@ -188,11 +186,6 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
             formData.newPhotoDescription.forEach((desc, index) => {
                 form.append("NewPhotoDescription", desc ?? "");
             });
-        }
-
-        // Debug print all form entries before sending
-        for (const [key, value] of form.entries()) {
-            console.log(`${key}:`, value);
         }
 
         try {
@@ -231,18 +224,18 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
     if (!formData) return <p>Event not found.</p>;
 
     return (
-        <div className="space-y-4">
+        <div className="max-w-3xl mx-auto p-6" style={{boxShadow: "0 0 10px lightgray", borderRadius:"10px"}}>
             <h2 className="text-xl font-semibold">Update Disaster Event</h2>
 
             <div>
                 <Label>Name</Label>
-                <Input value={formData.name} onChange={(e) => updateForm("name", e.target.value)} />
+                <Input className="mb-3 mt-2" value={formData.name} onChange={(e) => updateForm("name", e.target.value)} />
             </div>
 
             <div>
                 <Label>Disaster Type</Label>
                 <select
-                    className="block w-full rounded border px-2 py-1"
+                    className="block w-full rounded border px-2 py-1 mb-3 mt-2"
                     value={formData.disasterTypeId.toString()}
                     onChange={(e) => updateForm("disasterTypeId", e.target.value)}
                 >
@@ -258,6 +251,7 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
             <div>
                 <Label>Description</Label>
                 <Textarea
+                    className="mb-3 mt-2"
                     value={formData.description}
                     onChange={(e) => updateForm("description", e.target.value)}
                 />
@@ -266,6 +260,7 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
             <div>
                 <Label>Location Name</Label>
                 <Input
+                    className="mb-3 mt-2"
                     value={formData.locationName || ""}
                     onChange={(e) => updateForm("locationName", e.target.value)}
                 />
@@ -280,7 +275,7 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
             />
 
             <div>
-                <Label>Existing Photos</Label>
+                <Label className="mt-5">Existing Photos</Label>
                 <div className="flex flex-wrap gap-4 mt-2">
                     {(formData?.existingPhotos?.length ?? 0) === 0 ? (
                         <p>No existing photos.</p>
@@ -368,44 +363,116 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
             </div>
 
             <div className="mt-6">
-                <Label>Upload New Photos</Label>
-                <PhotoUploader
-                    onPhotosChange={(files) => {
+                <Label className="mb-2 block">Upload New Photos</Label>
+
+                <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() =>
                         setFormData((prev) => {
                             if (!prev) return prev;
-
-                            const prevDescriptions = prev.newPhotoDescription ?? [];
-
-                            const newDescriptions = files.map((_, index) => prevDescriptions[index] ?? "");
-
                             return {
                                 ...prev,
-                                newPhotos: files,
-                                newPhotoDescription: newDescriptions,
+                                newPhotos: [...(prev.newPhotos ?? []), null as any], // null placeholder for now
+                                newPhotoDescription: [...(prev.newPhotoDescription ?? []), ""],
                             };
-                        });
-                    }}
-                />
+                        })
+                    }
+                >
+                    + Add Photo
+                </Button>
 
+                <div className="flex flex-wrap gap-4 mt-4">
+                    {(formData?.newPhotos ?? []).map((file, index) => {
+                        const previewUrl = file ? URL.createObjectURL(file) : null;
 
-                {(formData?.newPhotos ?? []).map((_, index) => (
-                    <Textarea
-                        key={index}
-                        className="mt-2"
-                        placeholder={`Description for photo ${index + 1}`}
-                        value={formData.newPhotoDescription?.[index] ?? ""}
-                        onChange={(e) => {
-                            const val = e.target.value;
-                            setFormData((prev) => {
-                                if (!prev) return prev;
-                                const newDescs = [...(prev.newPhotoDescription ?? [])];
-                                newDescs[index] = val;
-                                return { ...prev, newPhotoDescription: newDescs };
-                            });
-                        }}
-                    />
-                ))}
+                        return (
+                            <div
+                                key={index}
+                                className="relative w-48 p-3 border rounded-md shadow-sm flex flex-col gap-2"
+                            >
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setFormData((prev) => {
+                                            if (!prev) return prev;
+                                            const updatedFiles = [...(prev.newPhotos ?? [])];
+                                            const updatedDescriptions = [...(prev.newPhotoDescription ?? [])];
+                                            updatedFiles.splice(index, 1);
+                                            updatedDescriptions.splice(index, 1);
+                                            return {
+                                                ...prev,
+                                                newPhotos: updatedFiles,
+                                                newPhotoDescription: updatedDescriptions,
+                                            };
+                                        });
+                                    }}
+                                    className="absolute top-1 right-1 text-red-600 font-bold text-xl leading-none bg-white rounded-full w-6 h-6 flex items-center justify-center shadow hover:bg-gray-100"
+                                    aria-label={`Remove photo ${index + 1}`}
+                                >
+                                    ×
+                                </button>
+
+                                {!file ? (
+                                    <label
+                                        style={{
+                                            width: "100%",
+                                            height: "112px",
+                                            border: "2px dashed #ccc",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            fontSize: "2rem",
+                                            cursor: "pointer",
+                                        }}
+                                    >
+                                        +
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            style={{ display: "none" }}
+                                            onChange={(e) => {
+                                                const newFile = e.target.files?.[0];
+                                                if (!newFile) return;
+
+                                                setFormData((prev) => {
+                                                    if (!prev) return prev;
+                                                    const updated = [...(prev.newPhotos ?? [])];
+                                                    updated[index] = newFile;
+                                                    return { ...prev, newPhotos: updated };
+                                                });
+                                            }}
+                                        />
+                                    </label>
+
+                                ) : (
+                                    <img
+                                        src={previewUrl as string}
+                                        alt={`New Upload ${index + 1}`}
+                                        className="h-28 w-full object-cover rounded"
+                                    />
+                                )}
+
+                                <Textarea
+                                    placeholder={`Description for photo ${index + 1}`}
+                                    value={formData.newPhotoDescription?.[index] ?? ""}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setFormData((prev) => {
+                                            if (!prev) return prev;
+                                            const updatedDescriptions = [...(prev.newPhotoDescription ?? [])];
+                                            updatedDescriptions[index] = val;
+                                            return { ...prev, newPhotoDescription: updatedDescriptions };
+                                        });
+                                    }}
+                                    className="text-sm"
+                                />
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
+
 
 
             <div className="flex gap-2 mt-4">
