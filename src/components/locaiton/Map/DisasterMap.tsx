@@ -13,7 +13,6 @@ import { click } from "ol/events/condition";
 import { defaults as defaultControls } from "ol/control";
 import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
-import PointGeom from "ol/geom/Point";
 import PolygonGeom from "ol/geom/Polygon";
 import { Style, Circle as CircleStyle, Fill, Stroke } from "ol/style";
 import Geocoder from "ol-geocoder";
@@ -38,8 +37,8 @@ const MAP_STYLES = {
   topo: `https://api.maptiler.com/maps/topo/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`,
 };
 
-const MIN_VISIBLE_SIZE = 30; // minimum pixel size of polygon extent to be visible
-const CLUSTER_DISTANCE_THRESHOLD = 40; // pixels, distance to cluster features
+const MIN_VISIBLE_SIZE = 30; // Min pixel size of polygon to remain visible
+const CLUSTER_DISTANCE_THRESHOLD = 40; // Distance (in px) for clustering
 
 const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnly = false }) => {
   const mapRef = useRef<HTMLDivElement | null>(null);
@@ -49,29 +48,25 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
   const vectorSourceRef = useRef<VectorSource | null>(null);
   const markerLayerRef = useRef<VectorLayer<VectorSource> | null>(null);
 
-  const [selectedStyle, setSelectedStyle] = useState<keyof typeof MAP_STYLES>("hybrid");
-  const [drawType, setDrawType] = useState<"Point" | "Polygon" | null>(null);
-
   const drawRef = useRef<Draw | null>(null);
   const modifyRef = useRef<Modify | null>(null);
   const selectRef = useRef<Select | null>(null);
 
   const searchMarkerRef = useRef<Feature<Point> | null>(null);
-
-  // Flag to prevent recursive updates during loading from props
   const isLoading = useRef(false);
 
-  // Update geojson and notify parent
-  const updateGeojson = () => {
-    if (!vectorSourceRef.current || !onChangeGeojson) return;
-    if (isLoading.current) return; // Skip update during loading sync
+  const [selectedStyle, setSelectedStyle] = useState<keyof typeof MAP_STYLES>("hybrid");
+  const [drawType, setDrawType] = useState<"Point" | "Polygon" | null>(null);
 
+  /** Updates GeoJSON data and notifies parent */
+  const updateGeojson = () => {
+    if (!vectorSourceRef.current || !onChangeGeojson || isLoading.current) return;
     const features = vectorSourceRef.current.getFeatures();
     const geojson = new GeoJSON().writeFeaturesObject(features, { featureProjection: "EPSG:3857" });
     onChangeGeojson(geojson);
   };
 
-  // Calculate pixel distance between two coords on screen
+  /** Calculate pixel distance between two coordinates */
   const pixelDistance = (coord1: number[], coord2: number[]) => {
     if (!mapInstance.current) return Infinity;
     const px1 = mapInstance.current.getPixelFromCoordinate(coord1);
@@ -80,23 +75,26 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
     return Math.sqrt((px1[0] - px2[0]) ** 2 + (px1[1] - px2[1]) ** 2);
   };
 
-  // Zoom and center on given features
+  /** Zoom and center on given features */
   const zoomToFeatures = (features: Feature[]) => {
-    if (!mapInstance.current) return;
-    const view = mapInstance.current.getView();
+    const map = mapInstance.current;
+    if (!map) return;
 
+    const view = map.getView();
     let combinedExtent: number[] | null = null;
+
     features.forEach((feature) => {
       const geom = feature.getGeometry();
       if (!geom) return;
       const extent = geom.getExtent();
-      if (!combinedExtent) combinedExtent = extent.slice();
-      else {
-        combinedExtent[0] = Math.min(combinedExtent[0], extent[0]);
-        combinedExtent[1] = Math.min(combinedExtent[1], extent[1]);
-        combinedExtent[2] = Math.max(combinedExtent[2], extent[2]);
-        combinedExtent[3] = Math.max(combinedExtent[3], extent[3]);
-      }
+      combinedExtent = combinedExtent
+        ? [
+          Math.min(combinedExtent[0], extent[0]),
+          Math.min(combinedExtent[1], extent[1]),
+          Math.max(combinedExtent[2], extent[2]),
+          Math.max(combinedExtent[3], extent[3]),
+        ]
+        : extent.slice();
     });
 
     if (combinedExtent) {
@@ -104,18 +102,15 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
     }
   };
 
-  // Update cluster and small polygon center markers
+  /** Updates cluster and small polygon markers */
   const updateClusterMarkers = () => {
-    if (!vectorSourceRef.current || !markerLayerRef.current || !mapInstance.current) return;
-
-    const markerSource = markerLayerRef.current.getSource();
-    if (!markerSource) return;
+    const markerSource = markerLayerRef.current?.getSource();
+    const vectorSource = vectorSourceRef.current;
+    const map = mapInstance.current;
+    if (!markerSource || !vectorSource || !map) return;
 
     markerSource.clear();
-
-    const features = vectorSourceRef.current.getFeatures();
-    const map = mapInstance.current;
-
+    const features = vectorSource.getFeatures();
     const clusters: { coord: number[]; features: Feature[] }[] = [];
 
     const featureCoords = features
@@ -127,34 +122,31 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
         let isSmallPolygon = false;
 
         if (geom.getType() === "Point") {
-          coord = (geom as PointGeom).getCoordinates();
+          coord = (geom as Point).getCoordinates();
         } else if (geom.getType() === "Polygon") {
           const polygonGeom = geom as PolygonGeom;
           coord = polygonGeom.getInteriorPoint().getCoordinates();
-
           const extent = polygonGeom.getExtent();
-          const pixelTopLeft = map.getPixelFromCoordinate([extent[0], extent[3]]);
-          const pixelBottomRight = map.getPixelFromCoordinate([extent[2], extent[1]]);
-          if (pixelTopLeft && pixelBottomRight) {
-            const widthPx = Math.abs(pixelBottomRight[0] - pixelTopLeft[0]);
-            const heightPx = Math.abs(pixelBottomRight[1] - pixelTopLeft[1]);
-            if (widthPx < MIN_VISIBLE_SIZE && heightPx < MIN_VISIBLE_SIZE) {
+
+          const px1 = map.getPixelFromCoordinate([extent[0], extent[3]]);
+          const px2 = map.getPixelFromCoordinate([extent[2], extent[1]]);
+
+          if (px1 && px2) {
+            const width = Math.abs(px2[0] - px1[0]);
+            const height = Math.abs(px2[1] - px1[1]);
+            if (width < MIN_VISIBLE_SIZE && height < MIN_VISIBLE_SIZE) {
               isSmallPolygon = true;
             }
           }
-        } else {
-          return null;
         }
-        return { feature, coord, isSmallPolygon };
+        return coord ? { feature, coord, isSmallPolygon } : null;
       })
-      .filter((f) => f !== null) as { feature: Feature; coord: number[]; isSmallPolygon: boolean }[];
+      .filter(Boolean) as { feature: Feature; coord: number[]; isSmallPolygon: boolean }[];
 
+    // Cluster points
     featureCoords.forEach(({ feature, coord, isSmallPolygon }) => {
-      if (isSmallPolygon) {
-        return; // skip for clustering
-      }
+      if (isSmallPolygon) return;
       const cluster = clusters.find((c) => pixelDistance(c.coord, coord) < CLUSTER_DISTANCE_THRESHOLD);
-
       if (cluster) {
         cluster.features.push(feature);
         cluster.coord = [
@@ -169,8 +161,8 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
     // Add cluster markers
     clusters.forEach((cluster) => {
       if (cluster.features.length > 1) {
-        const markerFeature = new Feature(new Point(cluster.coord));
-        markerFeature.setStyle(
+        const marker = new Feature(new Point(cluster.coord));
+        marker.setStyle(
           new Style({
             image: new CircleStyle({
               radius: 10,
@@ -179,16 +171,16 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
             }),
           })
         );
-        (markerFeature as any).clusterFeatures = cluster.features;
-        markerSource.addFeature(markerFeature);
+        (marker as any).clusterFeatures = cluster.features;
+        markerSource.addFeature(marker);
       }
     });
 
-    // Add green point markers for small polygons
+    // Add small polygon markers (green)
     featureCoords.forEach(({ feature, coord, isSmallPolygon }) => {
       if (isSmallPolygon) {
-        const smallPolyMarker = new Feature(new Point(coord));
-        smallPolyMarker.setStyle(
+        const marker = new Feature(new Point(coord));
+        marker.setStyle(
           new Style({
             image: new CircleStyle({
               radius: 8,
@@ -197,35 +189,27 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
             }),
           })
         );
-        (smallPolyMarker as any).linkedFeature = feature;
-        markerSource.addFeature(smallPolyMarker);
+        (marker as any).linkedFeature = feature;
+        markerSource.addFeature(marker);
       }
     });
   };
 
-  // Handle click on markers (cluster or small polygon points)
+  /** Handle click events on markers */
   const onMapClick = (evt: any) => {
-    if (!markerLayerRef.current || !mapInstance.current) return;
-    const pixel = evt.pixel;
-    const features = mapInstance.current.getFeaturesAtPixel(pixel) || [];
+    const map = mapInstance.current;
+    if (!map) return;
 
+    const features = map.getFeaturesAtPixel(evt.pixel) || [];
     for (const feature of features) {
       const clusterFeatures = (feature as any).clusterFeatures as Feature[] | undefined;
       const linkedFeature = (feature as any).linkedFeature as Feature | undefined;
-
-      if (clusterFeatures) {
-        zoomToFeatures(clusterFeatures);
-        return;
-      }
-
-      if (linkedFeature) {
-        zoomToFeatures([linkedFeature]);
-        return;
-      }
+      if (clusterFeatures) return zoomToFeatures(clusterFeatures);
+      if (linkedFeature) return zoomToFeatures([linkedFeature]);
     }
   };
 
-  // Clear all features & markers
+  /** Clear all features & markers */
   const clearAll = () => {
     vectorSourceRef.current?.clear();
     markerLayerRef.current?.getSource()?.clear();
@@ -233,7 +217,9 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
     updateGeojson();
   };
 
-  // Initialize map and layers
+  // ------------------------ USE EFFECTS ------------------------
+
+  /** Initialize map & layers */
   useEffect(() => {
     if (!mapRef.current) return;
 
@@ -241,10 +227,7 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
     vectorSourceRef.current = vectorSource;
 
     const markerSource = new VectorSource();
-    markerLayerRef.current = new VectorLayer({
-      source: markerSource,
-      style: null,
-    });
+    markerLayerRef.current = new VectorLayer({ source: markerSource, style: null });
 
     tileLayerRef.current = new TileLayer({
       source: new XYZ({ url: MAP_STYLES[selectedStyle], tileSize: 512, maxZoom: 20 }),
@@ -256,8 +239,6 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
       className: "custom-zoom",
       zoomInLabel: "+",
       zoomOutLabel: "−",
-      zoomInTipLabel: "Zoom in",
-      zoomOutTipLabel: "Zoom out",
     });
 
     const map = new Map({
@@ -279,10 +260,7 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
     map.addControl(geocoder);
 
     setTimeout(() => {
-      const button = document.querySelector(".ol-geocoder .gcd-gl-btn");
-      if (button) {
-        button.remove();
-      }
+      document.querySelector(".ol-geocoder .gcd-gl-btn")?.remove();
     }, 0);
 
     geocoder.on("addresschosen", (evt: any) => {
@@ -290,13 +268,10 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
       const markerSource = markerLayerRef.current?.getSource();
       if (!markerSource) return;
 
-      if (searchMarkerRef.current) {
-        markerSource.removeFeature(searchMarkerRef.current);
-        searchMarkerRef.current = null;
-      }
+      if (searchMarkerRef.current) markerSource.removeFeature(searchMarkerRef.current);
 
-      const newMarker = new Feature(new Point(coordinate));
-      newMarker.setStyle(
+      const marker = new Feature(new Point(coordinate));
+      marker.setStyle(
         new Style({
           image: new CircleStyle({
             radius: 10,
@@ -305,22 +280,21 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
           }),
         })
       );
-
-      markerSource.addFeature(newMarker);
-      searchMarkerRef.current = newMarker;
+      markerSource.addFeature(marker);
+      searchMarkerRef.current = marker;
 
       map.getView().animate({ center: coordinate, zoom: 12 });
     });
 
+    map.on("click", onMapClick);
+
     if (!viewOnly) {
-      // Add addfeature listener with isLoading check
       const onAddFeature = () => {
         if (!isLoading.current) {
           updateGeojson();
           updateClusterMarkers();
         }
       };
-
       vectorSource.on("addfeature", onAddFeature);
 
       const modify = new Modify({ source: vectorSource });
@@ -340,15 +314,11 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
       };
 
       const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.key === "Delete" || e.key === "Backspace") {
-          deleteFeature();
-        }
+        if (e.key === "Delete" || e.key === "Backspace") deleteFeature();
       };
+      // Inside DisasterMap component
 
       window.addEventListener("keydown", handleKeyDown);
-
-      // Map click handler for zoom on cluster/small polygon points
-      map.on("click", onMapClick);
 
       return () => {
         window.removeEventListener("keydown", handleKeyDown);
@@ -356,14 +326,15 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
         vectorSource.un("addfeature", onAddFeature);
         map.setTarget(undefined);
       };
-    } else {
-      return () => {
-        map.setTarget(undefined);
-      };
     }
+
+    return () => {
+      map.un("click", onMapClick);
+      map.setTarget(undefined);
+    };
   }, [viewOnly, selectedStyle]);
 
-  // Load and fit geojson features, with isLoading flag to prevent update loops
+  /** Load geojson features */
   useEffect(() => {
     if (!vectorSourceRef.current || !mapInstance.current) return;
 
@@ -376,31 +347,33 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
       const features = new GeoJSON().readFeatures(geojsonData, { featureProjection: "EPSG:3857" });
       vectorSourceRef.current.addFeatures(features);
 
-      const extent = vectorSourceRef.current.getExtent();
-      if (geojsonData.features?.length > 0) {
-        mapInstance.current.getView().fit(extent, { padding: [50, 50, 50, 50], maxZoom: 16 });
-        updateClusterMarkers();
+      if (features.length > 0) {
+        // Delay zoom to allow map rendering
+        setTimeout(() => {
+          const extent = vectorSourceRef.current!.getExtent();
+          mapInstance.current!.getView().fit(extent, { padding: [50, 50, 50, 50], maxZoom: 16 });
+          updateClusterMarkers();
+        }, 200);
       }
     }
 
-    setTimeout(() => {
-      isLoading.current = false;
-    }, 0);
+    setTimeout(() => (isLoading.current = false), 0);
   }, [geojsonData]);
 
-  // Update tile layer source when style changes
+  /** Change map style */
   useEffect(() => {
     if (tileLayerRef.current) {
       tileLayerRef.current.setSource(new XYZ({ url: MAP_STYLES[selectedStyle], tileSize: 512, maxZoom: 20 }));
     }
   }, [selectedStyle]);
 
-  // Manage draw interaction
+  /** Manage draw interaction */
   useEffect(() => {
-    if (!mapInstance.current || !vectorSourceRef.current) return;
+    const map = mapInstance.current;
+    if (!map || !vectorSourceRef.current) return;
 
     if (drawRef.current) {
-      mapInstance.current.removeInteraction(drawRef.current);
+      map.removeInteraction(drawRef.current);
       drawRef.current = null;
     }
 
@@ -410,24 +383,20 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
         updateGeojson();
         updateClusterMarkers();
       });
-      mapInstance.current.addInteraction(draw);
+      map.addInteraction(draw);
       drawRef.current = draw;
     }
   }, [drawType, viewOnly]);
 
-  // Re-check markers on zoom/resolution change
+  /** Update clusters on zoom/resolution change */
   useEffect(() => {
-    if (!mapInstance.current) return;
+    const map = mapInstance.current;
+    if (!map) return;
 
-    const view = mapInstance.current.getView();
-    const onResolutionChange = () => {
-      updateClusterMarkers();
-    };
+    const view = map.getView();
+    const onResolutionChange = () => updateClusterMarkers();
     view.on("change:resolution", onResolutionChange);
-
-    return () => {
-      view.un("change:resolution", onResolutionChange);
-    };
+    return () => view.un("change:resolution", onResolutionChange);
   }, []);
 
   return (

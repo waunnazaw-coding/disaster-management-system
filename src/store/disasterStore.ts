@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import api from "../api/axioInstance"; // your configured axios instance
+import api from "../api/axioInstance";
 
 interface DisasterEvent {
   id: number;
@@ -21,18 +21,17 @@ export const useDisasterStore = create<DisasterStore>((set) => ({
   events: [],
   fetchEvents: async () => {
     try {
-      const response = await api.get("/DisasterEvent/all");
+      const response = await api.get("/DisasterEvent/all-with-impacts");
       const data = response.data.data || [];
 
-      // Map API data to frontend expected shape
       const mappedEvents: DisasterEvent[] = data.map((ev: any) => ({
         id: ev.id,
         title: ev.name,
         description: ev.description,
         location: ev.locationName,
-        date: ev.startDate, // assuming ISO string, else convert to ISO
+        date: ev.startDate,
         severity: ev.severity || "Low",
-        status: ev.status || "Active",
+        status: ev.status,
         affectedPeople: ev.affectedPeople || 0,
       }));
 

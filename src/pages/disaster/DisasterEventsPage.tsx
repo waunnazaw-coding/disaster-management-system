@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
-import { MapPin, Calendar, Users, AlertTriangle, Building2, Heart, DollarSign } from "lucide-react";
+import { MapPin, Calendar, Users, AlertTriangle, Building2, Heart, Factory } from "lucide-react";
 import { useDisasterStore } from "../../store/disasterStore";
 import { useNavigate } from "react-router-dom";
 
@@ -30,13 +30,9 @@ function DisasterEvents() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Active":
-        return "bg-red-100 text-red-800 border-red-200";
-      case "Warning":
-        return "bg-orange-100 text-orange-800 border-orange-200";
-      case "Recovery":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "Resolved":
-        return "bg-green-100 text-green-800 border-green-200";
+        return "bg-green-300 text-white-800 border-red-200";
+      case "Closed":
+        return "bg-red-100 text-orange-800 border-orange-200";
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
@@ -93,10 +89,6 @@ function DisasterEvents() {
                       <Users className="h-4 w-4 text-indigo-500" />
                       <span>{event.affectedPeople.toLocaleString()} people affected</span>
                     </div>
-                    <div className="flex items-center space-x-3 text-sm text-blue-600">
-                      <DollarSign className="h-4 w-4 text-indigo-500" />
-                      <span>{event.affectedPeople.toLocaleString()} people affected</span>
-                    </div>
                   </div>
 
                   <div className="flex items-center justify-between pt-2 border-t border-blue-100 text-xs text-blue-500">
@@ -112,7 +104,7 @@ function DisasterEvents() {
                     <Button
                       size="sm"
                       className="flex-1 bg-blue-700 text-white hover:from-blue-700 hover:to-indigo-700 shadow-md"
-                      onClick={() => navigate(`/events/${event.id}`)}
+                      onClick={() => navigate(`/disasters/${event.id}`)}
                     >
                       <Heart className="h-4 w-4 mr-2" />
                       Request Help
@@ -121,7 +113,7 @@ function DisasterEvents() {
                       size="sm"
                       variant="outline"
                       className="flex-1 border-blue-300 text-blue-700 hover:bg-blue-50"
-                      onClick={() => navigate(`/events/${event.id}`)}
+                      onClick={() => navigate(`/disasters/${event.id}`)}
                     >
                       View Details
                     </Button>

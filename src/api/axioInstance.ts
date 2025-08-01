@@ -1,7 +1,7 @@
 import axios, { AxiosError } from "axios";
 import type { InternalAxiosRequestConfig } from "axios";
 
-const BASE_URL = "http://localhost:5188/api";
+const BASE_URL = "http://localhost:5000/api";
 const AUTH_TOKEN_KEY = "authToken";
 const USER_DATA_KEY = "userData";
 

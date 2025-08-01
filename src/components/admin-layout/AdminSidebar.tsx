@@ -23,7 +23,6 @@ const navigation = [
   { id: "requests", name: "Requests", icon: HelpCircle, path: "requests" },
   { id: "teams", name: "Relief Teams", icon: Users, path: "teams" },
   { id: "donations", name: "Donators", icon: Heart, path: "donations" },
-  { id: "new-event", name: "New Event", icon: Calendar, path: "events/new" },
 ]
 
 export function AdminSidebar() {

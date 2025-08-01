@@ -11,6 +11,7 @@ import DisasterMap from "@/components/locaiton/Map/DisasterMap";
 import FileUploader from "@/components/FileUploader";
 import api from "@/api/axioInstance";
 import { getAllDisasterTypes, DisasterType } from "@/api/disasterTypeApi";
+import "@/styles/new.css";
 
 interface EventFormCreateDto {
   LocationName: string;
@@ -42,6 +43,9 @@ export default function DisasterEventForm({ onCancel, onSuccess }: DisasterEvent
     Description: "",
     Files: [],
   });
+  const [photoDescriptions, setPhotoDescriptions] = useState<{ file: File | null; description: string }[]>([
+    { file: null, description: "" },
+  ]);
 
   // Fetch disaster types on step 1
   useEffect(() => {
@@ -76,7 +80,16 @@ export default function DisasterEventForm({ onCancel, onSuccess }: DisasterEvent
       form.append("StartDate", formData.StartDate);
       form.append("Severity", formData.Severity || "");
       form.append("Description", formData.Description || "");
-      files.forEach((file) => form.append("Files", file));
+
+      photoDescriptions.forEach((pd, idx) => {
+        if (pd.file) {
+          form.append("ReportPhotos", pd.file);
+          form.append(`NewPhotoDescription[${idx}]`, pd.description || "");
+        }
+      });
+
+
+
 
       const response = await api.post("/DisasterEvent/submit-form", form);
       const result = response.data;
@@ -108,6 +121,28 @@ export default function DisasterEventForm({ onCancel, onSuccess }: DisasterEvent
     }));
   }, []);
 
+  const handlePhotoFileChange = (index: number, file: File | null) => {
+    setPhotoDescriptions((prev) => {
+      const copy = [...prev];
+      copy[index].file = file;
+      return copy;
+    });
+  };
+
+  // Handler for changing description at index i
+  const handlePhotoDescriptionChange = (index: number, desc: string) => {
+    setPhotoDescriptions((prev) => {
+      const copy = [...prev];
+      copy[index].description = desc;
+      return copy;
+    });
+  };
+
+  // Add new empty photo+description row
+  const addPhotoDescriptionRow = () => {
+    setPhotoDescriptions((prev) => [...prev, { file: null, description: "" }]);
+  };
+
   return (
     <div className="max-w-3xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4">Disaster Event Wizard</h1>
@@ -116,7 +151,7 @@ export default function DisasterEventForm({ onCancel, onSuccess }: DisasterEvent
         <div className="space-y-4">
           <h2 className="font-semibold text-lg">Step 1: Event Info</h2>
           <div>
-            <Label htmlFor="Name">Event Name</Label>
+            <Label htmlFor="Name" style={{ marginBottom: "10px" }}>Event Name<span className="redstar">*</span></Label>
             <Input
               name="Name"
               value={formData.Name}
@@ -124,18 +159,20 @@ export default function DisasterEventForm({ onCancel, onSuccess }: DisasterEvent
               placeholder="Event Name"
             />
           </div>
-          <h3 className="font-semibold mt-4">Select Disaster Type</h3>
+          <h3 className="font-semibold mt-4">Select Disaster Type<span className="redstar" style={{ marginLeft: "5px" }}>*</span></h3>
           {disasterTypes.map((type) => (
             <Card
               key={type.id}
               onClick={() => setFormData((prev) => ({ ...prev, DisasterTypeId: type.id }))}
-              className={`cursor-pointer ${
-                formData.DisasterTypeId === type.id ? "border-blue-500" : "border-gray-300"
-              }`}
+              className={`cursor-pointer ${formData.DisasterTypeId === type.id ? "border-blue-500" : "border-gray-300"
+                }`}
             >
               <CardContent>
-                <h3 className="font-bold">{type.name}</h3>
-                <p className="text-sm">{type.category}</p>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <h3 className="font-bold">{type.name}</h3>
+                  <p className="text-sm">{type.category}</p>
+                </div>
+
                 <p className="text-xs">{type.description}</p>
               </CardContent>
             </Card>
@@ -144,7 +181,7 @@ export default function DisasterEventForm({ onCancel, onSuccess }: DisasterEvent
             <Button variant="outline" onClick={onCancel}>
               Cancel
             </Button>
-             <Button onClick={nextStep} disabled={!formData.Name || !formData.DisasterTypeId}>
+            <Button onClick={nextStep} disabled={!formData.Name || !formData.DisasterTypeId}>
               Next
             </Button>
           </div>
@@ -155,11 +192,11 @@ export default function DisasterEventForm({ onCancel, onSuccess }: DisasterEvent
         <div className="space-y-4">
           <h2 className="font-semibold text-lg">Step 2: Event Details</h2>
           <div>
-            <Label htmlFor="StartDate">Start Date</Label>
+            <Label htmlFor="StartDate">Start Date<span className="redstar">*</span></Label>
             <Input type="date" name="StartDate" value={formData.StartDate} onChange={onChange} />
           </div>
           <div>
-            <Label htmlFor="Severity">Severity</Label>
+            <Label htmlFor="Severity">Severity<span className="redstar">*</span></Label>
             <Input name="Severity" value={formData.Severity || ""} onChange={onChange} />
           </div>
           <div>
@@ -179,11 +216,35 @@ export default function DisasterEventForm({ onCancel, onSuccess }: DisasterEvent
         <div className="space-y-4">
           <h2 className="font-semibold text-lg">Step 3: Location & Files</h2>
           <div>
-            <Label htmlFor="LocationName">Location Name</Label>
+            <Label htmlFor="LocationName">Location Name<span className="redstar">*</span></Label>
             <Input name="LocationName" value={formData.LocationName} onChange={onChange} />
           </div>
           <DisasterMap geojsonData={parsedGeojson} onChangeGeojson={handleChangeGeojson} />
-          <FileUploader onChange={setFiles} />
+
+          <div>
+            <Label>Photos and Descriptions</Label>
+            {photoDescriptions.map((pd, idx) => (
+              <div key={idx} className="flex gap-2 items-center mb-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handlePhotoFileChange(idx, e.target.files ? e.target.files[0] : null)}
+                />
+                <input
+                  type="text"
+                  placeholder="Photo description"
+                  value={pd.description}
+                  onChange={(e) => handlePhotoDescriptionChange(idx, e.target.value)}
+                  className="border border-gray-300 rounded px-2 py-1 flex-grow"
+                />
+              </div>
+            ))}
+            <Button variant="outline" onClick={addPhotoDescriptionRow} className="mb-4">
+              Add Photo
+            </Button>
+          </div>
+
+
           <div className="flex gap-2">
             <Button variant="outline" onClick={prevStep}>
               Back
