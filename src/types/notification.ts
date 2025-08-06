@@ -5,7 +5,7 @@ export interface NotificationDto {
   message: string;
   isRead: boolean;
   createdAt?: Date;
-  type?: 'Report' | 'Request' | 'Donation' | 'System';
+  type?: 'Report' | 'Request' | 'Donation' | 'System'|'TeamAssignment';
   relatedEntityId?: number;
   status?: string;
 }

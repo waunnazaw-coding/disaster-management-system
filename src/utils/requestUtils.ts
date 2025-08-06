@@ -1,53 +1,76 @@
-// utils/requestUtils.ts
-import type { AssistanceRequest } from '@/types/assistanceRequests';
+// src/utils/requestUtils.ts
+import type { AssistanceRequest } from "@/types/assistanceRequests";
 
 export const filterRequests = (
   requests: AssistanceRequest[],
   filters: {
-    status?: string;
-    priority?: string;
-    search?: string;
+    status: string;
+    priority: string;
+    search: string;
   }
-) => {
+): AssistanceRequest[] => {
   return requests.filter((request) => {
-    const statusMatch = filters.status === 'all' || request.status === filters.status;
-    const priorityMatch = filters.priority === 'all' || request.priority === filters.priority;
-    const searchMatch =
-      !filters.search ||
-      request.supportType.toLowerCase().includes(filters.search.toLowerCase()) ||
-      request.userName?.toLowerCase().includes(filters.search.toLowerCase()) ||
-      request.contactPhone?.toLowerCase().includes(filters.search.toLowerCase()) ||
-      request.detailedAddress?.toLowerCase().includes(filters.search.toLowerCase()) ||
-      request.disasterEventName?.toLowerCase().includes(filters.search.toLowerCase());
+    // Status filter
+    if (filters.status !== "all" && request.status !== filters.status) {
+      return false;
+    }
 
-    return statusMatch && priorityMatch && searchMatch;
+    // Priority filter
+    if (filters.priority !== "all" && request.priority !== filters.priority) {
+      return false;
+    }
+
+    // Search filter
+    if (filters.search) {
+      const searchTerm = filters.search.toLowerCase();
+      const matches =
+        (request.userName?.toLowerCase().includes(searchTerm) ?? false) ||
+        (request.supportType?.toLowerCase().includes(searchTerm) ?? false) ||
+        (request.description?.toLowerCase().includes(searchTerm) ?? false) ||
+        (request.contactName?.toLowerCase().includes(searchTerm) ?? false) ||
+        (request.contactPhone?.toLowerCase().includes(searchTerm) ?? false) ||
+        (request.detailedAddress?.toLowerCase().includes(searchTerm) ?? false);
+
+      if (!matches) {
+        return false;
+      }
+    }
+
+    return true;
   });
 };
 
 export const sortRequests = (
   requests: AssistanceRequest[],
-  sort: { field: keyof AssistanceRequest; direction: 'asc' | 'desc' }
-) => {
-  return [...requests].sort((a, b) => {
-    let comparison = 0;
-    
-    if (sort.field === 'createdAt') {
-      comparison = new Date(a[sort.field]).getTime() - new Date(b[sort.field]).getTime();
-    } else {
-      const aValue = a[sort.field]?.toString().toLowerCase() || '';
-      const bValue = b[sort.field]?.toString().toLowerCase() || '';
-      comparison = aValue.localeCompare(bValue);
-    }
+  sortConfig: {
+    field: keyof AssistanceRequest;
+    direction: "asc" | "desc";
+  }
+): AssistanceRequest[] => {
+  if (!sortConfig.field) return requests;
 
-    return sort.direction === 'asc' ? comparison : -comparison;
+  return [...requests].sort((a, b) => {
+    const aValue = a[sortConfig.field];
+    const bValue = b[sortConfig.field];
+
+    if (aValue === null || aValue === undefined) return 1;
+    if (bValue === null || bValue === undefined) return -1;
+
+    if (aValue < bValue) {
+      return sortConfig.direction === "asc" ? -1 : 1;
+    }
+    if (aValue > bValue) {
+      return sortConfig.direction === "asc" ? 1 : -1;
+    }
+    return 0;
   });
 };
 
 export const paginateRequests = (
   requests: AssistanceRequest[],
-  page: number,
+  currentPage: number,
   itemsPerPage: number
-) => {
-  const startIndex = (page - 1) * itemsPerPage;
+): AssistanceRequest[] => {
+  const startIndex = (currentPage - 1) * itemsPerPage;
   return requests.slice(startIndex, startIndex + itemsPerPage);
 };

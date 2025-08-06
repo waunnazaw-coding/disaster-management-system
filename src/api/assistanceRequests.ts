@@ -8,10 +8,23 @@ import type {
 import api from './axioInstance';
 
 export const getAssistanceRequests = async (): Promise<AssistanceRequest[]> => {
-  const response = await api.get('/AssistanceRequests');
-  return response.data.data;
+  const response = await api.get('/AssistanceRequests?includeAssignments=true');
+  return response.data.data.map((request: any) => ({
+    ...request,
+    assignments: request.assignments?.map((assignment: any) => ({
+      id: assignment.id,
+      reliefTeamId: assignment.reliefTeamId,
+      reliefTeamName: assignment.reliefTeamName,
+      assignedById: assignment.assignedById,
+      assignedByName: assignment.assignedByName,
+      assignedAt: assignment.assignedAt,
+      status: assignment.status,
+      priority: assignment.priority,
+      notes: assignment.notes,
+      completedAt: assignment.completedAt
+    })) || []
+  }));
 };
-
 export const getUserAssistanceRequests = async (): Promise<AssistanceRequest[]> => {
   const response = await api.get('/AssistanceRequests/my-requests');
   return response.data.data;

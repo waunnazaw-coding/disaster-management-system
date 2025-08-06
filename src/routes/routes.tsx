@@ -9,6 +9,9 @@ import ReliefDashboard from "@/pages/relief/ReliefDashboard";
 import AdminRequestsPage from "@/pages/admin/requests";
 import { RequestFormPage } from "../pages/disaster/AssistantRequestForm";
 import { NotificationsPage } from "@/pages/NotificationPage";
+import { AdminAssignmentsPage } from "@/pages/admin/AssignmentsPage";
+import { ReliefAssignmentsPage } from "@/pages/relief/ReliefAssignmentsPage";
+import { AssignRequestsToReliefPage } from "@/pages/admin/AssignRequestsToReliefPage";
 
 const PublicLayout = lazy(() => import("@/components/user-layout/PublicLayout"));
 const AdminLayout = lazy(() => import("../components/admin-layout/Adminlayout"));
@@ -147,6 +150,8 @@ const router = createBrowserRouter([
           { path: "admin/donations", element: <DonationManagement /> },
           { path: "admin/users", element: <UserManagementPage /> },
           { path: "admin/requests", element: <AdminRequestsPage /> },
+          { path: "admin/assignments", element: <AdminAssignmentsPage /> },
+          { path: "admin/assign-request/:id", element: <AssignRequestsToReliefPage /> },
         ],
       },
     ],
@@ -161,7 +166,11 @@ const router = createBrowserRouter([
             <ReliefLayout />
           </Suspense>
         ),
-        children: [{ path: "relief/dashboard", element: <ReliefDashboard /> }],
+        children: [
+          { path: "relief/dashboard", element: <ReliefDashboard /> },
+            { path: "relief/assignments", element: <ReliefAssignmentsPage /> },
+        ],
+        
       },
     ],
   },

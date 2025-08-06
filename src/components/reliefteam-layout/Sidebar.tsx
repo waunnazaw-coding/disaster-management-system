@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom"
 const navigation = [
   { id: "dashboard", name: "Dashboard", icon: LayoutDashboard, path: "dashboard" },
   { id: "members", name: "Team Members", icon: Users, path: "members" },
-  { id: "requests", name: "Assistance Requests", icon: HelpCircle, path: "requests" },
+  { id: "assignments", name: "requests-assignments", icon: HelpCircle, path: "assignments" },
   { id: "donations", name: "Donations", icon: Heart, path: "donations" },
   { id: "activity", name: "Activity Log", icon: ClipboardList, path: "activity" },
 ]

@@ -8,6 +8,7 @@ interface RequestStatsProps {
   totalCount: number
   pendingCount: number
   approvedCount: number
+   inProgressCount: number
   fulfilledCount: number
   rejectedCount: number
 }
@@ -16,11 +17,12 @@ export default function RequestStats({
   totalCount,
   pendingCount,
   approvedCount,
+   inProgressCount,
   fulfilledCount,
   rejectedCount,
 }: RequestStatsProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
       <Card>
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
@@ -54,7 +56,7 @@ export default function RequestStats({
           </div>
         </CardContent>
       </Card>
-      {/* <Card className="bg-purple-50">
+      <Card className="bg-purple-50">
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>
@@ -64,7 +66,7 @@ export default function RequestStats({
             <RefreshCw className="h-8 w-8 text-purple-400" />
           </div>
         </CardContent>
-      </Card> */}
+      </Card>
       <Card className="bg-green-50">
         <CardContent className="p-4">
           <div className="flex items-center justify-between">

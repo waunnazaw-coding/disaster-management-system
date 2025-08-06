@@ -59,7 +59,7 @@ export default function AdminRequestsPage() {
         totalCount={stats.totalCount}
         pendingCount={stats.pendingCount}
         approvedCount={stats.approvedCount}
-        //inProgressCount={stats.inProgressCount}
+        inProgressCount={stats.inProgressCount}
         fulfilledCount={stats.fulfilledCount}
         rejectedCount={stats.rejectedCount}
       />

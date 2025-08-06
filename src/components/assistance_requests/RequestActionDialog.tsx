@@ -1,4 +1,3 @@
-// src/components/assistance_requests/RequestActionDialog.tsx
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,14 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
 
-// Define possible button variants based on ShadCN's Button component
-type ButtonVariant =
-  | "default"
-  | "link"
-  | "destructive"
-  | "outline"
-  | "secondary"
-  | "ghost";
+type ButtonVariant = "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
 
 interface RequestActionDialogProps {
   open: boolean;
@@ -34,66 +26,58 @@ interface RequestActionDialogProps {
   loading: boolean;
 }
 
+const actionConfig = {
+  approve: {
+    title: "Approve Request",
+    description: "This will approve the assistance request and notify the requester.",
+    buttonText: "Approve",
+    loadingText: "Approving...",
+    variant: "default" as ButtonVariant,
+  },
+  reject: {
+    title: "Reject Request",
+    description: "This will reject the assistance request and notify the requester.",
+    buttonText: "Reject",
+    loadingText: "Rejecting...",
+    variant: "destructive" as ButtonVariant,
+  },
+  fulfill: {
+    title: "Mark as Fulfilled",
+    description: "This will mark the request as fulfilled. Please ensure the assistance has been provided.",
+    buttonText: "Fulfill",
+    loadingText: "Fulfilling...",
+    variant: "default" as ButtonVariant,
+  },
+};
+
 export const RequestActionDialog = ({
   open,
   onOpenChange,
   action,
-
   requestDetails,
   onConfirm,
   loading,
 }: RequestActionDialogProps) => {
-  const actionTitles = {
-    approve: "Approve Request",
-    reject: "Reject Request",
-    fulfill: "Mark as Fulfilled",
-  };
+  const config = actionConfig[action];
 
-  const actionDescriptions = {
-    approve:
-      "This will approve the assistance request and notify the requester.",
-    reject: "This will reject the assistance request and notify the requester.",
-    fulfill:
-      "This will mark the request as fulfilled. Please ensure the assistance has been provided.",
-  };
-
-  const actionButtonText = {
-    approve: loading ? "Approving..." : "Approve",
-    reject: loading ? "Rejecting..." : "Reject",
-    fulfill: loading ? "Fulfilling..." : "Fulfill",
-  };
-
-  // Properly typed button variants
-  const actionButtonVariant: Record<
-    "approve" | "reject" | "fulfill",
-    ButtonVariant
-  > = {
-    approve: "default",
-    reject: "destructive",
-    fulfill: "default",
-  };
-
-  // Helper function to handle null/undefined values
-  const getDisplayValue = (
-    value: string | null | undefined,
-    fallback = "N/A"
-  ) => {
-    return value ?? fallback;
+  const getDisplayValue = (value: string | number | null | undefined, fallback = "N/A") => {
+    if (value === null || value === undefined) return fallback;
+    return typeof value === 'number' ? value.toString() : value;
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{actionTitles[action]}</DialogTitle>
-          <DialogDescription>{actionDescriptions[action]}</DialogDescription>
+          <DialogTitle>{config.title}</DialogTitle>
+          <DialogDescription>{config.description}</DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
           <div className="space-y-2">
             <p className="text-sm font-medium">Request Details</p>
             {requestDetails && (
-              <div className="bg-muted/50 p-4 rounded-md text-sm">
+              <div className="bg-muted/50 p-4 rounded-md text-sm space-y-2">
                 <p>
                   <span className="font-medium">Requester:</span>{" "}
                   {getDisplayValue(requestDetails.userName)}
@@ -104,24 +88,12 @@ export const RequestActionDialog = ({
                 </p>
                 <p>
                   <span className="font-medium">Quantity:</span>{" "}
-                  {getDisplayValue(requestDetails.quantity?.toString())}{" "}
+                  {getDisplayValue(requestDetails.quantity)}{" "}
                   {getDisplayValue(requestDetails.unit)}
                 </p>
               </div>
             )}
           </div>
-
-          {action === "reject" && (
-            <div className="space-y-2">
-              {/* <p className="text-sm font-medium">
-                Reason for rejection (optional)
-              </p>
-              <textarea
-                className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[80px]"
-                placeholder="Provide reason for rejection..."
-              /> */}
-            </div>
-          )}
         </div>
 
         <DialogFooter>
@@ -133,12 +105,12 @@ export const RequestActionDialog = ({
             Cancel
           </Button>
           <Button
-            variant={actionButtonVariant[action]}
+            variant={config.variant}
             onClick={onConfirm}
             disabled={loading}
           >
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {actionButtonText[action]}
+            {loading ? config.loadingText : config.buttonText}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -5,36 +5,51 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-} from "../ui/dropdown-menu"
-import { Button } from "../ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
-import { Badge } from "../ui/badge"
-import { Bell, User, Settings, LogOut } from "lucide-react"
-import { useReliefStore } from "@/store/reliefStore"
-import { useEffect } from "react"
+} from "../ui/dropdown-menu";
+import { Button } from "../ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Badge } from "../ui/badge";
+import { User, Settings, LogOut } from "lucide-react";
+import { useReliefStore } from "@/store/reliefStore";
+import { useEffect } from "react";
+import { useSignalR } from "@/hooks/useSignalR";
+import { HubConnection } from "@microsoft/signalr";
+import { useNotificationStore } from "@/store/notificationStore";
+import { Notification } from "@/types/signalr";
+import { NotificationDropdown } from "../Notification/NotificationDropdown";
 
 export function ReliefTeamNavbarExtras() {
-  const { logout, currentUser, initializeData } = useReliefStore()
+  const { logout, currentUser, initializeData } = useReliefStore();
+  const connection = useSignalR() as HubConnection | null;
+  const { addNotification, incrementUnreadCount } = useNotificationStore();
 
-  // If you haven’t already: call initializeData!
   useEffect(() => {
     initializeData();
   }, []);
 
-  console.log("currentUser", currentUser);
+  useEffect(() => {
+    if (!connection) return;
+
+    const handler = (notification: Notification) => {
+      addNotification({
+        ...notification,
+        createdAt: notification.createdAt ? new Date(notification.createdAt) : new Date()
+      });
+      incrementUnreadCount();
+    };
+
+    connection.on('ReceiveNotification', handler);
+
+    return () => {
+      connection.off('ReceiveNotification', handler);
+    };
+  }, [connection, addNotification, incrementUnreadCount]);
 
   if (!currentUser) return null;
 
   return (
     <div className="ml-auto flex items-center space-x-4">
-      <Button
-        variant="ghost"
-        size="sm"
-        className="text-white hover:bg-white/20"
-        aria-label="Notifications"
-      >
-        <Bell className="w-8 h-8" />
-      </Button>
+      <NotificationDropdown />
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -77,5 +92,5 @@ export function ReliefTeamNavbarExtras() {
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-  )
+  );
 }

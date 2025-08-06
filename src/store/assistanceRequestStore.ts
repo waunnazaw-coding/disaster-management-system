@@ -8,7 +8,7 @@ interface RequestStats {
   totalCount: number;
   pendingCount: number;
   approvedCount: number;
-  // inProgressCount: number;
+   inProgressCount: number;
   fulfilledCount: number;
   rejectedCount: number;
 }
@@ -27,6 +27,7 @@ interface AssistanceRequestsState {
   updateStatus: (id: number, status: string) => Promise<void>;
   deleteRequest: (id: number) => Promise<void>;
   resetCurrentRequest: () => void;
+  updateRequestAssignment: (assignment: any) => void;
 }
 
 export const useAssistanceRequestsStore = create<AssistanceRequestsState>()(
@@ -176,7 +177,33 @@ fetchRequestStats: async () => {
         }
       },
 
+     updateRequestAssignment: (assignment) => {
+  set((state) => ({
+    requests: state.requests.map(request => 
+      request.id === assignment.assistanceRequestId ? {
+        ...request,
+        status: 'InProgress',
+        assignments: [
+          ...(request.assignments || []).filter(a => a.id !== assignment.id),
+          {
+            id: assignment.id,
+            reliefTeamId: assignment.reliefTeamId,
+            reliefTeamName: assignment.reliefTeamName,
+            assignedById: assignment.assignedById,
+            assignedByName: assignment.assignedByName,
+            assignedAt: assignment.assignedAt,
+            status: assignment.status,
+            priority: assignment.priority,
+            notes: assignment.notes,
+            completedAt: assignment.completedAt
+          }
+        ]
+      } : request
+    )
+  }));
+},
 
+      
       resetCurrentRequest: () => set({ currentRequest: null })
     }),
     { name: 'AssistanceRequestsStore' }

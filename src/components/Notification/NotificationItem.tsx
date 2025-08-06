@@ -91,6 +91,15 @@ export const NotificationItem = ({ notification }: NotificationItemProps) => {
               path = '/requests/assistant';
             }
             break;
+          case 'TeamAssignment':
+            if (userRole === 'Admin' || userRole === 'SysAdmin') {
+              path = `/admin/assignments`;
+            } else if (userRole === 'User') {
+              path = `/profile`;
+            } else {
+              path = '/relief/assignments';
+            }
+            break;
         }
       }
 

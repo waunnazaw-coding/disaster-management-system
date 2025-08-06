@@ -13,6 +13,7 @@ import {
   ChevronRight,
   Shield,
   Home,
+  ClipboardList,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
@@ -27,6 +28,7 @@ const navigation = [
   { id: "events", name: "Disaster Events", icon: Calendar, path: "events" },
   { id: "reports", name: "Reports", icon: AlertTriangle, path: "reports" },
   { id: "requests", name: "Requests", icon: HelpCircle, path: "requests" },
+   { id: "assignments", name: "AssignmentsHistory", icon: ClipboardList, path: "assignments" },
   { id: "teams", name: "Relief Teams", icon: Users, path: "teams" },
   { id: "donations", name: "Donations", icon: Heart, path: "donations" },
   { id: "users", name: "Users", icon: Users, path: "users" },
