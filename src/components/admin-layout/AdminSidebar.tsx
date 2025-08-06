@@ -32,7 +32,11 @@ const navigation = [
   { id: "teams", name: "Relief Teams", icon: Users, path: "teams" },
   { id: "donations", name: "Donations", icon: Heart, path: "donations" },
   { id: "users", name: "Users", icon: Users, path: "users" },
+   { id: "teams", name: "Relief Teams", icon: Users, path: "relief-team-lists" },
+  { id: "donations", name: "Donators", icon: Heart, path: "donations" },
+  { id: "admin-invite", name: "Admin Invite", icon: Users, path: "admin-invite" },
 ];
+
 
 interface AdminSidebarProps {
   isMobile: boolean;

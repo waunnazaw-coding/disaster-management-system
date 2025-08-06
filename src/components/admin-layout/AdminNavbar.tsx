@@ -17,7 +17,8 @@ import { useNotificationStore } from "@/store/notificationStore"
 import { useEffect } from "react"
 import { HubConnection } from '@microsoft/signalr';
 import { Notification } from "@/types/signalr";
-
+import { useAuthStore } from "@/store/authStore"
+import { useNavigate } from "react-router-dom";
 interface AdminNavbarProps {
   isMobile: boolean
   onToggleSidebar: () => void
@@ -25,9 +26,17 @@ interface AdminNavbarProps {
 }
 
 export function AdminNavbar({ isMobile, onToggleSidebar, sidebarOpen }: AdminNavbarProps) {
-  const { currentUser, logout, dashboardStats } = useAdminStore()
+  const { currentUser, dashboardStats } = useAdminStore()
+  
+  const navigate = useNavigate();
   const connection = useSignalR() as HubConnection | null;
   const { addNotification, incrementUnreadCount } = useNotificationStore();
+  const logout = useAuthStore((state: { logout: any }) => state.logout);
+
+   async function handleLogout() {
+    await logout(navigate);
+    navigate("/");
+  }
 
   useEffect(() => {
     if (!connection) return;
@@ -79,7 +88,7 @@ export function AdminNavbar({ isMobile, onToggleSidebar, sidebarOpen }: AdminNav
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-9 w-9 rounded-full hover:bg-slate-700">
                 <Avatar className="h-8 w-8 border border-slate-600">
-                  <AvatarImage src={currentUser.avatar} />
+                  <AvatarImage src={currentUser.profile} />
                   <AvatarFallback className="bg-slate-700">
                     {currentUser.name?.charAt(0)}
                   </AvatarFallback>
@@ -107,7 +116,7 @@ export function AdminNavbar({ isMobile, onToggleSidebar, sidebarOpen }: AdminNav
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem 
-                onClick={logout}
+                onClick={handleLogout}
                 className="text-red-600 focus:bg-red-50"
               >
                 <LogOut className="mr-2 h-4 w-4" />

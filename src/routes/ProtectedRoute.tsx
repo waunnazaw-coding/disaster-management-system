@@ -13,13 +13,13 @@ const ProtectedRoute: React.FC<Props> = ({
   redirectPath = "/login",
   children,
 }) => {
-  const { isAuthenticated, userRole } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
 
   if (!isAuthenticated) {
     return <Navigate to={redirectPath} replace />;
   }
 
-  if (userRole && !allowedRoles.includes(userRole)) {
+  if (user?.role && !allowedRoles.includes(user?.role)) {
     return <Navigate to="/unauthorized" replace />;
   }
 

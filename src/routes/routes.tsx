@@ -12,6 +12,10 @@ import { NotificationsPage } from "@/pages/NotificationPage";
 import { AdminAssignmentsPage } from "@/pages/admin/AssignmentsPage";
 import { ReliefAssignmentsPage } from "@/pages/relief/ReliefAssignmentsPage";
 import { AssignRequestsToReliefPage } from "@/pages/admin/AssignRequestsToReliefPage";
+import { ResetPasswordForm } from "@/components/auth/ResetPassword";
+import { AdminInviteForm } from "@/components/admin-layout/AdminInviteForm";
+import { AcceptAdminInviteForm } from "@/components/admin-layout/AcceptAdminForm";
+import EmergencyContact from "@/components/emergency/EmergencyContact";
 
 const PublicLayout = lazy(() => import("@/components/user-layout/PublicLayout"));
 const AdminLayout = lazy(() => import("../components/admin-layout/Adminlayout"));
@@ -56,6 +60,20 @@ const router = createBrowserRouter([
       </Suspense>
     ),
   },
+
+   {
+        path: "/reset-password",
+        element: (
+            <Suspense fallback={<LoadingFallback />}>
+                <ResetPasswordForm />
+            </Suspense>
+        ),
+    },
+
+    {
+        path: "/accept-invite",
+        element: <AcceptAdminInviteForm />,
+    },
   {
     path: "/unauthorized",
     element: (
@@ -135,28 +153,61 @@ const router = createBrowserRouter([
       },
     ],
   },
-  // Admin protected routes
-  {
-    element: <ProtectedRoute allowedRoles={["Admin", "SysAdmin"]} />,
-    children: [
-      {
+
+    // Public routes nested under PublicLayout
+    {
+        path: "/",
         element: (
-          <Suspense fallback={<LoadingFallback />}>
-            <AdminLayout />
-          </Suspense>
+            <Suspense fallback={<LoadingFallback />}>
+                <PublicLayout />
+            </Suspense>
         ),
         children: [
-          { path: "admin/dashboard", element: <AdminDashboard /> },
-          { path: "admin/donations", element: <DonationManagement /> },
-          { path: "admin/users", element: <UserManagementPage /> },
-          { path: "admin/requests", element: <AdminRequestsPage /> },
-          { path: "admin/assignments", element: <AdminAssignmentsPage /> },
-          { path: "admin/assign-request/:id", element: <AssignRequestsToReliefPage /> },
+            { index: true, element: <HomePage /> },
+
+            { path: "disasters", element: <DisasterEventPage /> },
+            { path: "disasters/report", element: <DisasterReportForm /> },
+
+            { path: "requests/assistant", element: <AssistantRequestPage /> },
+            //{ path: "requests/assistant/new", element: <AssistantRequestForm /> },
+
+            { path: "teams/relief", element: <ReliefTeamListPage /> },
+
+            { path: "donations/new", element: <DonationFormPage /> },
+
+            { path: "volunteers/apply", element: <VolunteerForm /> },
+
+            { path: "emergency-contacts", element: <EmergencyContact /> },
+
+            { path: "about", element: <AboutUsPage /> },
         ],
-      },
-    ],
-  },
-  // Relief protected routes
+    },
+
+    // Admin protected routes
+    {
+        element: <ProtectedRoute allowedRoles={["Admin", "SysAdmin"]} />,
+        children: [
+            {
+                element: (
+                    <Suspense fallback={<LoadingFallback />}>
+                        <AdminLayout />
+                    </Suspense>
+                ),
+                children: [
+                    { path: "admin/dashboard", element: <AdminDashboard /> },
+                    { path: "admin/relief-team-lists", element: <ReliefTeamListPage /> },
+                    { path: "admin/admin-invite", element: <AdminInviteForm /> },
+                     { path: "admin/dashboard", element: <AdminDashboard /> },
+                    { path: "admin/donations", element: <DonationManagement /> },
+                    { path: "admin/users", element: <UserManagementPage /> },
+                    { path: "admin/requests", element: <AdminRequestsPage /> },
+                    { path: "admin/assignments", element: <AdminAssignmentsPage /> },
+                    { path: "admin/assign-request/:id", element: <AssignRequestsToReliefPage /> },
+                ],
+            },
+        ],
+    },
+
   {
     element: <ProtectedRoute allowedRoles={["ReliefTeam"]} />,
     children: [

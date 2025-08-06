@@ -1,4 +1,4 @@
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import type { InternalAxiosRequestConfig } from "axios";
 
 const BASE_URL = "https://localhost:7148/api";
@@ -44,51 +44,46 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor to handle errors globally
+async function refreshAccessToken() {
+  try {
+    const response = await api.post("/auth/refresh-token", null, { withCredentials: true });
+    const { accessToken } = response.data;
+    storeAccessTokenInMemory(accessToken);
+
+
+    return accessToken;
+  } catch {
+    logout();
+    throw new Error("Session expired");
+  }
+}
+
+// Axios interceptor for auto-refresh
 api.interceptors.response.use(
-  (response) => response,
-  async (error: AxiosError) => {
-    if (error.response) {
-      const status = error.response.status;
-
-      switch (status) {
-        case 401:
-          console.warn("[API] 401 Unauthorized - token may be invalid or expired");
-          // Optional: Implement token refresh logic here
-          // For example:
-          // if (!error.config._retry) {
-          //   error.config._retry = true;
-          //   const newToken = await refreshToken();
-          //   if (newToken) {
-          //     localStorage.setItem(AUTH_TOKEN_KEY, newToken);
-          //     error.config.headers['Authorization'] = `Bearer ${newToken}`;
-          //     return api(error.config);
-          //   }
-          // }
-          logout();
-          break;
-
-        case 404:
-          console.error(`[API] 404 Not Found: ${error.config?.url}`);
-          // Optional: Show user-friendly notification here
-          break;
-
-        default:
-          if (process.env.NODE_ENV === "development") {
-            console.warn(`[API] Error ${status}:`, error.response.data);
-          }
-          break;
+  response => response,
+  async (error) => {
+    if (error.response.status === 401) {
+      // Access token expired, try refreshing
+      try {
+        const newAccessToken = await refreshAccessToken();
+        error.config.headers['Authorization'] = `Bearer ${newAccessToken}`;
+        return api.request(error.config);
+      } catch {
+        // Refresh also failed => logout
+        logout();
+        return Promise.reject(error);
       }
-    } else if (error.request) {
-      // Request was made but no response received
-      console.error("[API] No response received:", error.request);
-    } else {
-      // Something else happened setting up the request
-      console.error("[API] Request error:", error.message);
     }
-
     return Promise.reject(error);
   }
 );
 
 export default api;
+function storeAccessTokenInMemory(accessToken: string) {
+  localStorage.setItem(AUTH_TOKEN_KEY, accessToken);
+  if (process.env.NODE_ENV === "development") {
+    console.log("Access token updated in localStorage:", accessToken);
+  }
+}
+
+
