@@ -5,12 +5,12 @@ import { useAuthStore } from "../store/authStore";
 import { Roles } from "../types/index";
 
 export const useAuthRedirect = () => {
-  const { isAuthenticated, userRole } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isAuthenticated && userRole) {
-      switch (userRole) {
+    if (isAuthenticated && user?.role) {
+      switch (user.role) {
         case Roles.Admin:
         case Roles.SysAdmin:
           navigate("/admin/dashboard", { replace: true });
@@ -23,5 +23,5 @@ export const useAuthRedirect = () => {
           break;
       }
     }
-  }, [isAuthenticated, userRole, navigate]);
+  }, [isAuthenticated, user?.role, navigate]);
 };

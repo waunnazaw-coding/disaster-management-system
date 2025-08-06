@@ -1,34 +1,101 @@
 import { create } from "zustand";
 import { produce } from "immer";
+import { authService } from "@/api/auth";
+
+export interface User {
+  name: string;
+  role: string;
+}
 
 interface AuthState {
   isAuthenticated: boolean;
-  userRole: string | null;
-  userName: string | null;
-  setUser: (name: string, role: string) => void;
+  user: User | null;
+
+  setUser: (user: User) => void;
   clearUser: () => void;
+
+  initializeAuth: () => Promise<void>;
+  logout: () => Promise<void>;
+
+  // Add isAuthenticated method here:
+  isAuthenticatedFn: () => boolean;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   isAuthenticated: false,
-  userRole: null,
-  userName: null,
+  user: null,
 
-  setUser: (name, role) =>
+  setUser: (user) =>
     set(
       produce((state) => {
+        state.user = user;
         state.isAuthenticated = true;
-        state.userName = name;
-        state.userRole = role;
       })
     ),
 
   clearUser: () =>
     set(
       produce((state) => {
+        state.user = null;
         state.isAuthenticated = false;
-        state.userName = null;
-        state.userRole = null;
       })
     ),
+
+  initializeAuth: async () => {
+    try {
+      const user = await authService.getCurrentUser();
+
+      console.log(`User data fetched during initialization:`, user);
+
+      if (user) {
+        set(
+          produce((state) => {
+            state.user = user;
+            state.isAuthenticated = true;
+          })
+        );
+      } else {
+        set(
+          produce((state) => {
+            state.user = null;
+            state.isAuthenticated = false;
+          })
+        );
+      }
+    } catch (error) {
+      console.error("Failed to initialize auth:", error);
+      set(
+        produce((state) => {
+          state.user = null;
+          state.isAuthenticated = false;
+        })
+      );
+    }
+  },
+
+  logout: async () => {
+    try {
+      await authService.logout();
+      set(
+        produce((state) => {
+          state.user = null;
+          state.isAuthenticated = false;
+        })
+      );
+    } catch (error) {
+      console.error("Logout failed:", error);
+      set(
+        produce((state) => {
+          state.user = null;
+          state.isAuthenticated = false;
+        })
+      );
+    }
+  },
+
+  // The new method returns the current authenticated status:
+  isAuthenticatedFn: () => {
+    const state = get();
+    return state.isAuthenticated && state.user !== null;
+  },
 }));

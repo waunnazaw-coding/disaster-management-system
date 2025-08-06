@@ -23,10 +23,38 @@ export type UserResponseDto = {
   name: string;
   email: string;
   profile: string;
+  role : string; 
 };
 
 interface GoogleLoginDto {
   idToken: string; // The Google ID token from client
+}
+
+interface ResetPasswordData {
+  email: string;
+  token: string;
+  newPassword: string;
+}
+interface ResetPasswordResponse {
+  message: string;
+}
+
+// Add to your existing interfaces
+interface AdminInviteRequestDto {
+  email: string;
+  name?: string;
+}
+
+interface AdminInviteResponseDto {
+  email: string;
+  inviteSentAt: string;
+  inviteUrl?: string;
+}
+
+interface AcceptAdminInviteDto {
+  email: string;    // Must match backend exactly (case-sensitive)
+  token: string;    // Must match backend exactly
+  newPassword: string;  // Must match backend exactly
 }
 
 // Backend generic API response wrapper
@@ -71,6 +99,7 @@ const getUserData = (): UserResponseDto | null => {
 };
 
 export const authService = {
+  
   async register(data: RegisterData): Promise<AuthResponse> {
     const response = await api.post<ApiResult<AuthResponse>>("/auth/register", data);
 
@@ -78,6 +107,37 @@ export const authService = {
       throw new Error(response.data.message || "Registration failed");
     }
 
+    storeTokens(response.data.data);
+    return response.data.data;
+  },
+
+  async resetPassword(data: ResetPasswordData): Promise<ResetPasswordResponse> {
+    const response = await api.patch<ApiResult<ResetPasswordResponse>>("/auth/reset-password", data);
+
+    if (!response.data.isSuccess || !response.data.data) {
+      throw new Error(response.data.message || "Reset password failed");
+    }
+
+    return response.data.data;
+  },
+
+  async sendAdminInvite(data: AdminInviteRequestDto): Promise<AdminInviteResponseDto> {
+    const response = await api.post<ApiResult<AdminInviteResponseDto>>("/auth/admin-invite", data);
+    
+    if (!response.data.isSuccess || !response.data.data) {
+      throw new Error(response.data.message || "Failed to send admin invite");
+    }
+    
+    return response.data.data;
+  },
+
+  async acceptAdminInvite(data: AcceptAdminInviteDto): Promise<AuthResponse> {
+    const response = await api.patch<ApiResult<AuthResponse>>("/auth/accept-admin-invite", data);
+    
+    if (!response.data.isSuccess || !response.data.data) {
+      throw new Error(response.data.message || "Failed to accept admin invite");
+    }
+    
     storeTokens(response.data.data);
     return response.data.data;
   },

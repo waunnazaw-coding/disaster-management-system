@@ -21,8 +21,11 @@ const navigation = [
   { id: "events", name: "Disaster Events", icon: Calendar, path: "events" },
   { id: "reports", name: "Reports", icon: AlertTriangle, path: "reports" },
   { id: "requests", name: "Requests", icon: HelpCircle, path: "requests" },
-  { id: "teams", name: "Relief Teams", icon: Users, path: "teams" },
+  { id: "teams", name: "Relief Teams", icon: Users, path: "relief-team-lists" },
   { id: "donations", name: "Donators", icon: Heart, path: "donations" },
+  { id: "admin-invite", name: "Admin Invite", icon: Users, path: "admin-invite" },
+  // { id: "donations", name: "Donators", icon: Heart, path: "donations" },
+
 ]
 
 export function AdminSidebar() {

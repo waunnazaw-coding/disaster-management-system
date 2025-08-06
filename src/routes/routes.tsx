@@ -1,6 +1,10 @@
 import { lazy, Suspense } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import ProtectedRoute from "../routes/ProtectedRoute";
+import { ResetPasswordForm } from "@/components/auth/ResetPassword";
+import { AdminInviteForm } from "@/components/admin-layout/AdminInviteForm";
+import { AcceptAdminInviteForm } from "@/components/admin-layout/AcceptAdminForm";
+import EmergencyContact from "@/components/emergency/EmergencyContact";
 
 const PublicLayout = lazy(() => import("@/components/user-layout/PublicLayout"));
 const AdminLayout = lazy(() => import("../components/admin-layout/Adminlayout"));
@@ -48,6 +52,19 @@ const router = createBrowserRouter([
         ),
     },
     {
+        path: "/reset-password",
+        element: (
+            <Suspense fallback={<LoadingFallback />}>
+                <ResetPasswordForm />
+            </Suspense>
+        ),
+    },
+
+    {
+        path: "/accept-invite",
+        element: <AcceptAdminInviteForm />,
+    },
+    {
         path: "/unauthorized",
         element: (
             <Suspense fallback={<LoadingFallback />}>
@@ -79,6 +96,8 @@ const router = createBrowserRouter([
 
             { path: "volunteers/apply", element: <VolunteerForm /> },
 
+            { path: "emergency-contacts", element: <EmergencyContact /> },
+
             { path: "about", element: <AboutUsPage /> },
         ],
     },
@@ -95,6 +114,8 @@ const router = createBrowserRouter([
                 ),
                 children: [
                     { path: "admin/dashboard", element: <AdminDashboard /> },
+                    { path: "admin/relief-team-lists", element: <ReliefTeamListPage /> },
+                    { path: "admin/admin-invite", element: <AdminInviteForm /> },
                     // Add more admin routes here if needed
                 ],
             },

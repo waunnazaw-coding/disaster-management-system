@@ -11,16 +11,14 @@ const ProtectedRoute: React.FC<Props> = ({
   allowedRoles,
   redirectPath = "/login",
 }) => {
-  const { isAuthenticated, userRole } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
 
-  // Debug log to verify role and allowedRoles
-  console.log("ProtectedRoute:", { userRole, allowedRoles });
 
   if (!isAuthenticated) {
     return <Navigate to={redirectPath} replace />;
   }
 
-  if (userRole && !allowedRoles.includes(userRole)) {
+  if (user?.role && !allowedRoles.includes(user?.role)) {
     return <Navigate to="/unauthorized" replace />;
   }
 

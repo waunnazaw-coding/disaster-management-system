@@ -11,9 +11,22 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { Badge } from "../ui/badge"
 import { Bell, LogOut, Settings, User, RefreshCw } from "lucide-react"
+import { useAuthStore } from "../../store/authStore";
+import { useNavigate } from "react-router-dom";
+
 
 export function AdminNavbar() {
-  const { currentUser, logout, dashboardStats } = useAdminStore()
+  const {dashboardStats } = useAdminStore();
+  const navigate = useNavigate();
+
+  const currentUser = useAuthStore((state: { user: any }) => state.user);
+  const logout = useAuthStore((state: { logout: any }) => state.logout);
+
+   async function handleLogout() {
+    await logout(navigate);
+    navigate("/");
+  }
+
 
   const totalPendingItems =
     dashboardStats.pendingReports + dashboardStats.pendingRequests + dashboardStats.pendingDonations
@@ -53,7 +66,7 @@ export function AdminNavbar() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                 <Avatar className="h-10 w-10 ring-2 ring-blue-200 ring-offset-2">
-                  <AvatarImage src={currentUser?.avatar || "/placeholder.svg"} alt={currentUser?.name} />
+                  <AvatarImage src={ "/placeholder.svg"} alt={currentUser?.name} />
                   <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold">
                     {currentUser?.name?.charAt(0) || "A"}
                   </AvatarFallback>
@@ -83,7 +96,7 @@ export function AdminNavbar() {
                 <span>Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={logout} className="text-red-600">
+              <DropdownMenuItem onClick={handleLogout} className="text-red-600">
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>

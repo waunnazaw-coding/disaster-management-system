@@ -1,19 +1,9 @@
-export type Role = 'User' | 'ReliefTeam' | 'Organization' | 'Admin';
-
-export const rolePanelMap: Record<Role, string> = {
-  User: '/public',
-  ReliefTeam: '/relief',
-  Organization: '/organization',
-  Admin: '/admin',
-};
-
-// src/constants/roles.ts
-export const Roles = {
-  Admin: "Admin",
-  SysAdmin: "SysAdmin",
-  ReliefTeam: "ReliefTeam",
-  User: "User",
-} as const;
+export enum Roles {
+  User = "User",
+  Admin = "Admin",
+  SysAdmin = "SysAdmin",
+  ReliefTeam = "ReliefTeam",
+}
 
 
 
