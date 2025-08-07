@@ -181,7 +181,7 @@ export const useAdminStore = create(
         // TODO: Add here calls to fetch your app data (e.g. dashboardStats, disasterReports, etc.)
 
         set((state) => {
-          state.currentUser = user;
+          //state.currentUser = user;
           state.dashboardStats = {
             totalReports: 0,
             pendingReports: 0,

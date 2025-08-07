@@ -16,6 +16,7 @@ import { ResetPasswordForm } from "@/components/auth/ResetPassword";
 import { AdminInviteForm } from "@/components/admin-layout/AdminInviteForm";
 import { AcceptAdminInviteForm } from "@/components/admin-layout/AcceptAdminForm";
 import EmergencyContact from "@/components/emergency/EmergencyContact";
+import AwarenessPage from "@/pages/awareness/awareness-page";
 
 const PublicLayout = lazy(() => import("@/components/user-layout/PublicLayout"));
 const AdminLayout = lazy(() => import("../components/admin-layout/Adminlayout"));
@@ -97,6 +98,7 @@ const router = createBrowserRouter([
         element: <HomePage />,
       },
       { path: "disasters", element: <DisasterEventPage /> },
+      { path: "awareness", element: <AwarenessPage /> },
       { path: "disasters/report", element: <DisasterReportForm /> },
       {
         path: "requests",
