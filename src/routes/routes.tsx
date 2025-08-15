@@ -31,6 +31,9 @@ const AdminLayout = lazy(
 const ReliefLayout = lazy(
   () => import("../components/reliefteam-layout/ReliefTeamLayout")
 );
+import AwarenessPage from "@/pages/awareness/awareness-page";
+import DonationPage from "@/pages/donation/Donation";
+import FinancialAllocationsPage from "@/pages/finanacial-reports/financial-reports-page";
 
 // Lazy loaded pages
 const Login = lazy(() => import("../pages/auth/Login"));
@@ -116,6 +119,7 @@ const router = createBrowserRouter([
         element: <HomePage />,
       },
       { path: "disasters", element: <DisasterEventPage /> },
+      { path: "awareness", element: <AwarenessPage /> },
       { path: "disasters/report", element: <DisasterReportForm /> },
       {
         path: "requests",
@@ -163,7 +167,7 @@ const router = createBrowserRouter([
         ],
       },
       { path: "teams/relief", element: <ReliefTeamListPage /> },
-      { path: "donations/new", element: <DonationFormPage /> },
+      { path: "donations", element: <DonationPage /> },
       { path: "volunteers/apply", element: <VolunteerForm /> },
       { path: "about", element: <AboutUsPage /> },
       // Notifications page

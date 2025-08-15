@@ -17,15 +17,21 @@ import { HubConnection } from "@microsoft/signalr";
 import { useNotificationStore } from "@/store/notificationStore";
 import { Notification } from "@/types/signalr";
 import { NotificationDropdown } from "../Notification/NotificationDropdown";
+import { useAuthStore } from "@/store/authStore";
+import { useNavigate } from "react-router";
 
 export function ReliefTeamNavbarExtras() {
-  const { logout, currentUser, initializeData } = useReliefStore();
+  // const { logout, currentUser, initializeData } = useReliefStore();
+  const handleLogout = useAuthStore((state) => state.logout)
+  const user = useAuthStore((state) => state.user)
+  const navigate = useNavigate();
   const connection = useSignalR() as HubConnection | null;
   const { addNotification, incrementUnreadCount } = useNotificationStore();
 
-  useEffect(() => {
-    initializeData();
-  }, []);
+  // useEffect(() => {
+  //   initializeData();
+  // }, []);
+
 
   useEffect(() => {
     if (!connection) return;
@@ -45,7 +51,7 @@ export function ReliefTeamNavbarExtras() {
     };
   }, [connection, addNotification, incrementUnreadCount]);
 
-  if (!currentUser) return null;
+  if (!user) return null;
 
   return (
     <div className="ml-auto flex items-center space-x-4">
@@ -55,9 +61,9 @@ export function ReliefTeamNavbarExtras() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-9 w-9 rounded-full hover:bg-slate-700">
             <Avatar className="h-8 w-8 border border-slate-600">
-              <AvatarImage src={currentUser.avatar || ""} />
+              {/* <AvatarImage src={user?.avatar || ""} /> */}
               <AvatarFallback className="bg-slate-700">
-                {currentUser.name?.charAt(0)}
+                {user?.name?.charAt(0)}
               </AvatarFallback>
             </Avatar>
           </Button>
@@ -65,10 +71,10 @@ export function ReliefTeamNavbarExtras() {
         <DropdownMenuContent className="w-56 z-50" align="end">
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">{currentUser.name}</p>
-              <p className="text-xs leading-none text-muted-foreground">{currentUser.email}</p>
+              <p className="text-sm font-medium leading-none">{user.name}</p>
+              <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
               <Badge className="w-fit mt-1 bg-slate-100 text-slate-800">
-                {currentUser.role}
+                {user.role}
               </Badge>
             </div>
           </DropdownMenuLabel>
@@ -83,7 +89,11 @@ export function ReliefTeamNavbarExtras() {
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            onClick={logout}
+            onClick={() => {
+              handleLogout(); 
+              navigate('/login'); // Redirect to login after logout
+            }
+            }                                                      
             className="text-red-600 focus:bg-red-50"
           >
             <LogOut className="mr-2 h-4 w-4" />

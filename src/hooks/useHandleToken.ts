@@ -5,7 +5,7 @@ import { Roles } from "../types/index";
 
 interface JwtPayload {
   "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"?: string;
-  email?: string;
+  email: string;
   "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"?: string;
 }
 
@@ -30,7 +30,7 @@ export const useHandleToken = () => {
         ? (roleFromToken as Roles)
         : Roles.User;
 
-      setUser({ name, role });
+      setUser({ name, role, email: decoded.email });
     },
     [setUser]
   );

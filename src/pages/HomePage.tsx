@@ -1,268 +1,243 @@
-import { useEffect } from "react";
-import {
-  AlertTriangle,
-  Users,
-  Building2,
-  CheckCircle,
-  Loader2,
-} from "lucide-react";
-import { Link } from "react-router-dom";
-
-import HeroSection from "../components/user-layout/HeroSection";
-import DisasterEventList from "../components/disaster/DisasterEventLists";
-import DisasterReportList from "../components/disaster/DisastetReportLists";
-import ActiveDisastersSection from "../components/disaster/ActiveDisasterSection";
-import { useActiveDisasterEventStore } from "../store/activeDisasterEventStore";
-import { DisasterEvent } from "../types/disaster";
-import QuickActionsSection from "../components/user-layout/QuickActionsSection";
-import DonationToast from "@/components/donations/DonationToast";
-import { useActivityStore } from "@/store/activityStore";
-import ActivityCard from "@/components/activity/ActivityCard";
-import { Button } from "@/components/ui/button";
-
-
-const activeDisastersSample: DisasterEvent[] = [
-  {
-    id: 1,
-    name: "Ayeyarwady River Flood",
-    type: "Flood",
-    disasterTypeId: 1,
-    startDate: "2025-07-14",
-    endDate: null,
-    locationId: 1,
-    region: "Magway",
-    severity: "Severe",
-    status: "Active",
-    description: "Heavy monsoon flooding along the Ayeyarwady River.",
-    createdAt: "2025-07-14T08:00:00",
-    updatedAt: "2025-07-17T15:30:00",
-    lastUpdate: "Water levels rising. Relief boats dispatched to Minbu. Families at risk.",
-    location: { id: 1, name: "Magway", region: "Magway", country: "Myanmar" },
-    impacts: [
-      { id: 1, disasterEventId: 1, type: "Casualties", value: "36" },
-      { id: 2, disasterEventId: 1, type: "Families Affected", value: "188" },
-      { id: 3, disasterEventId: 1, type: "Houses Destroyed", value: "150" },
-      { id: 4, disasterEventId: 1, type: "Pagodas Destroyed", value: "7" },
-      { id: 5, disasterEventId: 1, type: "Schools Destroyed", value: "2" },
-      { id: 6, disasterEventId: 1, type: "Bridges Destroyed", value: "1" },
-    ],
-  },
-  {
-    id: 2,
-    name: "Yangon Tornado",
-    type: "Tornado",
-    disasterTypeId: 2,
-    startDate: "2025-07-15",
-    endDate: null,
-    locationId: 2,
-    region: "Yangon",
-    severity: "Moderate",
-    status: "Active",
-    description: "A tornado touched down damaging homes in several Yangon townships.",
-    createdAt: "2025-07-15T07:30:00",
-    updatedAt: "2025-07-17T14:15:00",
-    lastUpdate:
-      "Winds subsiding, but many homes are without power. Families in temporary shelters.",
-    location: { id: 2, name: "Yangon", region: "Yangon", country: "Myanmar" },
-    impacts: [
-      { id: 7, disasterEventId: 2, type: "Casualties", value: "5" },
-      { id: 8, disasterEventId: 2, type: "Families Affected", value: "54" },
-      { id: 9, disasterEventId: 2, type: "Houses Destroyed", value: "42" },
-      { id: 10, disasterEventId: 2, type: "Markets Destroyed", value: "1" },
-    ],
-  },
-];
-
-const currentDate = new Date().toLocaleString();
+import {Link} from 'react-router-dom'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Shield, AlertTriangle, Users, Heart, Phone, MapPin, Clock } from 'lucide-react'
+import myanmar from '@/images/myanmar-disaster.png'
 
 export default function HomePage() {
-  const { activeEvents, setActiveEvents } = useActiveDisasterEventStore();
-  const { activities, loading } = useActivityStore();
-
-
-  useEffect(() => {
-    // In production, fetch from the server
-    setActiveEvents(activeDisastersSample);
-  }, [setActiveEvents]);
-
-   useEffect(() => {
-    // Fetch activities for home page
-    if (activities.length === 0) {
-      useActivityStore.getState().fetchActivities();
-    }
-  }, []);
-
-  // Get 3 most recent activities
-  const recentActivities = [...activities]
-    .sort((a, b) => new Date(b.activityDate).getTime() - new Date(a.activityDate).getTime())
-    .slice(0, 3);
-
-  // Stats data array with icons and colors
-  const stats = [
-    {
-      icon: AlertTriangle,
-      value: "1,247",
-      label: "Disasters Reported",
-      color: "text-red-600",
-      bgColor: "bg-red-50",
-    },
-    {
-      icon: Users,
-      value: "15,892",
-      label: "People Helped",
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
-    },
-    {
-      icon: Building2,
-      value: "89",
-      label: "Partner Relief Teams",
-      color: "text-emerald-600",
-      bgColor: "bg-emerald-50",
-    },
-    {
-      icon: CheckCircle,
-      value: "2,156",
-      label: "Requests Completed",
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
-    },
-  ] as const;
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <HeroSection />
-
-      {/* ---- Quick Actions ---- */}
-      <QuickActionsSection />
-
-
-    {/* ---- Recent Activities ---- */}
-      <section className="max-w-6xl mx-auto px-4 py-12 bg-gradient-to-b from-white to-blue-50">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-blue-900 mb-2">Recent Relief Activities</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            See how relief teams are actively helping communities affected by recent disasters
-          </p>
-        </div>
-
-        {loading ? (
-          <div className="flex justify-center py-6">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-          </div>
-        ) : recentActivities.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {recentActivities.map(activity => (
-              <ActivityCard
-                key={activity.id}
-                activity={activity}
-                onView={() => window.location.href = `/activities/${activity.id}`}
-                isAdmin={false}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-8">
-            <p className="text-gray-600">No recent activities found</p>
-          </div>
-        )}
-
-        <div className="text-center mt-10">
-          <Button asChild variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
-            <Link to="/activities">View All Activities</Link>
-          </Button>
-        </div>
-      </section>
-
-
-      {/* ---- Active Disasters ---- */}
-      <ActiveDisastersSection
-        activeDisasters={activeEvents}
-        currentDate={currentDate}
-      />
-
-
-
-      {/* Divider */}
-      <div className="max-w-6xl mx-auto border-b border-gray-300 my-8"></div>
-
-      {/* ---- Events & Reports ---- */}
-      <section className="max-w-6xl mx-auto px-4 py-8">
-        <div className="grid md:grid-cols-2 gap-10">
-          <section>
-            <h2 className="text-xl font-semibold text-blue-900 mb-2">
-              All Disaster Events
-            </h2>
-            <p className="text-sm text-gray-600 mb-3">
-              Browse the historical record and progression of all major disaster
-              incidents on record.
-            </p>
-            <DisasterEventList />
-            <Link
-              to="/events"
-              className="block mt-3 text-blue-600 hover:underline text-sm"
-            >
-              View all events &rarr;
-            </Link>
-          </section>
-          <section>
-            <h2 className="text-xl font-semibold text-blue-900 mb-2">
-              Verified Disaster Reports
-            </h2>
-            <p className="text-sm text-gray-600 mb-3">
-              See trusted reports submitted by citizens, relief teams, and
-              organizations, verified by our moderators.
-            </p>
-            <DisasterReportList />
-            <Link
-              to="/reports"
-              className="block mt-3 text-blue-600 hover:underline text-sm"
-            >
-              View all reports &rarr;
-            </Link>
-          </section>
-        </div>
-      </section>
-
-      {/* Divider */}
-      {/* <div className="max-w-6xl mx-auto border-b border-gray-300 my-8"></div> */}
-
-      {/* ---- Overall Disaster Events Map ---- */}
-      {/* <DisasterEventsMap /> */}
-
-      {/* Divider */}
-      <div className="max-w-6xl mx-auto border-b border-gray-300 my-8"></div>
-
-      {/* ---- Stats Summary ---- */}
-      <div className="bg-white py-8">
-        <div className="max-w-5xl mx-auto px-3 grid grid-cols-2 md:grid-cols-4 gap-3">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <div
-                key={index}
-                className="bg-white/90 shadow-sm border-0 rounded-md hover:shadow-md transition"
-              >
-                <div className="p-3 flex items-center gap-3">
-                  <div
-                    className={`p-2 rounded bg-opacity-15 ${stat.bgColor}`}
-                    aria-hidden="true"
-                  >
-                    <Icon className={`h-5 w-5 ${stat.color}`} />
-                  </div>
-                  <div>
-                    <span className="block text-xl font-semibold text-blue-900">
-                      {stat.value}
-                    </span>
-                    <span className="text-xs text-blue-700">{stat.label}</span>
-                  </div>
-                </div>
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-br from-red-50 via-white to-red-50 py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 leading-tight">
+                  Protecting
+                  <span className="text-red-600"> Myanmar</span>
+                  <br />
+                  Together
+                </h1>
+                <p className="text-xl text-gray-600 leading-relaxed">
+                  Comprehensive disaster management and emergency response system for communities across Myanmar. 
+                  Stay prepared, stay safe, stay connected.
+                </p>
               </div>
-            );
-          })}
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button asChild size="lg" className="bg-red-600 hover:bg-red-700 text-lg px-8">
+                  <Link to="/requests/assistant">
+                    <Phone className="mr-2 h-5 w-5" />
+                    Emergency Help
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="lg" className="text-lg px-8">
+                  <Link to="/awareness">
+                    Learn More
+                  </Link>
+                </Button>
+              </div>
+
+              {/* Quick Stats */}
+              {/* <div className="grid grid-cols-3 gap-6 pt-8">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-red-600">24/7</div>
+                  <div className="text-sm text-gray-600">Emergency Response</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-red-600">50+</div>
+                  <div className="text-sm text-gray-600">Regions Covered</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-red-600">1000+</div>
+                  <div className="text-sm text-gray-600">Lives Protected</div>
+                </div>
+              </div> */}
+            </div>
+
+            <div className="relative">
+              <img
+                src={myanmar}
+                alt="Disaster response team in Myanmar"
+                className="rounded-2xl shadow-2xl"
+              />
+
+            </div>
+          </div>
         </div>
-      </div>
-      <DonationToast/>
+      </section>
+
+      {/* Services Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+              Our Services
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Comprehensive disaster management solutions tailored for Myanmar's unique challenges
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+              <CardHeader className="text-center pb-4">
+                <div className="mx-auto h-16 w-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                  <AlertTriangle className="h-8 w-8 text-red-600" />
+                </div>
+                <CardTitle className="text-xl">Emergency Response</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="text-center">
+                  24/7 emergency response coordination with local authorities and rescue teams
+                </CardDescription>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+              <CardHeader className="text-center pb-4">
+                <div className="mx-auto h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                  <Shield className="h-8 w-8 text-blue-600" />
+                </div>
+                <CardTitle className="text-xl">Disaster Preparedness</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="text-center">
+                  Community education and training programs for disaster preparedness
+                </CardDescription>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+              <CardHeader className="text-center pb-4">
+                <div className="mx-auto h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                  <Users className="h-8 w-8 text-green-600" />
+                </div>
+                <CardTitle className="text-xl">Community Support</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="text-center">
+                  Volunteer coordination and community resilience building programs
+                </CardDescription>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+              <CardHeader className="text-center pb-4">
+                <div className="mx-auto h-16 w-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+                  <Heart className="h-8 w-8 text-purple-600" />
+                </div>
+                <CardTitle className="text-xl">Relief Operations</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="text-center">
+                  Coordinated relief distribution and humanitarian assistance
+                </CardDescription>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Recent Events */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center mb-12">
+            <div>
+              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+                Recent Events
+              </h2>
+              <p className="text-xl text-gray-600">
+                Stay updated with the latest disaster events and responses
+              </p>
+            </div>
+            <Button asChild variant="outline">
+              <Link to="/events">View All Events</Link>
+            </Button>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                  <Clock className="h-4 w-4" />
+                  2 days ago
+                </div>
+                <CardTitle className="text-lg">Flood Response in Mandalay</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Emergency response teams deployed to assist flood-affected communities in Mandalay region.
+                </CardDescription>
+                <div className="mt-4 flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-red-500" />
+                  <span className="text-sm text-gray-600">Mandalay Region</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                  <Clock className="h-4 w-4" />
+                  1 week ago
+                </div>
+                <CardTitle className="text-lg">Earthquake Preparedness Training</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Community training program conducted in Yangon to improve earthquake preparedness.
+                </CardDescription>
+                <div className="mt-4 flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-red-500" />
+                  <span className="text-sm text-gray-600">Yangon Region</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                  <Clock className="h-4 w-4" />
+                  2 weeks ago
+                </div>
+                <CardTitle className="text-lg">Cyclone Mocha Recovery</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Ongoing recovery efforts in Rakhine State following Cyclone Mocha impact.
+                </CardDescription>
+                <div className="mt-4 flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-red-500" />
+                  <span className="text-sm text-gray-600">Rakhine State</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-red-600">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6">
+            Join Our Mission
+          </h2>
+          <p className="text-xl text-red-100 mb-8 max-w-3xl mx-auto">
+            Help us build a more resilient Myanmar. Volunteer, donate, or simply stay informed 
+            to make a difference in your community.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button asChild size="lg" variant="secondary" className="text-lg px-8">
+              <Link to="/activities">Become a Volunteer</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="text-lg px-8 border-white text-red-400 hover:bg-white hover:text-red-600">
+              <Link to="/donations">Make a Donation</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
     </div>
-  );
+  )
 }

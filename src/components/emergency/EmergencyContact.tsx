@@ -1,5 +1,4 @@
 "use client"
-
 import { useState, useMemo, useEffect } from "react"
 import { Phone, Clock, MapPin, Search, Activity, Shield, Ambulance, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -7,10 +6,9 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import MapModal from "@/components/emergency/MapModel"
 
 // Complete mock data with 30+ entries covering all regions
-const emergencyContacts = [
+const emergencyContactsData = [
   // Yangon Region
   {
     id: 1,
@@ -51,7 +49,6 @@ const emergencyContacts = [
     services: ["Fire", "Rescue", "Emergency"],
     notes: "Main fire station",
   },
-
   // Mandalay Region
   {
     id: 4,
@@ -92,7 +89,6 @@ const emergencyContacts = [
     services: ["General", "Maternity", "Pediatrics"],
     notes: "Private hospital",
   },
-
   // Nay Pyi Taw
   {
     id: 7,
@@ -120,7 +116,6 @@ const emergencyContacts = [
     services: ["General", "Emergency", "ICU"],
     notes: "Government hospital",
   },
-
   // Shan State
   {
     id: 9,
@@ -148,7 +143,6 @@ const emergencyContacts = [
     services: ["General", "Emergency"],
     notes: "District level hospital",
   },
-
   // Kachin State
   {
     id: 11,
@@ -176,7 +170,6 @@ const emergencyContacts = [
     services: ["Mountain Rescue", "Flood", "Emergency"],
     notes: "Specialized mountain rescue",
   },
-
   // Kayah State
   {
     id: 13,
@@ -191,7 +184,6 @@ const emergencyContacts = [
     services: ["General", "Emergency"],
     notes: "State hospital",
   },
-
   // Kayin State
   {
     id: 14,
@@ -219,7 +211,6 @@ const emergencyContacts = [
     services: ["Police", "Fire", "Medical"],
     notes: "State emergency services",
   },
-
   // Chin State
   {
     id: 16,
@@ -234,7 +225,6 @@ const emergencyContacts = [
     services: ["General", "Basic Emergency"],
     notes: "Remote area hospital",
   },
-
   // Mon State
   {
     id: 17,
@@ -262,7 +252,6 @@ const emergencyContacts = [
     services: ["Fire", "Rescue", "Emergency"],
     notes: "State fire services",
   },
-
   // Rakhine State
   {
     id: 19,
@@ -290,7 +279,6 @@ const emergencyContacts = [
     services: ["Marine Rescue", "Emergency"],
     notes: "Maritime emergency services",
   },
-
   // Bago Region
   {
     id: 21,
@@ -318,7 +306,6 @@ const emergencyContacts = [
     services: ["General", "Maternity"],
     notes: "District hospital",
   },
-
   // Magway Region
   {
     id: 23,
@@ -346,7 +333,6 @@ const emergencyContacts = [
     services: ["General", "Basic Emergency"],
     notes: "District hospital",
   },
-
   // Sagaing Region
   {
     id: 25,
@@ -374,7 +360,6 @@ const emergencyContacts = [
     services: ["General", "Emergency"],
     notes: "District level care",
   },
-
   // Tanintharyi Region
   {
     id: 27,
@@ -402,7 +387,6 @@ const emergencyContacts = [
     services: ["General", "Emergency"],
     notes: "Coastal district hospital",
   },
-
   // Ayeyarwady Region
   {
     id: 29,
@@ -430,8 +414,7 @@ const emergencyContacts = [
     services: ["Water Rescue", "Flood Response"],
     notes: "River and flood emergency services",
   },
-
-  // Additional emergency services
+  // National emergency services
   {
     id: 31,
     name: "National Emergency Hotline",
@@ -457,6 +440,45 @@ const emergencyContacts = [
     hours: "24/7",
     services: ["Disaster Relief", "First Aid", "Blood Bank"],
     notes: "International humanitarian organization",
+  },
+  {
+    id: 33,
+    name: "Police Hotline",
+    type: "emergency",
+    phone: "199",
+    address: "Nationwide Service",
+    region: "National",
+    lat: 19.7633,
+    lng: 96.0785,
+    hours: "24/7",
+    services: ["Police", "Crime Reporting"],
+    notes: "National police emergency hotline",
+  },
+  {
+    id: 34,
+    name: "Ambulance Service",
+    type: "emergency",
+    phone: "192",
+    address: "Nationwide Service",
+    region: "National",
+    lat: 19.7633,
+    lng: 96.0785,
+    hours: "24/7",
+    services: ["Medical Emergency", "Ambulance Dispatch"],
+    notes: "National ambulance emergency hotline",
+  },
+  {
+    id: 35,
+    name: "Fire Service",
+    type: "emergency",
+    phone: "191",
+    address: "Nationwide Service",
+    region: "National",
+    lat: 19.7633,
+    lng: 96.0785,
+    hours: "24/7",
+    services: ["Fire Emergency", "Rescue"],
+    notes: "National fire emergency hotline",
   },
 ]
 
@@ -491,9 +513,17 @@ const EmergencyContactsPage = () => {
   const [selectedRegion, setSelectedRegion] = useState<string>("All Regions")
   const [selectedType, setSelectedType] = useState<string>("all")
   const [searchQuery, setSearchQuery] = useState<string>("")
-  const [selectedContact, setSelectedContact] = useState<any>(null)
-  const [showMapModal, setShowMapModal] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+
+  // Separate national emergency contacts
+  const nationalEmergencyContacts = useMemo(() => {
+    return emergencyContactsData.filter((contact) => contact.region === "National")
+  }, [])
+
+  // Filter out national contacts from the main list
+  const regionalContacts = useMemo(() => {
+    return emergencyContactsData.filter((contact) => contact.region !== "National")
+  }, [])
 
   // Simulate loading
   useEffect(() => {
@@ -502,7 +532,7 @@ const EmergencyContactsPage = () => {
   }, [])
 
   const filteredContacts = useMemo(() => {
-    return emergencyContacts.filter((contact) => {
+    return regionalContacts.filter((contact) => {
       const matchesRegion = selectedRegion === "All Regions" || contact.region === selectedRegion
       const matchesType = selectedType === "all" || contact.type === selectedType
       const matchesSearch =
@@ -510,10 +540,9 @@ const EmergencyContactsPage = () => {
         contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         contact.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
         contact.services.some((service) => service.toLowerCase().includes(searchQuery.toLowerCase()))
-
       return matchesRegion && matchesType && matchesSearch
     })
-  }, [selectedRegion, selectedType, searchQuery])
+  }, [selectedRegion, selectedType, searchQuery, regionalContacts])
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -539,11 +568,6 @@ const EmergencyContactsPage = () => {
       default:
         return "bg-gray-50 text-gray-700 border-gray-200"
     }
-  }
-
-  const handleViewMap = (contact: any) => {
-    setSelectedContact(contact)
-    setShowMapModal(true)
   }
 
   const clearFilters = () => {
@@ -575,6 +599,35 @@ const EmergencyContactsPage = () => {
         <p className="text-gray-600">Find emergency services and healthcare facilities across Myanmar</p>
       </div>
 
+      {/* National Emergency Numbers Section */}
+      <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-8">
+        <h2 className="text-xl font-bold text-red-800 mb-4 flex items-center gap-2">
+          <Ambulance className="h-6 w-6" />
+          National Emergency Hotlines
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {nationalEmergencyContacts.map((contact) => (
+            <Card key={contact.id} className="bg-white border border-red-100 shadow-sm">
+              <CardContent className="p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {getIcon(contact.type)}
+                  <div>
+                    <h3 className="font-semibold text-gray-900">{contact.name}</h3>
+                    <p className="text-sm text-gray-600 flex items-center gap-1">
+                      <Phone className="h-3 w-3" />
+                      <a href={`tel:${contact.phone}`} className="text-blue-600 hover:underline">
+                        {contact.phone}
+                      </a>
+                    </p>
+                  </div>
+                </div>
+                <Badge className={`text-xs ${getTypeColor(contact.type)}`}>{contact.type}</Badge>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+
       {/* Filters */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -590,7 +643,6 @@ const EmergencyContactsPage = () => {
               />
             </div>
           </div>
-
           {/* Region Filter */}
           <div>
             <Select value={selectedRegion} onValueChange={setSelectedRegion}>
@@ -606,7 +658,6 @@ const EmergencyContactsPage = () => {
               </SelectContent>
             </Select>
           </div>
-
           {/* Type Filter */}
           <div>
             <Select value={selectedType} onValueChange={setSelectedType}>
@@ -623,7 +674,6 @@ const EmergencyContactsPage = () => {
             </Select>
           </div>
         </div>
-
         {/* Active Filters */}
         {(selectedRegion !== "All Regions" || selectedType !== "all" || searchQuery) && (
           <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-100">
@@ -698,7 +748,6 @@ const EmergencyContactsPage = () => {
                         </Badge>
                       </div>
                     </div>
-
                     <div className="space-y-2 text-sm text-gray-600">
                       <div className="flex items-center gap-2">
                         <MapPin className="h-4 w-4 flex-shrink-0 text-gray-400" />
@@ -710,60 +759,18 @@ const EmergencyContactsPage = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <Phone className="h-4 w-4 flex-shrink-0 text-gray-400" />
-                        <a
-                          href={`tel:${contact.phone}`}
-                          className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
-                        >
-                          {contact.phone}
-                        </a>
+                        <p>{contact.phone}</p>
                       </div>
                     </div>
-
                     {contact.notes && <p className="mt-3 text-sm text-gray-500 italic">{contact.notes}</p>}
                   </div>
-
-                  {/* Services & Actions */}
-                  <div className="lg:w-80 space-y-4">
-                    {contact.services && (
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-700 mb-2">Services:</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {contact.services.map((service, index) => (
-                            <Badge key={index} variant="secondary" className="text-xs">
-                              {service}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleViewMap(contact)}
-                        className="flex-1 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 transition-colors"
-                      >
-                        <MapPin className="h-4 w-4 mr-1" />
-                        View Map
-                      </Button>
-                      <Button size="sm" asChild className="flex-1 bg-green-600 hover:bg-green-700">
-                        <a href={`tel:${contact.phone}`}>
-                          <Phone className="h-4 w-4 mr-1" />
-                          Call Now
-                        </a>
-                      </Button>
-                    </div>
-                  </div>
+                  
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
       )}
-
-      {/* Map Modal */}
-      {showMapModal && selectedContact && <MapModal contact={selectedContact} onClose={() => setShowMapModal(false)} />}
     </div>
   )
 }

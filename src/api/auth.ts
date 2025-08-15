@@ -1,4 +1,7 @@
+// src/api/authService.ts
+import axios from "axios";
 import api from "./axioInstance";
+import {storeTokens} from "@/hooks/setToken"
 
 interface RegisterData {
   name: string;
@@ -15,11 +18,11 @@ interface LoginData {
 interface AuthResponse {
   accessToken: string;
   refreshToken: string;
-  accessTokenExpiration: string; // or Date, depending on your API
+  accessTokenExpiration: string;
 }
 
 export type UserResponseDto = {
-  id: string;       // GUID represented as a string
+  id: string;
   name: string;
   email: string;
   profile: string;
@@ -27,7 +30,7 @@ export type UserResponseDto = {
 };
 
 interface GoogleLoginDto {
-  idToken: string; // The Google ID token from client
+  idToken: string;
 }
 
 interface ResetPasswordData {
@@ -39,7 +42,6 @@ interface ResetPasswordResponse {
   message: string;
 }
 
-// Add to your existing interfaces
 interface AdminInviteRequestDto {
   email: string;
   name?: string;
@@ -52,12 +54,11 @@ interface AdminInviteResponseDto {
 }
 
 interface AcceptAdminInviteDto {
-  email: string;    // Must match backend exactly (case-sensitive)
-  token: string;    // Must match backend exactly
-  newPassword: string;  // Must match backend exactly
+  email: string;
+  token: string;
+  newPassword: string;
 }
 
-// Backend generic API response wrapper
 interface ApiResult<T> {
   isSuccess: boolean;
   data: T | null;
@@ -67,139 +68,99 @@ interface ApiResult<T> {
   isValidationError: boolean;
 }
 
-// Local storage keys
-const ACCESS_TOKEN_KEY = "authToken";
-const REFRESH_TOKEN_KEY = "refreshToken";
-const USER_DATA_KEY = "userData";
-
-const storeTokens = (auth: AuthResponse) => {
-  console.log("Storing tokens:", auth);
-  localStorage.setItem(ACCESS_TOKEN_KEY, auth.accessToken);
-  localStorage.setItem(REFRESH_TOKEN_KEY, auth.refreshToken);
-};
-
-const clearTokens = () => {
-  localStorage.removeItem(ACCESS_TOKEN_KEY);
-  localStorage.removeItem(REFRESH_TOKEN_KEY);
-  localStorage.removeItem(USER_DATA_KEY);
-};
-
-const storeUserData = (user: UserResponseDto) => {
-  localStorage.setItem(USER_DATA_KEY, JSON.stringify(user));
-};
-
-const getUserData = (): UserResponseDto | null => {
-  const data = localStorage.getItem(USER_DATA_KEY);
-  if (!data) return null;
-  try {
-    return JSON.parse(data) as UserResponseDto;
-  } catch {
-    return null;
-  }
-};
-
 export const authService = {
-  
   async register(data: RegisterData): Promise<AuthResponse> {
     const response = await api.post<ApiResult<AuthResponse>>("/auth/register", data);
-
     if (!response.data.isSuccess || !response.data.data) {
       throw new Error(response.data.message || "Registration failed");
     }
-
-    storeTokens(response.data.data);
+    const { accessToken, refreshToken, accessTokenExpiration } = response.data.data;
+    storeTokens(accessToken, refreshToken, accessTokenExpiration);
     return response.data.data;
   },
 
-  async resetPassword(data: ResetPasswordData): Promise<ResetPasswordResponse> {
-    const response = await api.patch<ApiResult<ResetPasswordResponse>>("/auth/reset-password", data);
+  async login(data: LoginData): Promise<AuthResponse> {
+  try {
+    const response = await api.post<ApiResult<AuthResponse>>("/auth/login", data);
 
+    // Check if backend response flags success and data exist
     if (!response.data.isSuccess || !response.data.data) {
+      throw new Error(response.data.message || "Login failed");
+    }
+
+    const { accessToken, refreshToken, accessTokenExpiration } = response.data.data;
+    storeTokens(accessToken, refreshToken, accessTokenExpiration);
+    console.log(response.data.data);
+    return response.data.data;
+
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        const status = error.response.status;
+        const message = error.response.data?.message || "An error occurred during login";
+
+        if (status === 500 || status === 401 || status === 400) {
+          throw new Error(message || "Incorrect email or password");
+        } 
+      }
+      // Network or other Axios error
+      throw new Error("Network error. Please check your connection and try again.");
+    }
+
+    // Non-Axios or unknown error
+    if (error instanceof Error) throw error;
+
+    throw new Error("An unknown error occurred during login");
+  }
+},
+
+
+  async resetPassword(data: ResetPasswordData): Promise<{ message: string }> {
+  try {
+    const response = await api.patch<{ message: string }>("/auth/reset-password", data);
+    if (response.status === 200) {
+      return response.data;  
+    } else {
       throw new Error(response.data.message || "Reset password failed");
     }
 
-    return response.data.data;
+    } catch (error: unknown) {
+      if (error instanceof Error) throw error;
+      throw new Error("An unknown error occurred.");
+    }
   },
 
   async sendAdminInvite(data: AdminInviteRequestDto): Promise<AdminInviteResponseDto> {
     const response = await api.post<ApiResult<AdminInviteResponseDto>>("/auth/admin-invite", data);
-    
     if (!response.data.isSuccess || !response.data.data) {
       throw new Error(response.data.message || "Failed to send admin invite");
     }
-    
     return response.data.data;
   },
 
   async acceptAdminInvite(data: AcceptAdminInviteDto): Promise<AuthResponse> {
     const response = await api.patch<ApiResult<AuthResponse>>("/auth/accept-admin-invite", data);
-    
     if (!response.data.isSuccess || !response.data.data) {
       throw new Error(response.data.message || "Failed to accept admin invite");
     }
-    
-    storeTokens(response.data.data);
+    const { accessToken, refreshToken, accessTokenExpiration } = response.data.data;
+    storeTokens(accessToken, refreshToken, accessTokenExpiration);
     return response.data.data;
   },
 
   async googleLogin(data: GoogleLoginDto): Promise<AuthResponse & { user: UserResponseDto }> {
     const response = await api.post<ApiResult<AuthResponse & { user: UserResponseDto }>>("/auth/google-login", data);
-
     if (!response.data.isSuccess || !response.data.data) {
       throw new Error(response.data.message || "Google login failed");
     }
-
-    const authData = response.data.data;
-    storeTokens(authData);
-    storeUserData(authData.user);
-
-    return authData;
-  },
-
-  async login(data: LoginData): Promise<AuthResponse> {
-    try {
-      const response = await api.post<ApiResult<AuthResponse>>("/auth/login", data);
-
-      if (!response.data.isSuccess || !response.data.data) {
-        throw new Error(response.data.message || "Login failed");
-      }
-
-      storeTokens(response.data.data);
-
-      // Optionally fetch and store user data after login
-      const userResult = await this.getCurrentUser();
-      if (userResult.isSuccess && userResult.data) {
-        storeUserData(userResult.data);
-      }
-
-      return response.data.data;
-    } catch (error) {
-      console.error("Login failed:", error);
-      throw error;
-    }
-  },
-
-  async logout(): Promise<void> {
-    try {
-      // If your backend supports logout endpoint, call it here
-      await api.post("/auth/logout");
-    } catch (error) {
-      console.warn("Logout API call failed or not implemented", error);
-    } finally {
-      clearTokens();
-      // Optionally reload or redirect handled elsewhere
-    }
+    const { accessToken, refreshToken, accessTokenExpiration } = response.data.data;
+    storeTokens(accessToken, refreshToken, accessTokenExpiration);
+    return response.data.data;
   },
 
   async getCurrentUser(): Promise<ApiResult<UserResponseDto>> {
     try {
       const response = await api.get<ApiResult<UserResponseDto>>("/auth/profile");
-      
-      // Only store if success and data exist
-      if (response.data.isSuccess && response.data.data) {
-        storeUserData(response.data.data);
-      }
-      
       return response.data;
     } catch (error) {
       console.error("Failed to fetch user profile:", error);
@@ -212,17 +173,5 @@ export const authService = {
         message: "Failed to fetch user profile"
       };
     }
-  },
-
-  isAuthenticated(): boolean {
-    return !!localStorage.getItem(ACCESS_TOKEN_KEY);
-  },
-
-  getAccessToken(): string | null {
-    return localStorage.getItem(ACCESS_TOKEN_KEY);
-  },
-
-  getRefreshToken(): string | null {
-    return localStorage.getItem(REFRESH_TOKEN_KEY);
-  },
+  }
 };

@@ -1,130 +1,134 @@
-import { Link } from "react-router-dom";
-import { Shield, Mail, Phone, MapPin, Facebook, Twitter, Instagram } from "lucide-react";
+import { Link } from 'react-router-dom'
+import { Shield, Phone, Mail, MapPin, Facebook, Twitter, Youtube } from 'lucide-react'
 
-export default function Footer() {
+export function Footer() {
   return (
-    <footer className="bg-gray-900 text-gray-100 border-t border-gray-700 mt-12 pt-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <footer className="bg-gray-900 text-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Brand Info */}
-          <div className="col-span-1 lg:col-span-2 flex flex-col gap-4">
-            <div className="flex items-center space-x-3">
-              <div className="bg-red-600 p-2 rounded-lg">
+          {/* Brand */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-red-500 to-red-600">
                 <Shield className="h-6 w-6 text-white" />
               </div>
-              <span className="text-xl font-bold text-white">DisasterGuard</span>
+              <div>
+                <span className="font-bold text-xl">DisasterGuard</span>
+                <p className="text-sm text-red-400">Myanmar</p>
+              </div>
             </div>
-            <p className="text-gray-400 text-sm max-w-md">
-              Connecting communities during disasters. Report incidents, request help, 
-              and support recovery efforts through our platform.
+            <p className="text-gray-300 text-sm">
+              Protecting communities across Myanmar through comprehensive disaster management and emergency response systems.
             </p>
-            <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-red-500 transition-colors">
-                <Facebook className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-red-500 transition-colors">
-                <Twitter className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-red-500 transition-colors">
-                <Instagram className="h-5 w-5" />
-              </a>
-            </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold text-white mb-4">Quick Links</h3>
-            <ul className="space-y-3">
+            <h3 className="font-semibold text-lg mb-4">Quick Links</h3>
+            <ul className="space-y-2">
               <li>
-                <Link to="/" className="text-gray-400 hover:text-red-500 transition-colors text-sm">
-                  Home
+                <Link
+                  to="/events"
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  Event History
                 </Link>
               </li>
               <li>
-                <Link to="/events" className="text-gray-400 hover:text-red-500 transition-colors text-sm">
-                  Events
+                <Link
+                  to="/activities"
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  Activities
                 </Link>
               </li>
               <li>
-                <Link to="/report" className="text-gray-400 hover:text-red-500 transition-colors text-sm">
-                  Report Incident
+                <Link
+                  to="/awareness"
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  Awareness
                 </Link>
               </li>
               <li>
-                <Link to="/volunteer" className="text-gray-400 hover:text-red-500 transition-colors text-sm">
-                  Volunteer
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Resources */}
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-4">Resources</h3>
-            <ul className="space-y-3">
-              <li>
-                <Link to="/preparedness" className="text-gray-400 hover:text-red-500 transition-colors text-sm">
-                  Preparedness Guides
-                </Link>
-              </li>
-              <li>
-                <Link to="/safety" className="text-gray-400 hover:text-red-500 transition-colors text-sm">
-                  Safety Tips
-                </Link>
-              </li>
-              <li>
-                <Link to="/faq" className="text-gray-400 hover:text-red-500 transition-colors text-sm">
-                  FAQ
-                </Link>
-              </li>
-              <li>
-                <Link to="/partners" className="text-gray-400 hover:text-red-500 transition-colors text-sm">
-                  Partners
+                <Link
+                  to="/donation"
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  Donation
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Contact */}
+          {/* Emergency Contacts */}
           <div>
-            <h3 className="text-lg font-semibold text-white mb-4">Contact Us</h3>
-            <div className="space-y-3 text-sm">
-              <div className="flex items-start space-x-2">
-                <Mail className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
-                <span className="text-gray-400">response@disasterguard.org</span>
-              </div>
-              <div className="flex items-start space-x-2">
-                <Phone className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
-                <span className="text-gray-400">Emergency Hotline: 1-800-DISASTER</span>
-              </div>
-              <div className="flex items-start space-x-2">
-                <MapPin className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
-                <span className="text-gray-400">Global Response Center</span>
-              </div>
+            <h3 className="font-semibold text-lg mb-4">Emergency</h3>
+            <ul className="space-y-2">
+              <li className="flex items-center gap-2 text-gray-300">
+                <Phone className="h-4 w-4 text-red-400" />
+                <span>199 (Fire)</span>
+              </li>
+              <li className="flex items-center gap-2 text-gray-300">
+                <Phone className="h-4 w-4 text-red-400" />
+                <span>192 (Police)</span>
+              </li>
+              <li className="flex items-center gap-2 text-gray-300">
+                <Phone className="h-4 w-4 text-red-400" />
+                <span>191 (Medical)</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Contact Info */}
+          <div>
+            <h3 className="font-semibold text-lg mb-4">Contact Us</h3>
+            <ul className="space-y-2">
+              <li className="flex items-center gap-2 text-gray-300">
+                <Mail className="h-4 w-4 text-red-400" />
+                <span>info@disasterguard.mm</span>
+              </li>
+              <li className="flex items-center gap-2 text-gray-300">
+                <MapPin className="h-4 w-4 text-red-400" />
+                <span>Yangon, Myanmar</span>
+              </li>
+            </ul>
+            <div className="flex gap-3 mt-4">
+              <a
+                href="https://facebook.com/disasterguard"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-300 hover:text-white transition-colors"
+                aria-label="Facebook"
+              >
+                <Facebook className="h-5 w-5" />
+              </a>
+              <a
+                href="https://twitter.com/disasterguard"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-300 hover:text-white transition-colors"
+                aria-label="Twitter"
+              >
+                <Twitter className="h-5 w-5" />
+              </a>
+              <a
+                href="https://youtube.com/disasterguard"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-300 hover:text-white transition-colors"
+                aria-label="YouTube"
+              >
+                <Youtube className="h-5 w-5" />
+              </a>
             </div>
           </div>
         </div>
 
-        {/* Copyright */}
-        <div className="border-t border-gray-800 mt-8 pt-6 pb-6">
-          <div className="flex flex-col md:flex-row justify-between items-center text-sm">
-            <p className="text-gray-500 mb-2 md:mb-0">
-              © 2024 DisasterGuard. All rights reserved.
-            </p>
-            <div className="flex space-x-4">
-              <Link to="/privacy" className="text-gray-500 hover:text-red-500 transition-colors">
-                Privacy Policy
-              </Link>
-              <Link to="/terms" className="text-gray-500 hover:text-red-500 transition-colors">
-                Terms of Service
-              </Link>
-              <Link to="/cookies" className="text-gray-500 hover:text-red-500 transition-colors">
-                Cookie Policy
-              </Link>
-            </div>
-          </div>
+        <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+          <p>&copy; 2024 DisasterGuard Myanmar. All rights reserved.</p>
         </div>
       </div>
     </footer>
-  );
+  )
 }
