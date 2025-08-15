@@ -1,29 +1,29 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useAdminStore } from "../../store/adminStore"
-import { cn } from "../../lib/utils"
-import { AdminNavbar } from "./AdminNavbar"
-import { Outlet, useLocation } from "react-router-dom"
-import { AdminSidebar } from "./AdminSidebar"
-import { Toaster } from "sonner"
+import { useEffect, useState } from "react";
+import { useAdminStore } from "../../store/adminStore";
+import { cn } from "../../lib/utils";
+import { AdminNavbar } from "./AdminNavbar";
+import { Outlet, useLocation } from "react-router-dom";
+import { AdminSidebar } from "./AdminSidebar";
+import { Toaster } from "sonner";
 
 function AdminLayout({ children }: { children?: React.ReactNode }) {
-  const initializeData = useAdminStore((state) => state.initializeData)
-  const setActiveTab = useAdminStore((state) => state.setActiveTab)
-  const activeTab = useAdminStore((state) => state.activeTab)
-  const sidebarCollapsed = useAdminStore((state) => state.sidebarCollapsed)
-  const toggleSidebar = useAdminStore((state) => state.toggleSidebar)
-  const [isMobile, setIsMobile] = useState(false)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const initializeData = useAdminStore((state) => state.initializeData);
+  const setActiveTab = useAdminStore((state) => state.setActiveTab);
+  const activeTab = useAdminStore((state) => state.activeTab);
+  const sidebarCollapsed = useAdminStore((state) => state.sidebarCollapsed);
+  const toggleSidebar = useAdminStore((state) => state.toggleSidebar);
+  const [isMobile, setIsMobile] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const location = useLocation()
+  const location = useLocation();
 
   useEffect(() => {
-    initializeData()
+    initializeData();
 
-    const pathParts = location.pathname.split("/")
-    const currentPath = pathParts[pathParts.length - 1]
+    const pathParts = location.pathname.split("/");
+    const currentPath = pathParts[pathParts.length - 1];
 
     const tabMap: Record<string, string> = {
       dashboard: "dashboard",
@@ -34,45 +34,45 @@ function AdminLayout({ children }: { children?: React.ReactNode }) {
       donations: "donations",
       users: "users",
       "": "dashboard",
-    }
+    };
 
-    const newActiveTab = tabMap[currentPath] || "dashboard"
+    const newActiveTab = tabMap[currentPath] || "dashboard";
 
     if (activeTab !== newActiveTab) {
-      setActiveTab(newActiveTab)
+      setActiveTab(newActiveTab);
     }
-  }, [location.pathname, initializeData, setActiveTab, activeTab])
+  }, [location.pathname, initializeData, setActiveTab, activeTab]);
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 1024)
+      setIsMobile(window.innerWidth < 1024);
       if (window.innerWidth >= 1024) {
-        setSidebarOpen(false)
+        setSidebarOpen(false);
       }
-    }
+    };
 
-    handleResize()
-    window.addEventListener('resize', handleResize)
-    
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleToggleSidebar = () => {
     if (isMobile) {
-      setSidebarOpen(!sidebarOpen)
+      setSidebarOpen(!sidebarOpen);
     } else {
-      toggleSidebar()
+      toggleSidebar();
     }
-  }
+  };
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <AdminSidebar 
-        isMobile={isMobile} 
-        sidebarOpen={sidebarOpen} 
-        setSidebarOpen={setSidebarOpen} 
+      <AdminSidebar
+        isMobile={isMobile}
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
       />
-      
+
       {sidebarOpen && isMobile && (
         <div
           className="fixed inset-0 bg-black/20 z-40 lg:hidden"
@@ -87,9 +87,9 @@ function AdminLayout({ children }: { children?: React.ReactNode }) {
           "w-full"
         )}
       >
-        <AdminNavbar 
-          isMobile={isMobile} 
-          onToggleSidebar={handleToggleSidebar} 
+        <AdminNavbar
+          isMobile={isMobile}
+          onToggleSidebar={handleToggleSidebar}
           sidebarOpen={sidebarOpen}
         />
         <main className="flex-1 overflow-auto bg-white">
@@ -100,9 +100,19 @@ function AdminLayout({ children }: { children?: React.ReactNode }) {
         </main>
       </div>
 
-      <Toaster position="top-right" richColors closeButton />
+      <Toaster
+        position="top-right"
+        richColors
+        closeButton
+        toastOptions={{
+          classNames: {
+            toast: "font-sans",
+            title: "font-semibold",
+          },
+        }}
+      />
     </div>
-  )
+  );
 }
 
-export default AdminLayout
+export default AdminLayout;

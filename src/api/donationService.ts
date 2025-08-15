@@ -30,10 +30,12 @@ export interface UpdateDonationDto {
 export interface DonationDto {
   id: number
   donorUserId?: string
+  donarEmail?: string
   donorName?: string
   type: string
   name?: string
   description?: string
+  donarAvator?: string
   quantity?: number
   unit?: string
   amount?: number

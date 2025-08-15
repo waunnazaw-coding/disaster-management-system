@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Gift, Eye, Edit, Trash2, Clock, CheckCircle, XCircle, RefreshCw, Phone } from "lucide-react"
+import { Gift, Eye, Edit, Trash2, Clock, CheckCircle, XCircle, RefreshCw, Phone, ChevronLeft, ChevronRight, ArrowUpDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -11,40 +11,31 @@ import { donationService, type DonationDto } from "@/api/donationService"
 import EditDonationDialog from "@/components/donations/dialogs/EditDonationDialog"
 import DeleteDonationDialog from "@/components/donations/dialogs/DeleteDonationDialog"
 import DonationDetailsDialog from "@/components/donations/dialogs/DonationDetailsDialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface DonationsTabProps {
   refreshTrigger?: number
 }
+
+type SortKey = "name" | "amount" | "status" | "date"
 
 export default function DonationsTab({ refreshTrigger }: DonationsTabProps) {
   const [donations, setDonations] = useState<DonationDto[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(5)
+
+  // Sorting
+  const [sortKey, setSortKey] = useState<SortKey>("date")
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
+
   // Dialog states
-  const [editDialog, setEditDialog] = useState<{
-    open: boolean
-    donation: DonationDto | null
-  }>({
-    open: false,
-    donation: null,
-  })
-
-  const [deleteDialog, setDeleteDialog] = useState<{
-    open: boolean
-    donation: DonationDto | null
-  }>({
-    open: false,
-    donation: null,
-  })
-
-  const [detailsDialog, setDetailsDialog] = useState<{
-    open: boolean
-    donation: DonationDto | null
-  }>({
-    open: false,
-    donation: null,
-  })
+  const [editDialog, setEditDialog] = useState({ open: false, donation: null as DonationDto | null })
+  const [deleteDialog, setDeleteDialog] = useState({ open: false, donation: null as DonationDto | null })
+  const [detailsDialog, setDetailsDialog] = useState({ open: false, donation: null as DonationDto | null })
 
   const fetchDonations = async () => {
     try {
@@ -129,6 +120,46 @@ export default function DonationsTab({ refreshTrigger }: DonationsTabProps) {
     setDonations((prev) => prev.filter((d) => d.id !== deletedDonationId))
   }
 
+  const handleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))
+    } else {
+      setSortKey(key)
+      setSortOrder("asc")
+    }
+  }
+
+  const sortedDonations = [...donations].sort((a, b) => {
+    let aValue: any, bValue: any
+    switch (sortKey) {
+      case "name":
+        aValue = a.name || ""
+        bValue = b.name || ""
+        break
+      case "amount":
+        aValue = a.amount || a.quantity || 0
+        bValue = b.amount || b.quantity || 0
+        break
+      case "status":
+        aValue = a.status || ""
+        bValue = b.status || ""
+        break
+      case "date":
+        aValue = a.dateReceived ? new Date(a.dateReceived).getTime() : 0
+        bValue = b.dateReceived ? new Date(b.dateReceived).getTime() : 0
+        break
+    }
+    if (aValue < bValue) return sortOrder === "asc" ? -1 : 1
+    if (aValue > bValue) return sortOrder === "asc" ? 1 : -1
+    return 0
+  })
+
+  // Pagination
+  const indexOfLastItem = currentPage * itemsPerPage
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage
+  const currentDonations = sortedDonations.slice(indexOfFirstItem, indexOfLastItem)
+  const totalPages = Math.ceil(sortedDonations.length / itemsPerPage)
+
   if (loading) {
     return (
       <Card>
@@ -179,10 +210,6 @@ export default function DonationsTab({ refreshTrigger }: DonationsTabProps) {
               <Gift className="h-5 w-5 text-green-600" />
               My Donations ({donations.length})
             </CardTitle>
-            <Button variant="outline" size="sm" onClick={fetchDonations}>
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh
-            </Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -193,80 +220,136 @@ export default function DonationsTab({ refreshTrigger }: DonationsTabProps) {
               <Button onClick={() => (window.location.href = "/donations/new")}>Make Your First Donation</Button>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name & Type</TableHead>
-                    <TableHead>Amount/Quantity</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {donations.map((donation) => (
-                    <TableRow key={donation.id}>
-                      <TableCell>
-                        <div className="max-w-xs">
-                          <p className="font-medium truncate">{donation.name || donation.type}</p>
-                          <p className="text-sm text-gray-500">{donation.type}</p>
-                          {donation.description && (
-                            <p className="text-xs text-gray-400 truncate">{donation.description}</p>
-                          )}
-                          {getPaymentInfo(donation)}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <span className="font-medium">{formatAmount(donation)}</span>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {getStatusIcon(donation.status)}
-                          <Badge className={getStatusColor(donation.status)}>{donation.status}</Badge>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {donation.dateReceived ? new Date(donation.dateReceived).toLocaleDateString() : "N/A"}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            title="View Details"
-                            onClick={() => setDetailsDialog({ open: true, donation })}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          {donation.status === "Pending" && (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                title="Edit"
-                                onClick={() => setEditDialog({ open: true, donation })}
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-red-600 hover:text-red-800"
-                                title="Delete"
-                                onClick={() => setDeleteDialog({ open: true, donation })}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </TableCell>
+            <>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead onClick={() => handleSort("name")} className="cursor-pointer">
+                        Name & Type <ArrowUpDown className="inline h-3 w-3 ml-1" />
+                      </TableHead>
+                      <TableHead onClick={() => handleSort("amount")} className="cursor-pointer">
+                        Amount/Quantity <ArrowUpDown className="inline h-3 w-3 ml-1" />
+                      </TableHead>
+                      <TableHead onClick={() => handleSort("status")} className="cursor-pointer">
+                        Status <ArrowUpDown className="inline h-3 w-3 ml-1" />
+                      </TableHead>
+                      <TableHead onClick={() => handleSort("date")} className="cursor-pointer">
+                        Date <ArrowUpDown className="inline h-3 w-3 ml-1" />
+                      </TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                  </TableHeader>
+                  <TableBody>
+                    {currentDonations.map((donation) => (
+                      <TableRow key={donation.id}>
+                        <TableCell>
+                          <div className="max-w-xs">
+                            <p className="font-medium truncate">{donation.name || donation.type}</p>
+                            <p className="text-sm text-gray-500">{donation.type}</p>
+                            {donation.description && (
+                              <p className="text-xs text-gray-400 truncate">{donation.description}</p>
+                            )}
+                            {getPaymentInfo(donation)}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <span className="font-medium">{formatAmount(donation)}</span>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            {getStatusIcon(donation.status)}
+                            <Badge className={getStatusColor(donation.status)}>{donation.status}</Badge>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {donation.dateReceived ? new Date(donation.dateReceived).toLocaleDateString() : "N/A"}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              title="View Details"
+                              onClick={() => setDetailsDialog({ open: true, donation })}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            {donation.status === "Pending" && (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  title="Edit"
+                                  onClick={() => setEditDialog({ open: true, donation })}
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-red-600 hover:text-red-800"
+                                  title="Delete"
+                                  onClick={() => setDeleteDialog({ open: true, donation })}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Pagination Controls */}
+              <div className="flex items-center justify-between mt-4">
+                <div className="flex items-center gap-2">
+                  <span>Rows per page:</span>
+                  <Select
+                    value={String(itemsPerPage)}
+                    onValueChange={(val) => {
+                      setItemsPerPage(Number(val))
+                      setCurrentPage(1)
+                    }}
+                  >
+                    <SelectTrigger className="w-[70px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[5, 10, 20, 50].map((size) => (
+                        <SelectItem key={size} value={String(size)}>
+                          {size}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <span>
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

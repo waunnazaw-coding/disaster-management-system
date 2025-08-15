@@ -1,5 +1,5 @@
 // UserRequestsPage.tsx
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, RefreshCw } from 'lucide-react';
@@ -9,6 +9,7 @@ import { UserRequestsTable } from '@/components/assistance_requests/UserRequestT
 
 // ✅ Correct import for react-hot-toast
 import toast from 'react-hot-toast';
+import { AssistanceRequest } from '@/types/assistanceRequests';
 
 export default function UserRequestsPage() {
   const navigate = useNavigate();
@@ -20,14 +21,33 @@ export default function UserRequestsPage() {
     deleteRequest,
   } = useAssistanceRequestsStore();
 
+   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10); // Items per page
+  const [totalPages, setTotalPages] = useState(0);
+  const [currentRequests, setCurrentRequests] = useState<AssistanceRequest[]>([]);
+
   useEffect(() => {
     fetchUserRequests();
   }, [fetchUserRequests]);
+
 
   const handleRefresh = () => {
     fetchUserRequests();
   };
 
+
+  // Calculate pagination when requests change
+  useEffect(() => {
+    if (requests.length > 0) {
+      const startIndex = (currentPage - 1) * pageSize;
+      const endIndex = startIndex + pageSize;
+      setCurrentRequests(requests.slice(startIndex, endIndex));
+      setTotalPages(Math.ceil(requests.length / pageSize));
+    } else {
+      setCurrentRequests([]);
+      setTotalPages(0);
+    }
+  }, [requests, currentPage, pageSize]);
   const handleEdit = (id: number) => {
     navigate(`/requests/assistant/edit/${id}`);
   };
@@ -43,20 +63,31 @@ export default function UserRequestsPage() {
     }
   };
 
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  // Handle view details
+  const handleView = (id: number) => {
+    navigate(`/requests/assistant/${id}`);
+  };
+
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">My Assistance Requests</h1>
         <div className="flex gap-2">
-          <Button
+          {/* <Button
             variant="outline"
             onClick={handleRefresh}
             disabled={loading}
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Refresh
-          </Button>
-          <Button onClick={() => navigate('/requests/assistant/new')}>
+          </Button> */}
+          <Button onClick={() => navigate('/disasters')}>
             <Plus className="h-4 w-4 mr-2" />
             New Request
           </Button>
@@ -74,12 +105,16 @@ export default function UserRequestsPage() {
           <CardTitle>Request History</CardTitle>
         </CardHeader>
         <CardContent>
-          <UserRequestsTable
-            requests={requests}
-            loading={loading}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
+           <UserRequestsTable
+          requests={currentRequests}
+          loading={loading}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onView={handleView} // New prop
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
         </CardContent>
       </Card>
     </div>

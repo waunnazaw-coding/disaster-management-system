@@ -14,27 +14,22 @@ import {
   Shield,
   Home,
   ClipboardList,
+  ActivityIcon,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
 
 const navigation = [
-  {
-    id: "dashboard",
-    name: "Overview",
-    icon: LayoutDashboard,
-    path: "dashboard",
-  },
+  { id: "dashboard", name: "Overview", icon: LayoutDashboard, path: "dashboard" },
   { id: "events", name: "Disaster Events", icon: Calendar, path: "events" },
   { id: "reports", name: "Reports", icon: AlertTriangle, path: "reports" },
   { id: "requests", name: "Requests", icon: HelpCircle, path: "requests" },
-   { id: "assignments", name: "AssignmentsHistory", icon: ClipboardList, path: "assignments" },
-  { id: "teams", name: "Relief Teams", icon: Users, path: "teams" },
+  { id: "assignments", name: "AssignmentsHistory", icon: ClipboardList, path: "assignments" },
   { id: "donations", name: "Donations", icon: Heart, path: "donations" },
   { id: "users", name: "Users", icon: Users, path: "users" },
-   { id: "teams", name: "Relief Teams", icon: Users, path: "relief-team-lists" },
-  { id: "donations", name: "Donators", icon: Heart, path: "donations" },
+  { id: "teams", name: "Relief Teams", icon: Users, path: "relief-team-lists" },
   { id: "admin-invite", name: "Admin Invite", icon: Users, path: "admin-invite" },
+  { id: "activity", name: "Activity", icon: ActivityIcon, path: "activity" }, // New
 ];
 
 

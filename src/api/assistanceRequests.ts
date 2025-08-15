@@ -30,11 +30,18 @@ export const getUserAssistanceRequests = async (): Promise<AssistanceRequest[]> 
   return response.data.data;
 };
 
+// api/assistanceRequests.ts
 export const getRequestById = async (id: number): Promise<AssistanceRequest> => {
   const response = await api.get(`/AssistanceRequests/${id}`);
-  return response.data.data;
+  
+  // Ensure assignments array exists
+  const request = response.data.data;
+  if (!request.assignments) {
+    request.assignments = [];
+  }
+  
+  return request;
 };
-
 export const createAssistanceRequest = async (
   data: CreateAssistanceRequestDto
 ): Promise<AssistanceRequest> => {

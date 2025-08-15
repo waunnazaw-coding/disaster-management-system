@@ -48,6 +48,7 @@ import { AssignmentStatusBadge } from "../assignments/AssignmentStatusBadge";
 import { RequestActionDialog } from "./RequestActionDialog";
 import { RequestDetailsDialog } from "./RequetsDetailsDialog";
 import {  useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface AdminRequestsTableProps {
   requests: AssistanceRequest[];
@@ -195,38 +196,68 @@ export const AdminRequestsTable = ({
     setDialogOpen(true);
   };
 
-  const handleConfirmAction = async () => {
-    if (!currentRequest) return;
+ 
+// Inside handleConfirmAction function
+const handleConfirmAction = async () => {
+  if (!currentRequest) return;
 
-    try {
-      setDialogLoading(true);
-      let status = "";
-      switch (currentAction) {
-        case "approve":
-          status = "Approved";
-          break;
-        case "reject":
-          status = "Rejected";
-          break;
-        case "fulfill":
-          status = "Fulfilled";
-          break;
-      }
+  const actionMessages = {
+    approve: { success: 'approved', error: 'approving' },
+    reject: { success: 'rejected', error: 'rejecting' },
+    fulfill: { success: 'fulfilled', error: 'fulfilling' },
+  };
 
-      await onStatusChange(currentRequest.id, status);
-      setDialogOpen(false);
-    } catch (error) {
-      console.error("Failed to update request status:", error);
-    } finally {
-      setDialogLoading(false);
+  try {
+    setDialogLoading(true);
+    let status = "";
+    switch (currentAction) {
+      case "approve":
+        status = "Approved";
+        break;
+      case "reject":
+        status = "Rejected";
+        break;
+      case "fulfill":
+        status = "Fulfilled";
+        break;
     }
-  };
 
-  const handleAssignClick = (request: AssistanceRequest) => {
-    // setRequestToAssign(request);
-    // setAssignDialogOpen(true);
-      navigate(`/admin/assign-request/${request.id}`);
-  };
+    await onStatusChange(currentRequest.id, status);
+    
+    // Success toast
+    toast.success(`Request #${currentRequest.id} ${actionMessages[currentAction].success}`, {
+      description: `Support: ${currentRequest.supportType}`,
+      action: {
+        label: "View",
+        onClick: () => handleViewDetails(currentRequest),
+      },
+    });
+    
+    setDialogOpen(false);
+  } catch (error) {
+    // Error toast
+    toast.error(`Error ${actionMessages[currentAction].error} request`, {
+      description: `Request #${currentRequest.id}`,
+    });
+    console.error("Failed to update request status:", error);
+  } finally {
+    setDialogLoading(false);
+  }
+};
+  // Modify handleAssignClick function
+const handleAssignClick = (request: AssistanceRequest) => {
+  if (request.status === "Rejected" || request.status === "Fulfilled") {
+    toast.warning("Cannot assign team", {
+      description: `Request #${request.id} is ${request.status.toLowerCase()}`,
+    });
+  } else if (request.status === "Pending") {
+    toast.info("Approve request first", {
+      description: "Please approve the request before assigning a team",
+    });
+  } else {
+    navigate(`/admin/assign-request/${request.id}`);
+  }
+};
 
   const handleViewDetails = (request: AssistanceRequest) => {
     setSelectedRequest(request);

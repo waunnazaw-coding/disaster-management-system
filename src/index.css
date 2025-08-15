@@ -3,6 +3,10 @@
 
 @import "leaflet/dist/leaflet.css";
 
+@import "yet-another-react-lightbox/styles.css";
+@import "yet-another-react-lightbox/plugins/thumbnails.css"; 
+
+
 
 .leaflet-container {
   width: 100%;
@@ -190,4 +194,13 @@
 /* Remove default toast background */
 .Toastify__toast-body {
   padding: 0;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

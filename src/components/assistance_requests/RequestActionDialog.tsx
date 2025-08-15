@@ -9,7 +9,13 @@ import {
 } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
 
-type ButtonVariant = "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+type ButtonVariant =
+  | "default"
+  | "destructive"
+  | "outline"
+  | "secondary"
+  | "ghost"
+  | "link";
 
 interface RequestActionDialogProps {
   open: boolean;
@@ -29,21 +35,24 @@ interface RequestActionDialogProps {
 const actionConfig = {
   approve: {
     title: "Approve Request",
-    description: "This will approve the assistance request and notify the requester.",
+    description:
+      "This will approve the assistance request and notify the requester.",
     buttonText: "Approve",
     loadingText: "Approving...",
     variant: "default" as ButtonVariant,
   },
   reject: {
     title: "Reject Request",
-    description: "This will reject the assistance request and notify the requester.",
+    description:
+      "This will reject the assistance request and notify the requester.",
     buttonText: "Reject",
     loadingText: "Rejecting...",
     variant: "destructive" as ButtonVariant,
   },
   fulfill: {
     title: "Mark as Fulfilled",
-    description: "This will mark the request as fulfilled. Please ensure the assistance has been provided.",
+    description:
+      "This will mark the request as fulfilled. Please ensure the assistance has been provided.",
     buttonText: "Fulfill",
     loadingText: "Fulfilling...",
     variant: "default" as ButtonVariant,
@@ -60,9 +69,12 @@ export const RequestActionDialog = ({
 }: RequestActionDialogProps) => {
   const config = actionConfig[action];
 
-  const getDisplayValue = (value: string | number | null | undefined, fallback = "N/A") => {
+  const getDisplayValue = (
+    value: string | number | null | undefined,
+    fallback = "N/A"
+  ) => {
     if (value === null || value === undefined) return fallback;
-    return typeof value === 'number' ? value.toString() : value;
+    return typeof value === "number" ? value.toString() : value;
   };
 
   return (

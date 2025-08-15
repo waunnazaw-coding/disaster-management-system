@@ -16,20 +16,39 @@ import { ResetPasswordForm } from "@/components/auth/ResetPassword";
 import { AdminInviteForm } from "@/components/admin-layout/AdminInviteForm";
 import { AcceptAdminInviteForm } from "@/components/admin-layout/AcceptAdminForm";
 import EmergencyContact from "@/components/emergency/EmergencyContact";
+import RequestDetailsPage from "@/pages/user/RequestDetailsPage";
+import ActivitiesPage from "@/pages/public/ActivitiesPage";
+import ActivityDetailPage from "@/pages/public/ActivityDetailPage";
+import ActivityPage from "@/pages/admin/AdminActivityPage";
+import ReliefActivityPage from "@/pages/relief/ReliefActivityPage";
 
-const PublicLayout = lazy(() => import("@/components/user-layout/PublicLayout"));
-const AdminLayout = lazy(() => import("../components/admin-layout/Adminlayout"));
-const ReliefLayout = lazy(() => import("../components/reliefteam-layout/ReliefTeamLayout"));
+const PublicLayout = lazy(
+  () => import("@/components/user-layout/PublicLayout")
+);
+const AdminLayout = lazy(
+  () => import("../components/admin-layout/Adminlayout")
+);
+const ReliefLayout = lazy(
+  () => import("../components/reliefteam-layout/ReliefTeamLayout")
+);
 
 // Lazy loaded pages
 const Login = lazy(() => import("../pages/auth/Login"));
 const SignUp = lazy(() => import("../pages/auth/SignUpPage"));
 const Unauthorized = lazy(() => import("../pages/Unauthorized"));
 const HomePage = lazy(() => import("@/pages/HomePage"));
-const DisasterEventPage = lazy(() => import("../pages/disaster/DisasterEventsPage"));
-const DisasterReportForm = lazy(() => import("../pages/disaster/DisasterReportForm"));
-const AssistantRequestPage = lazy(() => import("@/pages/disaster/AssistantRequestPage"));
-const ReliefTeamListPage = lazy(() => import("@/pages/relief/ReliefTeamListPage"));
+const DisasterEventPage = lazy(
+  () => import("../pages/disaster/DisasterEventsPage")
+);
+const DisasterReportForm = lazy(
+  () => import("../pages/disaster/DisasterReportForm")
+);
+const AssistantRequestPage = lazy(
+  () => import("@/pages/disaster/AssistantRequestPage")
+);
+const ReliefTeamListPage = lazy(
+  () => import("@/pages/relief/ReliefTeamListPage")
+);
 const DonationFormPage = lazy(() => import("@/pages/donation/DonationForm"));
 const VolunteerForm = lazy(() => import("@/pages/donation/VolunteerForm"));
 const AboutUsPage = lazy(() => import("@/pages/AboutUs"));
@@ -61,19 +80,19 @@ const router = createBrowserRouter([
     ),
   },
 
-   {
-        path: "/reset-password",
-        element: (
-            <Suspense fallback={<LoadingFallback />}>
-                <ResetPasswordForm />
-            </Suspense>
-        ),
-    },
+  {
+    path: "/reset-password",
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <ResetPasswordForm />
+      </Suspense>
+    ),
+  },
 
-    {
-        path: "/accept-invite",
-        element: <AcceptAdminInviteForm />,
-    },
+  {
+    path: "/accept-invite",
+    element: <AcceptAdminInviteForm />,
+  },
   {
     path: "/unauthorized",
     element: (
@@ -101,21 +120,45 @@ const router = createBrowserRouter([
       {
         path: "requests",
         children: [
-          { 
-            path: "assistant", 
-            element: <AssistantRequestPage /> 
+          {
+            path: "assistant",
+            element: <AssistantRequestPage />,
           },
-          { 
-            path: "assistant/new", 
-            element: <RequestFormPage /> 
+          {
+            path: "assistant/new",
+            element: <RequestFormPage />,
           },
-          { 
-            path: "assistant/edit/:id", 
+          {
+            path: "assistant/edit/:id",
             element: (
-              <ProtectedRoute allowedRoles={["User", "Admin", "SysAdmin", "ReliefTeam", "Org"]}>
+              <ProtectedRoute
+                allowedRoles={[
+                  "User",
+                  "Admin",
+                  "SysAdmin",
+                  "ReliefTeam",
+                  "Org",
+                ]}
+              >
                 <RequestFormPage editMode={true} />
               </ProtectedRoute>
-            ) 
+            ),
+          },
+          {
+            path: "assistant/:id",
+            element: (
+              <ProtectedRoute
+                allowedRoles={[
+                  "User",
+                  "Admin",
+                  "SysAdmin",
+                  "ReliefTeam",
+                  "Org",
+                ]}
+              >
+                <RequestDetailsPage />
+              </ProtectedRoute>
+            ),
           },
         ],
       },
@@ -127,9 +170,11 @@ const router = createBrowserRouter([
       {
         path: "notifications",
         element: (
-          <ProtectedRoute allowedRoles={["User", "Admin", "SysAdmin", "ReliefTeam", "Org"]}>
+          <ProtectedRoute
+            allowedRoles={["User", "Admin", "SysAdmin", "ReliefTeam", "Org"]}
+          >
             <Suspense fallback={<LoadingFallback />}>
-              <NotificationsPage/>
+              <NotificationsPage />
             </Suspense>
           </ProtectedRoute>
         ),
@@ -138,7 +183,9 @@ const router = createBrowserRouter([
       {
         path: "profile",
         element: (
-          <ProtectedRoute allowedRoles={["User", "Admin", "SysAdmin", "ReliefTeam", "Org"]} />
+          <ProtectedRoute
+            allowedRoles={["User", "Admin", "SysAdmin", "ReliefTeam", "Org"]}
+          />
         ),
         children: [
           {
@@ -154,59 +201,66 @@ const router = createBrowserRouter([
     ],
   },
 
-    // Public routes nested under PublicLayout
-    {
-        path: "/",
+  // Public routes nested under PublicLayout
+  {
+    path: "/",
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <PublicLayout />
+      </Suspense>
+    ),
+    children: [
+      { index: true, element: <HomePage /> },
+
+      { path: "disasters", element: <DisasterEventPage /> },
+      { path: "disasters/report", element: <DisasterReportForm /> },
+
+      { path: "requests/assistant", element: <AssistantRequestPage /> },
+      //{ path: "requests/assistant/new", element: <AssistantRequestForm /> },
+
+      { path: "teams/relief", element: <ReliefTeamListPage /> },
+
+      { path: "donations/new", element: <DonationFormPage /> },
+
+      { path: "volunteers/apply", element: <VolunteerForm /> },
+
+      { path: "emergency-contacts", element: <EmergencyContact /> },
+
+      { path: "about", element: <AboutUsPage /> },
+      // New activity routes
+      { path: "activities", element: <ActivitiesPage /> },
+      { path: "activities/:id", element: <ActivityDetailPage /> },
+    ],
+  },
+
+  // Admin protected routes
+  {
+    element: <ProtectedRoute allowedRoles={["Admin", "SysAdmin"]} />,
+    children: [
+      {
         element: (
-            <Suspense fallback={<LoadingFallback />}>
-                <PublicLayout />
-            </Suspense>
+          <Suspense fallback={<LoadingFallback />}>
+            <AdminLayout />
+          </Suspense>
         ),
         children: [
-            { index: true, element: <HomePage /> },
-
-            { path: "disasters", element: <DisasterEventPage /> },
-            { path: "disasters/report", element: <DisasterReportForm /> },
-
-            { path: "requests/assistant", element: <AssistantRequestPage /> },
-            //{ path: "requests/assistant/new", element: <AssistantRequestForm /> },
-
-            { path: "teams/relief", element: <ReliefTeamListPage /> },
-
-            { path: "donations/new", element: <DonationFormPage /> },
-
-            { path: "volunteers/apply", element: <VolunteerForm /> },
-
-            { path: "emergency-contacts", element: <EmergencyContact /> },
-
-            { path: "about", element: <AboutUsPage /> },
+          { path: "admin/dashboard", element: <AdminDashboard /> },
+          { path: "admin/relief-team-lists", element: <ReliefTeamListPage /> },
+          { path: "admin/admin-invite", element: <AdminInviteForm /> },
+          { path: "admin/dashboard", element: <AdminDashboard /> },
+          { path: "admin/donations", element: <DonationManagement /> },
+          { path: "admin/users", element: <UserManagementPage /> },
+          { path: "admin/requests", element: <AdminRequestsPage /> },
+          { path: "admin/assignments", element: <AdminAssignmentsPage /> },
+          {
+            path: "admin/assign-request/:id",
+            element: <AssignRequestsToReliefPage />,
+          },
+          { path: "admin/activity", element: <ActivityPage /> }, // New
         ],
-    },
-
-    // Admin protected routes
-    {
-        element: <ProtectedRoute allowedRoles={["Admin", "SysAdmin"]} />,
-        children: [
-            {
-                element: (
-                    <Suspense fallback={<LoadingFallback />}>
-                        <AdminLayout />
-                    </Suspense>
-                ),
-                children: [
-                    { path: "admin/dashboard", element: <AdminDashboard /> },
-                    { path: "admin/relief-team-lists", element: <ReliefTeamListPage /> },
-                    { path: "admin/admin-invite", element: <AdminInviteForm /> },
-                     { path: "admin/dashboard", element: <AdminDashboard /> },
-                    { path: "admin/donations", element: <DonationManagement /> },
-                    { path: "admin/users", element: <UserManagementPage /> },
-                    { path: "admin/requests", element: <AdminRequestsPage /> },
-                    { path: "admin/assignments", element: <AdminAssignmentsPage /> },
-                    { path: "admin/assign-request/:id", element: <AssignRequestsToReliefPage /> },
-                ],
-            },
-        ],
-    },
+      },
+    ],
+  },
 
   {
     element: <ProtectedRoute allowedRoles={["ReliefTeam"]} />,
@@ -219,9 +273,9 @@ const router = createBrowserRouter([
         ),
         children: [
           { path: "relief/dashboard", element: <ReliefDashboard /> },
-            { path: "relief/assignments", element: <ReliefAssignmentsPage /> },
+          { path: "relief/assignments", element: <ReliefAssignmentsPage /> },
+          { path: "relief/actvities", element: <ReliefActivityPage /> },
         ],
-        
       },
     ],
   },

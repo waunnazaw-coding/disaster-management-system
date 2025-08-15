@@ -4,6 +4,7 @@ import {
   Users,
   Building2,
   CheckCircle,
+  Loader2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -15,6 +16,9 @@ import { useActiveDisasterEventStore } from "../store/activeDisasterEventStore";
 import { DisasterEvent } from "../types/disaster";
 import QuickActionsSection from "../components/user-layout/QuickActionsSection";
 import DonationToast from "@/components/donations/DonationToast";
+import { useActivityStore } from "@/store/activityStore";
+import ActivityCard from "@/components/activity/ActivityCard";
+import { Button } from "@/components/ui/button";
 
 
 const activeDisastersSample: DisasterEvent[] = [
@@ -73,11 +77,25 @@ const currentDate = new Date().toLocaleString();
 
 export default function HomePage() {
   const { activeEvents, setActiveEvents } = useActiveDisasterEventStore();
+  const { activities, loading } = useActivityStore();
+
 
   useEffect(() => {
     // In production, fetch from the server
     setActiveEvents(activeDisastersSample);
   }, [setActiveEvents]);
+
+   useEffect(() => {
+    // Fetch activities for home page
+    if (activities.length === 0) {
+      useActivityStore.getState().fetchActivities();
+    }
+  }, []);
+
+  // Get 3 most recent activities
+  const recentActivities = [...activities]
+    .sort((a, b) => new Date(b.activityDate).getTime() - new Date(a.activityDate).getTime())
+    .slice(0, 3);
 
   // Stats data array with icons and colors
   const stats = [
@@ -118,11 +136,52 @@ export default function HomePage() {
       {/* ---- Quick Actions ---- */}
       <QuickActionsSection />
 
+
+    {/* ---- Recent Activities ---- */}
+      <section className="max-w-6xl mx-auto px-4 py-12 bg-gradient-to-b from-white to-blue-50">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-blue-900 mb-2">Recent Relief Activities</h2>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            See how relief teams are actively helping communities affected by recent disasters
+          </p>
+        </div>
+
+        {loading ? (
+          <div className="flex justify-center py-6">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          </div>
+        ) : recentActivities.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {recentActivities.map(activity => (
+              <ActivityCard
+                key={activity.id}
+                activity={activity}
+                onView={() => window.location.href = `/activities/${activity.id}`}
+                isAdmin={false}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-gray-600">No recent activities found</p>
+          </div>
+        )}
+
+        <div className="text-center mt-10">
+          <Button asChild variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
+            <Link to="/activities">View All Activities</Link>
+          </Button>
+        </div>
+      </section>
+
+
       {/* ---- Active Disasters ---- */}
       <ActiveDisastersSection
         activeDisasters={activeEvents}
         currentDate={currentDate}
       />
+
+
 
       {/* Divider */}
       <div className="max-w-6xl mx-auto border-b border-gray-300 my-8"></div>
