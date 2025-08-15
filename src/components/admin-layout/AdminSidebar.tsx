@@ -24,16 +24,12 @@ const navigation = [
   { id: "events", name: "Disaster Events", icon: Calendar, path: "events" },
   { id: "reports", name: "Reports", icon: AlertTriangle, path: "reports" },
   { id: "requests", name: "Requests", icon: HelpCircle, path: "requests" },
-  { id: "activity", name: "Activity", icon: ActivityIcon, path: "activity" }, // New
-   { id: "assignments", name: "AssignmentsHistory", icon: ClipboardList, path: "assignments" },
-
+  { id: "activity", name: "Activity", icon: ActivityIcon, path: "activity" }, 
+  { id: "assignments", name: "AssignmentsHistory", icon: ClipboardList, path: "assignments" },
   { id: "donations", name: "Donations", icon: Heart, path: "donations" },
   { id: "users", name: "Users", icon: Users, path: "users" },
-   { id: "teams", name: "Relief Teams", icon: Users, path: "relief-team-lists" },
- 
   { id: "teams", name: "Relief Teams", icon: Users, path: "relief-team-lists" },
   { id: "admin-invite", name: "Admin Invite", icon: Users, path: "admin-invite" },
-  { id: "activity", name: "Activity", icon: ActivityIcon, path: "activity" }, // New
   { id: "financial", name: "Financial Reports", icon: Users, path: "financial-reports" },
 ];
 
@@ -171,36 +167,6 @@ export function AdminSidebar({
         })}
         
       </nav>
-
-      {(!sidebarCollapsed || isMobile) && (
-        <div className="absolute bottom-4 left-4 right-4 p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
-          <h3 className="text-sm font-semibold text-slate-800 mb-2">
-            Quick Stats
-          </h3>
-          <div className="space-y-1 text-xs text-slate-700">
-            <div className="flex justify-between">
-              <span>Active Events:</span>
-              <span className="font-medium text-slate-800">
-                {dashboardStats.activeEvents}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span>Pending Items:</span>
-              <span className="font-medium text-rose-500">
-                {dashboardStats.pendingReports +
-                  dashboardStats.pendingRequests +
-                  dashboardStats.pendingDonations}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span>Active Teams:</span>
-              <span className="font-medium text-emerald-500">
-                {dashboardStats.activeTeams}
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

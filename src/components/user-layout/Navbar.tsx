@@ -4,7 +4,11 @@ import { Shield, Phone, Clock, Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button' 
 import { cn } from '@/lib/utils' 
 import { useAuthStore } from '@/store/authStore'
-import useUserStore from '@/store/userStore'
+import { NotificationDropdown } from "../Notification/NotificationDropdown";
+import { useSignalR } from "@/hooks/useSignalR";
+import { useNotificationStore } from "@/store/notificationStore";
+import { useRoleNavigation } from "@/hooks/useRoleNavigation";
+
 
 // Top utility bar with emergency info
 function UtilityBar() {
@@ -54,7 +58,30 @@ export function Navbar() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const userMenuRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
+  const connection = useSignalR();
+  const { addNotification, incrementUnreadCount } = useNotificationStore();
+  const { getDashboardPath, getDashboardLabel } = useRoleNavigation();
 
+  useEffect(() => {
+    if (!connection) return;
+
+    const handler = (notification: any) => {
+      addNotification({
+        ...notification,
+        createdAt: notification.createdAt
+          ? new Date(notification.createdAt)
+          : new Date(),
+      });
+      incrementUnreadCount();
+    };
+
+    connection.on("ReceiveNotification", handler);
+
+    return () => {
+      connection.off("ReceiveNotification", handler);
+    };
+  }, [connection, addNotification, incrementUnreadCount]);
+  
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
@@ -113,8 +140,20 @@ export function Navbar() {
               })}
             </div>
 
+             {/* Notification dropdown for authenticated users */}
+            {/* {isAuthenticated && (
+              <div>
+                <NotificationDropdown />
+              </div>
+            )} */}
+            
             {/* Right side */}
             <div className="flex items-center gap-3">
+              {isAuthenticated && (
+              <div>
+                <NotificationDropdown />
+              </div>
+            )}
               {/* User Menu or Authentication Buttons */}
               {isAuthenticated ? (
                 <div className="relative" ref={userMenuRef}>
@@ -146,14 +185,14 @@ export function Navbar() {
                         {/* <p className="text-sm text-gray-500">{user?.role}</p> */}
                       </div>
                       <div className="py-2">
-                        <Link
+                        {/* <Link
                           to="/profile"
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                           onClick={() => setUserMenuOpen(false)}
                           role="menuitem"
                         >
                           Profile
-                        </Link>
+                        </Link> */}
                         <Link
                           to="/settings"
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
@@ -162,6 +201,20 @@ export function Navbar() {
                         >
                           Settings
                         </Link>
+                         <Link
+                            to={getDashboardPath()}
+                            className="block px-4 py-2 text-sm text-blue-900 hover:bg-blue-100"
+                            onClick={() => setUserMenuOpen(false)}
+                          >
+                            {getDashboardLabel()}
+                          </Link>
+                          <Link
+                            to="/notifications"
+                            className="block px-4 py-2 text-sm text-blue-900 hover:bg-blue-100"
+                            onClick={() => setUserMenuOpen(false)}
+                          >
+                            Notifications
+                          </Link>
                       </div>
                       <div className="py-2 border-t border-gray-100">
                         <button

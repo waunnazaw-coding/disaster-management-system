@@ -34,6 +34,7 @@ const ReliefLayout = lazy(
 import AwarenessPage from "@/pages/awareness/awareness-page";
 import DonationPage from "@/pages/donation/Donation";
 import FinancialAllocationsPage from "@/pages/finanacial-reports/financial-reports-page";
+import FinancialReportsPage from "@/pages/finanacial-reports/financial-reports-page";
 
 // Lazy loaded pages
 const Login = lazy(() => import("../pages/auth/Login"));
@@ -260,7 +261,8 @@ const router = createBrowserRouter([
             path: "admin/assign-request/:id",
             element: <AssignRequestsToReliefPage />,
           },
-          { path: "admin/activity", element: <ActivityPage /> }, // New
+          { path: "admin/activity", element: <ActivityPage /> },
+           { path: "admin/financial-reports", element: <FinancialReportsPage /> },
         ],
       },
     ],
