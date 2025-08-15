@@ -1,10 +1,12 @@
 import { create } from "zustand";
 import { produce } from "immer";
 import { authService } from "@/api/auth";
+import { removeTokens } from "@/hooks/setToken";
 
 export interface User {
   name: string;
   role: string;
+  email: string;
 }
 
 interface AuthState {
@@ -47,10 +49,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       console.log(`User data fetched during initialization:`, user);
 
-      if (user) {
+      if (user.data) {
         set(
           produce((state) => {
-            state.user = user;
+            state.user = user.data;
             state.isAuthenticated = true;
           })
         );
@@ -75,13 +77,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   logout: async () => {
     try {
-      await authService.logout();
+      removeTokens()
       set(
         produce((state) => {
           state.user = null;
           state.isAuthenticated = false;
         })
       );
+      
     } catch (error) {
       console.error("Logout failed:", error);
       set(

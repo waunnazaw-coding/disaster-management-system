@@ -17,7 +17,8 @@ import { AdminInviteForm } from "@/components/admin-layout/AdminInviteForm";
 import { AcceptAdminInviteForm } from "@/components/admin-layout/AcceptAdminForm";
 import EmergencyContact from "@/components/emergency/EmergencyContact";
 import AwarenessPage from "@/pages/awareness/awareness-page";
-
+import DonationPage from "@/pages/donation/Donation";
+import FinancialAllocationsPage from "@/pages/finanacial-reports/financial-reports-page";
 const PublicLayout = lazy(() => import("@/components/user-layout/PublicLayout"));
 const AdminLayout = lazy(() => import("../components/admin-layout/Adminlayout"));
 const ReliefLayout = lazy(() => import("../components/reliefteam-layout/ReliefTeamLayout"));
@@ -104,7 +105,7 @@ const router = createBrowserRouter([
         path: "requests",
         children: [
           { 
-            path: "assistant", 
+            path: " ", 
             element: <AssistantRequestPage /> 
           },
           { 
@@ -122,7 +123,7 @@ const router = createBrowserRouter([
         ],
       },
       { path: "teams/relief", element: <ReliefTeamListPage /> },
-      { path: "donations/new", element: <DonationFormPage /> },
+      { path: "donations", element: <DonationPage /> },
       { path: "volunteers/apply", element: <VolunteerForm /> },
       { path: "about", element: <AboutUsPage /> },
       // Notifications page
@@ -203,6 +204,7 @@ const router = createBrowserRouter([
                     { path: "admin/donations", element: <DonationManagement /> },
                     { path: "admin/users", element: <UserManagementPage /> },
                     { path: "admin/requests", element: <AdminRequestsPage /> },
+                    { path: "admin/financial-reports", element: <FinancialAllocationsPage /> },
                     { path: "admin/assignments", element: <AdminAssignmentsPage /> },
                     { path: "admin/assign-request/:id", element: <AssignRequestsToReliefPage /> },
                 ],

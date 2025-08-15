@@ -2,16 +2,14 @@ import api from "./axioInstance"
 
 
 export interface CreateDonationDto {
-  type: "Money" | "Item"
   name?: string
   description?: string
-  quantity?: number
-  unit?: string
   amount?: number
   currency?: string
-  sourceType: "Personal" | "Organization" | "NGO" | "Anonymous" | "Company"
-  paymentMethod?: "KPay" | "WavePay" | "BankTransfer"
+  sourceType: string
+  paymentMethod?: string
   donorPhoneNumber?: string
+  category? : string
 }
 
 export interface UpdateDonationDto {
@@ -43,6 +41,7 @@ export interface DonationDto {
   status: "Pending" | "Verified" | "Distributed" | "Cancelled"
   paymentMethod?: string
   donorPhoneNumber?: string
+  category? : string
 }
 
 interface ApiResult<T> {
@@ -104,6 +103,22 @@ export const donationService = {
       throw new Error(error.response?.data?.message || error.message || "Failed to fetch donations")
     }
   },
+
+    // Get total people by phone
+  async getTotalPeopleByPhone(): Promise<number> {
+    const response = await api.get<{ totalPeopleByPhone: number }>(
+      "/donation/total-people"
+    );
+    return response.data.totalPeopleByPhone ?? 0;
+  },
+
+  // Get total amount last year 
+  async getTotalAmountLastYear(): Promise<number> {
+    const response = await api.get<{ totalAmountLastYear: number }>("/donation/total-amount");
+    console.log(response.data); 
+    return response.data.totalAmountLastYear ?? 0;
+  },
+
 
   // Get all donations (Admin only)
   async getAllDonations(): Promise<DonationDto[]> {

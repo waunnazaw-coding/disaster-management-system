@@ -12,7 +12,7 @@ export class ReliefTeamService {
   static async getAllTeams(): Promise<ReliefTeam[]> {
     try {
       console.log("[ReliefTeamService] Attempting API call to fetch all teams")
-      const response = await api.get<ApiResponse<ReliefTeam[]>>("/ReliefTeam")
+      const response = await api.get<ApiResponse<ReliefTeam[]>>("/reliefteams")
 
       if (response.data.isSuccess) {
         console.log("[ReliefTeamService] API call successful")
@@ -30,7 +30,7 @@ export class ReliefTeamService {
   static async getTeamById(id: number): Promise<ReliefTeam> {
     try {
       console.log(`[ReliefTeamService] Attempting API call to fetch team ${id}`)
-      const response = await api.get<ApiResponse<ReliefTeam>>(`/ReliefTeam/${id}`)
+      const response = await api.get<ApiResponse<ReliefTeam>>(`/reliefteams/${id}`)
 
       if (response.data.isSuccess) {
         console.log(`[ReliefTeamService] API call successful for team ${id}`)
@@ -50,7 +50,7 @@ export class ReliefTeamService {
   static async createTeam(teamData: CreateReliefTeamRequest): Promise<ReliefTeam> {
     try {
       console.log("[ReliefTeamService] Attempting API call to create team")
-      const response = await api.post<ApiResponse<ReliefTeam>>("/ReliefTeam/create-invite", teamData)
+      const response = await api.post<ApiResponse<ReliefTeam>>("/reliefteams/create-invite", teamData)
 
       if (response.data.isSuccess) {
         console.log("[ReliefTeamService] Team created successfully via API")
@@ -70,7 +70,7 @@ export class ReliefTeamService {
   static async updateTeam(teamData: UpdateReliefTeamRequest): Promise<ReliefTeam> {
     try {
       console.log(`[ReliefTeamService] Attempting API call to update team ${teamData.id}`)
-      const response = await api.put<ApiResponse<ReliefTeam>>(`/ReliefTeam/${teamData.id}`, teamData)
+      const response = await api.put<ApiResponse<ReliefTeam>>(`/reliefteams/${teamData.id}`, teamData)
 
       if (response.data.isSuccess) {
         console.log(`[ReliefTeamService] Team ${teamData.id} updated successfully via API`)
@@ -92,7 +92,7 @@ export class ReliefTeamService {
   static async deleteTeam(id: number): Promise<void> {
     try {
       console.log(`[ReliefTeamService] Attempting API call to delete team ${id}`)
-      const response = await api.delete<ApiResponse<void>>(`/ReliefTeam/${id}`)
+      const response = await api.delete<ApiResponse<void>>(`/reliefteams/${id}`)
 
       if (response.data.isSuccess) {
         console.log(`[ReliefTeamService] Team ${id} deleted successfully via API`)
@@ -112,7 +112,7 @@ export class ReliefTeamService {
   static async createInvite(inviteData: CreateInviteRequest): Promise<void> {
     try {
       console.log("[ReliefTeamService] Attempting API call to create invite")
-      const response = await api.post<ApiResponse<void>>("/ReliefTeam/create-invite", inviteData)
+      const response = await api.post<ApiResponse<void>>("/reliefteams/create-invite", inviteData)
 
       if (response.data.isSuccess) {
         console.log("[ReliefTeamService] Invite created successfully via API")

@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { Link, useLocation } from 'react-router-dom' 
+import  { useState, useEffect, useRef } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom' 
 import { Shield, Phone, Clock, Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button' 
 import { cn } from '@/lib/utils' 
+import { useAuthStore } from '@/store/authStore'
+import useUserStore from '@/store/userStore'
 
 // Top utility bar with emergency info
 function UtilityBar() {
@@ -21,8 +23,9 @@ function UtilityBar() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <Link to="/emergency" className="hover:underline">Emergency Contacts</Link>
-            <Link to="/donation" className="hover:underline">Donate Now</Link>
+            <Link to="/disasters/report" className="hover:underline">Survey</Link>
+            <Link to="/emergency-contacts" className="hover:underline">Emergency Contacts</Link>
+            <Link to="/donations" className="hover:underline">Donate Now</Link>
           </div>
         </div>
       </div>
@@ -44,16 +47,14 @@ export function Navbar() {
   // Using React Router's useLocation hook to get current path
   const location = useLocation()
   const pathname = location.pathname
-
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const user = useAuthStore((state) => state.user)
+  const logout = useAuthStore((state) => state.logout)
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const userMenuRef = useRef<HTMLDivElement>(null)
+  const navigate = useNavigate()
 
-  // Mock user data - replace with your auth logic
-  const user = { name: 'Aung Kyaw', role: 'Volunteer' }
-
-  // Close user menu on outside click
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
@@ -63,6 +64,11 @@ export function Navbar() {
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  useEffect(() => {
+  console.log('Auth changed', { isAuthenticated, user })
+}, [isAuthenticated, user])
+
 
   return (
     <>
@@ -121,11 +127,11 @@ export function Navbar() {
                     type="button"
                   >
                     <div className="h-8 w-8 rounded-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center text-white font-semibold text-sm">
-                      {user.name.charAt(0)}
+                      {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
                     </div>
                     <div className="hidden md:block text-left">
-                      <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                      <p className="text-xs text-gray-500">{user.role}</p>
+                      <p className="text-sm font-medium text-gray-900">{user?.name}</p>
+                      {/* <p className="text-xs text-gray-500">{user?.role}</p> */}
                     </div>
                   </button>
 
@@ -136,8 +142,8 @@ export function Navbar() {
                       aria-label="User menu dropdown"
                     >
                       <div className="p-3 border-b border-gray-100">
-                        <p className="font-medium text-gray-900">{user.name}</p>
-                        <p className="text-sm text-gray-500">{user.role}</p>
+                        <p className="font-medium text-gray-900">{user?.name}</p>
+                        {/* <p className="text-sm text-gray-500">{user?.role}</p> */}
                       </div>
                       <div className="py-2">
                         <Link
@@ -160,9 +166,9 @@ export function Navbar() {
                       <div className="py-2 border-t border-gray-100">
                         <button
                           className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                          onClick={() => {
-                            setIsAuthenticated(false)
-                            setUserMenuOpen(false)
+                         onClick={async () => {
+                            await logout();  // await completion to ensure state is updated
+                            navigate('/login');
                           }}
                           role="menuitem"
                           type="button"
