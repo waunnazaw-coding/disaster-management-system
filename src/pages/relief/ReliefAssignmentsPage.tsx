@@ -21,7 +21,7 @@ import { ReliefAssignmentsTable } from "@/components/assignments/ReliefTeamAssig
 import { AssignmentDetailsModal } from "@/components/assignments/AssignDetailsModal";
 
 export const ReliefAssignmentsPage = () => {
-  const { reliefTeamId } = useReliefStore();
+  const { reliefTeamId,currentUser } = useReliefStore();
   const { 
     assignments, 
     loading, 
@@ -36,9 +36,12 @@ export const ReliefAssignmentsPage = () => {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  console.log("CureentUser=",currentUser);
+     console.log("ReliefTeamId=",reliefTeamId);
 
   useEffect(() => {
     if (reliefTeamId) {
+    
       fetchTeamAssignments(reliefTeamId);
     }
   }, [reliefTeamId, fetchTeamAssignments]);

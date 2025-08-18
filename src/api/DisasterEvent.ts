@@ -1,6 +1,6 @@
 // src/api/disasterEvents.ts
 
-import { DisasterEvent } from "@/types";
+import { DisasterEvent } from "@/types/DisasterEvent";
 import api from "./axioInstance"; // ✅ your existing axios instance
 
 /**
