@@ -31,6 +31,7 @@ const MapView: React.FC = () => {
   const overlaysRef = useRef<Overlay[]>([]);
   const [events, setEvents] = useState<DisasterEvent[]>([]);
   const [selectedStyle, setSelectedStyle] = useState<keyof typeof MAP_STYLE_URL>("Mierune");
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Fetch events
   useEffect(() => {
@@ -74,7 +75,7 @@ const MapView: React.FC = () => {
     mapInstance.getLayers().insertAt(0, newTileLayer);
   }, [selectedStyle, mapInstance]);
 
-  // Dynamic features on zoom
+  // Map overlays for events (your existing code)
   useEffect(() => {
     if (!mapInstance) return;
 
@@ -95,8 +96,7 @@ const MapView: React.FC = () => {
     mapInstance.addLayer(vectorLayer);
 
     let polygonAppearedZoom: number | null = null;
-    const zoomThresholdOffset = 2; // disappear when zoomed out 2 levels
-
+    const zoomThresholdOffset = 2;
     const view = mapInstance.getView();
 
     events.forEach(event => {
@@ -112,9 +112,7 @@ const MapView: React.FC = () => {
       const features = new GeoJSON().readFeatures(geoJsonObj, { featureProjection: "EPSG:3857" });
       if (!features.length) return;
 
-      const geometries = features
-        .map(f => f.getGeometry())
-        .filter((g): g is Geometry => g !== undefined);
+      const geometries = features.map(f => f.getGeometry()).filter((g): g is Geometry => g !== undefined);
       if (!geometries.length) return;
 
       const overlayPosition = getFeaturesCentroid(geometries);
@@ -124,10 +122,9 @@ const MapView: React.FC = () => {
       overlayEl.style.cursor = "pointer";
       overlayEl.style.width = "20px";
       overlayEl.style.height = "20px";
-      overlayEl.style.transform = "translate(-50%, -50%)"; // center it
-      overlayEl.style.pointerEvents = "auto"; // ensure clickable
-
-    overlayEl.innerHTML = `
+      overlayEl.style.transform = "translate(-50%, -50%)";
+      overlayEl.style.pointerEvents = "auto";
+      overlayEl.innerHTML = `
 <svg width="30" height="30" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
   <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#D51D1D"/>
   <circle cx="12" cy="9" r="3" fill="white"/>
@@ -137,91 +134,70 @@ const MapView: React.FC = () => {
       overlayEl.addEventListener("click", () => {
         vectorSource.clear();
         features.forEach(f => vectorSource.addFeature(f));
-
         const geom = geometries[0];
         if (!geom) return;
-
-        // Fit and animate zoom
         view.fit(geom.getExtent(), { padding: [50, 50, 50, 50], maxZoom: 15, duration: 1000 });
-
-        // After animation ends, store current zoom
-        const onMoveEnd = () => {
-          polygonAppearedZoom = view.getZoom() || 0;
-          mapInstance.un("moveend", onMoveEnd);
-        };
-        mapInstance.on("moveend", onMoveEnd);
-
-        // Fade-in polygon
         let opacity = 0;
         const interval = setInterval(() => {
           opacity += 0.05;
-          if (opacity >= 0.2) {
-            opacity = 0.2;
-            clearInterval(interval);
-          }
-          vectorLayer.setStyle(feature => new Style({
-            stroke: new Stroke({ color: "red", width: 2 }),
-            fill: new Fill({ color: `rgba(255,0,0,${opacity})` }),
-          }));
+          if (opacity >= 0.2) { opacity = 0.2; clearInterval(interval); }
+          vectorLayer.setStyle(f => new Style({ stroke: new Stroke({ color: "red", width: 2 }), fill: new Fill({ color: `rgba(255,0,0,${opacity})` }) }));
         }, 50);
       });
 
-      const overlay = new Overlay({
-        element: overlayEl,
-        position: overlayPosition,
-        positioning: "center-center",
-      });
-
+      const overlay = new Overlay({ element: overlayEl, position: overlayPosition, positioning: "center-center" });
       mapInstance.addOverlay(overlay);
       overlaysRef.current.push(overlay);
     });
-
-    // Zoom listener to disappear polygon after 2 levels
-    const handleZoom = () => {
-      const zoom = view.getZoom() || 0;
-      if (polygonAppearedZoom !== null && zoom < polygonAppearedZoom - zoomThresholdOffset) {
-        let opacity = 0.2;
-        const fadeInterval = setInterval(() => {
-          opacity -= 0.02;
-          if (opacity <= 0) {
-            opacity = 0;
-            vectorSource.clear();
-            polygonAppearedZoom = null;
-            clearInterval(fadeInterval);
-          } else {
-            vectorLayer.setStyle(feature => new Style({
-              stroke: new Stroke({ color: "red", width: 2 }),
-              fill: new Fill({ color: `rgba(255,0,0,${opacity})` }),
-            }));
-          }
-        }, 20);
-      }
-    };
-
-    view.on("change:resolution", handleZoom);
 
     return () => {
       mapInstance.removeLayer(vectorLayer);
       overlaysRef.current.forEach(o => mapInstance.removeOverlay(o));
       overlaysRef.current = [];
-      view.un("change:resolution", handleZoom);
     };
   }, [mapInstance, events]);
 
+  // --- SEARCH FUNCTION ---
+  const handleSearch = async () => {
+    if (!searchQuery || !mapInstance) return;
+
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}`);
+      const results = await response.json();
+      if (results.length === 0) return;
+
+      const { lon, lat } = results[0];
+      const view = mapInstance.getView();
+      view.animate({ center: fromLonLat([parseFloat(lon), parseFloat(lat)]), zoom: 14, duration: 1000 });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
-    <div style={{ width: "100%", height: "100vh", position: "relative" }}>
+    <section className="bg-white">
+      {/* Search box */}
+      <div style={{ position: "absolute", top: 10, right: 10, zIndex: 1000, background: "white", padding: "5px 10px", borderRadius: 4 }}>
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          placeholder="Search location"
+          style={{ padding: "2px 5px" }}
+        />
+        <button onClick={handleSearch} style={{ marginLeft: 5, padding: "2px 5px" }}>Go</button>
+      </div>
+
       {/* Map style selector */}
-      <div style={{ position: "absolute", top: 10, left: 10, zIndex: 1000, background: "white", padding: "5px 10px", borderRadius: 4 }}>
+      <div style={{ position: "absolute", top: 50, left: 10, zIndex: 1000, background: "white", padding: "5px 10px", borderRadius: 4 }}>
         <label htmlFor="mapStyle">Map Style: </label>
         <select id="mapStyle" value={selectedStyle} onChange={e => setSelectedStyle(e.target.value as keyof typeof MAP_STYLE_URL)}>
-          {Object.keys(MAP_STYLE_URL).map(style => (
-            <option key={style} value={style}>{style}</option>
-          ))}
+          {Object.keys(MAP_STYLE_URL).map(style => (<option key={style} value={style}>{style}</option>))}
         </select>
       </div>
 
-      <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
-    </div>
+      <div ref={mapRef} style={{ width: "100%", height: "82vh", position: "relative" }} />
+    </section>
   );
 };
 
