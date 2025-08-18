@@ -2,11 +2,13 @@ import { lazy, Suspense } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import ProtectedRoute from "../routes/ProtectedRoute";
 import DisasterEventWizard from "../pages/admin/DisasterEventWizard";
-import DisasterEventList from "@/components/disaster/DisasterEventLists";
 import EventDetailsPage from "@/pages/disaster/EventDetails";
 import DisasterEventUpdatePage from "@/pages/admin/DisasterEventUpdatePage";
 import EventDetailsPageForAdmin from "@/pages/admin/EventDetailsPageForAdmin";
 import DisasterEventsForAdmin from "@/pages/admin/EventsPageForAdimin";
+import DisasterReportList from "../components/disaster/DisasterReportList";
+import DisasterReportDetail from "@/components/disaster/DisasterReportDetail";
+import MapView from "@/components/disaster/DisasterEventMap";
 
 const PublicLayout = lazy(() => import("@/components/user-layout/PublicLayout"));
 const AdminLayout = lazy(() => import("../components/admin-layout/Adminlayout"));
@@ -19,7 +21,7 @@ const Unauthorized = lazy(() => import("../pages/Unauthorized"));
 
 const HomePage = lazy(() => import("@/pages/HomePage"));
 const DisasterEventPage = lazy(() => import("../pages/disaster/DisasterEventsPage"));
-const DisasterReportForm = lazy(() => import("../pages/disaster/DisasterReportForm"));
+const DisasterReportWizard = lazy(() => import("../pages/disaster/DIsasterReportWizard"));
 const AssistantRequestPage = lazy(() => import("@/pages/disaster/AssistantRequestPage"));
 const AssistantRequestForm = lazy(() => import("../pages/disaster/AssistantRequestForm"));
 const ReliefTeamListPage = lazy(() => import("@/pages/relief/ReliefTeamListPage"));
@@ -74,8 +76,7 @@ const router = createBrowserRouter([
             { index: true, element: <HomePage /> },
 
             { path: "disasters", element: <DisasterEventPage /> },
-            { path: "disasters/report", element: <DisasterReportForm /> },
-            { path: "disasters/lists", element: <DisasterEventList /> },
+            { path: "disasters/report", element: <DisasterReportWizard /> },
             { path: "disasters/:id", element: <EventDetailsPage /> },
 
             { path: "requests/assistant", element: <AssistantRequestPage /> },
@@ -107,6 +108,9 @@ const router = createBrowserRouter([
                     { path: "admin/events/new", element: <DisasterEventWizard /> },
                     { path: "admin/events/update/:id", element: <DisasterEventUpdatePage /> },
                     { path: "admin/events/:id", element: <EventDetailsPageForAdmin /> },
+                    {path: "admin/reports", element: <DisasterReportList />},
+                    {path: "admin/reports/:id", element: <DisasterReportDetail />},
+                    {path: "admin/mapView", element: <MapView />},
                 ],
             },
         ],

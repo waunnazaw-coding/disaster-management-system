@@ -9,12 +9,30 @@ export interface DisasterEvent {
   locationName?: string;
   region?: string;
   country?: string;
+  address?: string;
   severity?: string;
   status: string;
   description?: string;
+  latitude?: number;
+  longitude?: number;
+  locationGeoJson?: any; // optional polygon GeoJSON
+  firstImageUrl?: string;
+  affectedPeople?: number;
 }
+
 
 export async function getAllDisasterEvents(): Promise<DisasterEvent[]> {
   const response = await api.get("/DisasterEvent/all");
-  return response.data.data; // Ensure backend returns data in { isSuccess, data, message }
+  return response.data.data;
 }
+
+export async function getAllActiveDisasterEvents(): Promise<DisasterEvent[]> {
+  const response = await api.get("/DisasterEvent/all-active");
+  console.log(response.data.data)
+  return response.data.data;
+}
+
+export const getActiveEventCount = async (): Promise<number> => {
+  const res = await api.get("/DisasterEvent/active-count");
+  return res.data;
+};

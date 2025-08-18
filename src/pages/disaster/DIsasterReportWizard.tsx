@@ -2,10 +2,10 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import DisasterEventForm from "./DisasterEventForm";
-import ImpactForm from "./ImpactForm";
+import DisasterReportForm from "./DisasterReportForm";
+import ImpactFormForUsers from "./ImpactFormForUsers";
 
-export default function DisasterEventWizard() {
+export default function DisasterReportWizard() {
   const [mode, setMode] = useState<"none" | "occurrence" | "impact">("none");
 
   const reset = () => setMode("none");
@@ -23,24 +23,24 @@ export default function DisasterEventWizard() {
                 onClick={() => setMode("occurrence")}
                 className="flex-1"
               >
-                Disaster Occurrence
+                Disaster Occurrence Report
               </Button>
               <Button
                 onClick={() => setMode("impact")}
                 className="flex-1"
                 variant="outline"
               >
-                Disaster Impact
+                Related disaster Impact
               </Button>
             </div>
           </>
         )}
 
         {mode === "occurrence" && (
-          <DisasterEventForm onCancel={reset} onSuccess={reset} />
+          <DisasterReportForm onCancel={reset} onSuccess={reset} />
         )}
         {mode === "impact" && (
-          <ImpactForm onCancel={reset} onSuccess={reset} />
+          <ImpactFormForUsers onCancel={reset} onSuccess={reset} />
         )}
       </div>
     </div>

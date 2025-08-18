@@ -8,7 +8,7 @@ import {
 import { Link } from "react-router-dom";
 
 import HeroSection from "../components/user-layout/HeroSection";
-import DisasterEventList from "../components/disaster/DisasterEventLists";
+import DisasterEventList from "../components/disaster/DisasterReportList";
 import DisasterReportList from "../components/disaster/DisastetReportLists";
 import ActiveDisastersSection from "../components/disaster/ActiveDisasterSection";
 import { useActiveDisasterEventStore } from "../store/activeDisasterEventStore";

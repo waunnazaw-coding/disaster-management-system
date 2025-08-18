@@ -29,7 +29,7 @@
   outline: none;
   box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.25s ease;
-  margin-left: -23px;
+  margin-left: -30px;
   width: 200px !important;
   height: 100% !important;
   margin-top: -3px;
@@ -86,14 +86,16 @@
   color: white !important;
   background-color: #222;
   width: 30px !important;
+  height: 100% !important;
   border-radius: 2px !important;
   text-align: center !important;
-  margin-left: 30px !important;
+  margin-left: 22px !important;
 }
 
 /* List */
 .gcd-gl-result {
-  margin-left: -21px !important;
+  width: 229px !important;
+  margin-left: -27px !important;
 }
 
 /* zoom control */

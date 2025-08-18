@@ -5,15 +5,34 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Save } from "lucide-react";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import DisasterMap from "@/components/locaiton/Map/DisasterMap";
 import api from "@/api/axioInstance";
 import { toast } from "sonner";
 import { getAllDisasterTypes } from "@/api/disasterTypeApi";
-import "@/styles/new.css"
+import "@/styles/new.css";
+import SuccessModal from "@/components/Modals/SuccessModal";
 
 interface DisasterType {
     id: number;
     name: string;
+}
+
+interface ExistingImpact {
+    id: number;
+    type: string;
+    value?: string;
+    objectName?: string;
+    originalType: string;
+    originalValue?: string;
+    originalObjectName?: string;
 }
 
 interface ExistingPhoto {
@@ -29,7 +48,9 @@ interface EventFormUpdateDto {
     name: string;
     disasterTypeId: number;
     startDate: string | null;
+    status: string | "low";
     severity: string;
+    source?: string;
     description: string;
     locationName?: string;
     geoJson?: string;
@@ -37,6 +58,8 @@ interface EventFormUpdateDto {
     deletedPhotoIds?: number[];
     newPhotos?: File[];
     newPhotoDescription?: string[];
+    existingImpacts?: ExistingImpact[];
+    deletedImpactIds?: number[];
 }
 
 interface Props {
@@ -45,16 +68,53 @@ interface Props {
     onSuccess: () => void;
 }
 
+const IMPACT_TYPE_OPTIONS = [
+    { value: "Infrastructure Damage", label: "Infrastructure Damage - Damage to buildings, roads, bridges" },
+    { value: "Casualties", label: "Casualties - Number of people injured or dead" },
+    { value: "Economic Loss", label: "Economic Loss - Financial cost of the disaster" },
+    { value: "Environmental Impact", label: "Environmental Impact - Effects on nature, wildlife, pollution" },
+    { value: "Displacement", label: "Displacement - Number of people forced to relocate" },
+    { value: "Power Outage", label: "Power Outage - Loss of electricity supply" },
+    { value: "Communication Breakdown", label: "Communication Breakdown - Disruption of phone, internet networks" },
+    { value: "Water Supply Contamination", label: "Water Supply Contamination - Unsafe drinking water conditions" },
+    { value: "Crop Damage", label: "Crop Damage - Agricultural losses" },
+];
+
 export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }: Props) {
     const [formData, setFormData] = useState<EventFormUpdateDto | null>(null);
     const [disasterTypes, setDisasterTypes] = useState<DisasterType[]>([]);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
     const [previewUrls, setPreviewUrls] = useState<(string | null)[]>([]);
+    const [showSuccess, setShowSuccess] = useState(false);
 
-    // For preview URLs of updated existing photos, watch formData.existingPhotos
+    // Update impact handler
+    const updateImpact = (index: number, field: keyof ExistingImpact, value: string) => {
+        setFormData(prev => {
+            if (!prev) return prev;
+            const updated = [...(prev.existingImpacts ?? [])];
+            updated[index] = { ...updated[index], [field]: value };
+            return { ...prev, existingImpacts: updated };
+        });
+    };
+
+
+
+    // Remove impact handler
+    const removeImpact = (id: number) => {
+        setFormData(prev => {
+            if (!prev) return prev;
+            const filtered = (prev.existingImpacts ?? []).filter(i => i.id !== id);
+            return {
+                ...prev,
+                existingImpacts: filtered,
+                deletedImpactIds: [...(prev.deletedImpactIds ?? []), id],
+            };
+        });
+    };
+
+    // Preview URLs for updated existing photos
     useEffect(() => {
         if (!formData?.existingPhotos) {
             setPreviewUrls([]);
@@ -73,25 +133,31 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
         };
     }, [formData?.existingPhotos]);
 
-
-    // Fetch event data and set formData (including photos) on load
+    // Fetch event data and disaster types
     useEffect(() => {
         const fetchEventData = async () => {
             try {
                 const res = await api.get(`/DisasterEvent/update/${eventId}`);
                 const event = res.data?.data;
+                console.log("Fetched event data:", event);
 
                 if (res.data?.isSuccess && event) {
-                    // Add originalDescription to existingPhotos if needed
                     const photosWithOriginalDesc = (event.existingPhotos || []).map((p: ExistingPhoto) => ({
                         ...p,
                         originalDescription: p.description || "",
                     }));
+                    const impactsWithOriginal = (event.existingImpacts || []).map((imp: ExistingImpact) => ({
+                        ...imp,
+                        originalType: imp.type,
+                        originalValue: imp.value,
+                        originalObjectName: imp.objectName,
+                    }));
 
-                    // Set entire formData, but replace existingPhotos with updated one with originalDesc
                     setFormData({
                         ...event,
                         existingPhotos: photosWithOriginalDesc,
+                        existingImpacts: impactsWithOriginal,
+                        deletedImpactIds: [],
                     });
                 } else {
                     setError("Failed to load event data.");
@@ -110,18 +176,18 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
             .catch(() => toast.error("Failed to load disaster types"));
     }, [eventId]);
 
-
+    // Generic form field updater
     const updateForm = (field: keyof EventFormUpdateDto, value: string | number) => {
-        setFormData((prev) => {
+        setFormData(prev => {
             if (!prev) return prev;
             return {
                 ...prev,
-                [field]:
-                    field === "disasterTypeId" && typeof value === "string" ? parseInt(value) : value,
+                [field]: field === "disasterTypeId" && typeof value === "string" ? parseInt(value) : value,
             };
         });
     };
 
+    // Remove existing photo handler
     const removeExistingPhoto = (id: number) => {
         if (!formData) return;
         setFormData({
@@ -131,14 +197,13 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
         });
     };
 
-
+    // Submit handler with form data packaging
     const handleSubmit = async () => {
         if (!formData) return;
         setSubmitting(true);
 
         const form = new FormData();
 
-        // Append all formData fields except these special ones
         Object.entries(formData).forEach(([key, value]) => {
             if (
                 value != null &&
@@ -146,29 +211,25 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
                 key !== "geoJson" &&
                 key !== "deletedPhotoIds" &&
                 key !== "newPhotos" &&
-                key !== "newPhotoDescription"
+                key !== "newPhotoDescription" &&
+                key !== "existingImpacts" &&
+                key !== "deletedImpactIds"
             ) {
                 form.append(key, value.toString());
             }
         });
 
-        // Append geoJson if present
-        if (formData.geoJson) {
-            form.append("GeoJson", formData.geoJson);
-        }
+        if (formData.geoJson) form.append("GeoJson", formData.geoJson);
 
-        // Append DeletedPhotoIds (if any)
         if (formData.deletedPhotoIds && formData.deletedPhotoIds.length > 0) {
             formData.deletedPhotoIds.forEach(id => form.append("DeletedPhotoIds", id.toString()));
         }
 
-        // Append existing photos with their fields
         if (formData.existingPhotos && formData.existingPhotos.length > 0) {
             formData.existingPhotos.forEach((photo, index) => {
                 form.append(`ExistingPhotos[${index}].Id`, photo.id.toString());
                 form.append(`ExistingPhotos[${index}].Description`, photo.description || "");
-
-                if ((photo as any).updatedFile) { // cast to any to access updatedFile if present
+                if ((photo as any).updatedFile) {
                     form.append(`ExistingPhotos[${index}].File`, (photo as any).updatedFile);
                 } else {
                     form.append(`ExistingPhotos[${index}].FilePath`, photo.filePath);
@@ -176,16 +237,31 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
             });
         }
 
-        // Append new photos and descriptions
         if (formData.newPhotos && formData.newPhotos.length > 0) {
-            formData.newPhotos.forEach((file, index) => {
+            formData.newPhotos.forEach(file => {
                 form.append("NewPhotos", file);
             });
         }
+
         if (formData.newPhotoDescription && formData.newPhotoDescription.length > 0) {
-            formData.newPhotoDescription.forEach((desc, index) => {
+            formData.newPhotoDescription.forEach(desc => {
                 form.append("NewPhotoDescription", desc ?? "");
             });
+        }
+
+        // Append existing impacts
+        if (formData.existingImpacts && formData.existingImpacts.length > 0) {
+            formData.existingImpacts.forEach((imp, index) => {
+                form.append(`ExistingImpacts[${index}].Id`, imp.id.toString());
+                form.append(`ExistingImpacts[${index}].Type`, imp.type);
+                form.append(`ExistingImpacts[${index}].Value`, imp.value ?? "");
+                form.append(`ExistingImpacts[${index}].ObjectName`, imp.objectName ?? "");
+            });
+        }
+
+        // Append deleted impact IDs
+        if (formData.deletedImpactIds && formData.deletedImpactIds.length > 0) {
+            formData.deletedImpactIds.forEach(id => form.append("DeletedImpactIds", id.toString()));
         }
 
         try {
@@ -195,7 +271,7 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
 
             if (res.data && (res.data.isSuccess === undefined || res.data.isSuccess === true)) {
                 toast.success("Disaster event updated!");
-                onSuccess();
+                setShowSuccess(true);
             } else {
                 toast.error(res.data.message || "Update failed");
             }
@@ -207,8 +283,6 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
         }
     };
 
-
-
     const parsedGeoJson = useMemo(() => {
         if (!formData?.geoJson) return null;
         try {
@@ -219,28 +293,35 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
         }
     }, [formData?.geoJson]);
 
+    const handleModalClose = () => {
+        setShowSuccess(false);
+        onSuccess();  // notify parent to reset mode to "none"
+    };
+
     if (loading) return <p>Loading event...</p>;
     if (error) return <p className="text-red-600">{error}</p>;
     if (!formData) return <p>Event not found.</p>;
 
     return (
-        <div className="max-w-3xl mx-auto p-6" style={{boxShadow: "0 0 10px lightgray", borderRadius:"10px"}}>
-            <h2 className="text-xl font-semibold">Update Disaster Event</h2>
+        <div className="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-2xl mt-5">
+            <h2 className="text-2xl font-bold text-blue-500 mb-5">Update Disaster Event</h2>
 
+            {/* Name */}
             <div>
-                <Label>Name</Label>
-                <Input className="mb-3 mt-2" value={formData.name} onChange={(e) => updateForm("name", e.target.value)} />
+                <Label className="text-gray-500 text-sm">Disaster Event's Name</Label>
+                <Input className="mb-3" value={formData.name} onChange={e => updateForm("name", e.target.value)} />
             </div>
 
+            {/* Disaster Type */}
             <div>
-                <Label>Disaster Type</Label>
+                <Label className="text-gray-500 text-sm">Disaster Type</Label>
                 <select
-                    className="block w-full rounded border px-2 py-1 mb-3 mt-2"
+                    className="block w-full rounded border px-2 py-2 mb-3"
                     value={formData.disasterTypeId.toString()}
-                    onChange={(e) => updateForm("disasterTypeId", e.target.value)}
+                    onChange={e => updateForm("disasterTypeId", e.target.value)}
                 >
                     <option value="">Select Disaster Type</option>
-                    {disasterTypes.map((type) => (
+                    {disasterTypes.map(type => (
                         <option key={type.id} value={type.id.toString()}>
                             {type.name}
                         </option>
@@ -248,32 +329,82 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
                 </select>
             </div>
 
+            {/* Description */}
             <div>
-                <Label>Description</Label>
+                <Label className="text-gray-500 text-sm">Disaster event description</Label>
                 <Textarea
-                    className="mb-3 mt-2"
+                    className="mb-3"
                     value={formData.description}
-                    onChange={(e) => updateForm("description", e.target.value)}
+                    onChange={e => updateForm("description", e.target.value)}
                 />
             </div>
 
+            {/* Severity */}
             <div>
-                <Label>Location Name</Label>
+                <Label className="text-gray-500 text-sm">Severity</Label>
+                <Select
+                    value={formData.severity || ""}
+                    onValueChange={value => updateForm("severity", value)}
+                >
+                    <SelectTrigger>
+                        <SelectValue placeholder="Select severity" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="Critical">Critical</SelectItem>
+                        <SelectItem value="High">High</SelectItem>
+                        <SelectItem value="Medium">Medium</SelectItem>
+                        <SelectItem value="Low">Low</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+
+            {/* Status */}
+            <div className="mt-3 mb-3">
+                <Label className="text-gray-500 text-sm">Status</Label>
+                <Select
+                    value={formData.status || ""}
+                    onValueChange={value => updateForm("status", value)}
+                >
+                    <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="Active">Active</SelectItem>
+                        <SelectItem value="Case closed">Case closed</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+
+            {/* Source */}
+            <div>
+                <Label className="text-gray-500 text-sm">Source from</Label>
                 <Input
-                    className="mb-3 mt-2"
-                    value={formData.locationName || ""}
-                    onChange={(e) => updateForm("locationName", e.target.value)}
+                    className="mb-3"
+                    value={formData.source || ""}
+                    onChange={e => updateForm("source", e.target.value)}
                 />
             </div>
 
+            {/* Location Name */}
+            <div>
+                <Label className="text-gray-500 text-sm">Location Name</Label>
+                <Input
+                    className="mb-3"
+                    value={formData.locationName || ""}
+                    onChange={e => updateForm("locationName", e.target.value)}
+                />
+            </div>
+
+            {/* Disaster Map */}
             <DisasterMap
                 geojsonData={parsedGeoJson}
-                onChangeGeojson={(geojson) =>
-                    setFormData((prev) => (prev ? { ...prev, geoJson: JSON.stringify(geojson) } : prev))
+                onChangeGeojson={geojson =>
+                    setFormData(prev => (prev ? { ...prev, geoJson: JSON.stringify(geojson) } : prev))
                 }
                 viewOnly={false}
             />
 
+            {/* Existing Photos */}
             <div>
                 <Label className="mt-5">Existing Photos</Label>
                 <div className="flex flex-wrap gap-4 mt-2">
@@ -298,10 +429,10 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
                                 <input
                                     type="file"
                                     accept="image/*"
-                                    onChange={(e) => {
+                                    onChange={e => {
                                         const file = e.target.files?.[0];
                                         if (file) {
-                                            setFormData((prev) => {
+                                            setFormData(prev => {
                                                 if (!prev) return prev;
                                                 const updatedPhotos = [...(prev.existingPhotos ?? [])];
                                                 updatedPhotos[index] = {
@@ -317,9 +448,9 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
 
                                 <Textarea
                                     value={photo.description}
-                                    onChange={(e) => {
+                                    onChange={e => {
                                         const val = e.target.value;
-                                        setFormData((prev) => {
+                                        setFormData(prev => {
                                             if (!prev) return prev;
                                             const updatedPhotos = [...(prev.existingPhotos ?? [])];
                                             updatedPhotos[index] = {
@@ -336,13 +467,11 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
                                 <button
                                     type="button"
                                     onClick={() => {
-                                        setFormData((prev) => {
+                                        setFormData(prev => {
                                             if (!prev) return prev;
-                                            // Remove photo from existingPhotos
                                             const filteredPhotos = (prev.existingPhotos ?? []).filter(
-                                                (p) => p.id !== photo.id
+                                                p => p.id !== photo.id
                                             );
-                                            // Add removed photo ID to deletedPhotoIds array
                                             const updatedDeletedIds = [...(prev.deletedPhotoIds ?? []), photo.id];
                                             return {
                                                 ...prev,
@@ -362,6 +491,7 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
                 </div>
             </div>
 
+            {/* Upload New Photos */}
             <div className="mt-6">
                 <Label className="mb-2 block">Upload New Photos</Label>
 
@@ -369,11 +499,11 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
                     type="button"
                     variant="outline"
                     onClick={() =>
-                        setFormData((prev) => {
+                        setFormData(prev => {
                             if (!prev) return prev;
                             return {
                                 ...prev,
-                                newPhotos: [...(prev.newPhotos ?? []), null as any], // null placeholder for now
+                                newPhotos: [...(prev.newPhotos ?? []), null as any],
                                 newPhotoDescription: [...(prev.newPhotoDescription ?? []), ""],
                             };
                         })
@@ -394,7 +524,7 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
                                 <button
                                     type="button"
                                     onClick={() => {
-                                        setFormData((prev) => {
+                                        setFormData(prev => {
                                             if (!prev) return prev;
                                             const updatedFiles = [...(prev.newPhotos ?? [])];
                                             const updatedDescriptions = [...(prev.newPhotoDescription ?? [])];
@@ -431,11 +561,11 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
                                             type="file"
                                             accept="image/*"
                                             style={{ display: "none" }}
-                                            onChange={(e) => {
+                                            onChange={e => {
                                                 const newFile = e.target.files?.[0];
                                                 if (!newFile) return;
 
-                                                setFormData((prev) => {
+                                                setFormData(prev => {
                                                     if (!prev) return prev;
                                                     const updated = [...(prev.newPhotos ?? [])];
                                                     updated[index] = newFile;
@@ -444,7 +574,6 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
                                             }}
                                         />
                                     </label>
-
                                 ) : (
                                     <img
                                         src={previewUrl as string}
@@ -456,9 +585,9 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
                                 <Textarea
                                     placeholder={`Description for photo ${index + 1}`}
                                     value={formData.newPhotoDescription?.[index] ?? ""}
-                                    onChange={(e) => {
+                                    onChange={e => {
                                         const val = e.target.value;
-                                        setFormData((prev) => {
+                                        setFormData(prev => {
                                             if (!prev) return prev;
                                             const updatedDescriptions = [...(prev.newPhotoDescription ?? [])];
                                             updatedDescriptions[index] = val;
@@ -471,18 +600,94 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
                         );
                     })}
                 </div>
+
+                {/* Existing Impacts Section */}
+                <div className="mt-3">
+                    <label className="mb-2 block font-bold text-xl">Related Impacts</label>
+                    <div className="flex flex-col gap-4 mt-2">
+                        {(formData?.existingImpacts?.length ?? 0) === 0 ? (
+                            <p>No existing impacts.</p>
+                        ) : (
+                            formData.existingImpacts!.map((impact, index) => (
+                                <div
+                                    key={impact.id}
+                                    className="relative p-3 border rounded-md shadow-sm flex gap-2"
+                                >
+                                    {/* Impact Type Select */}
+                                    <div>
+                                        <label htmlFor={`impact-type-${impact.id}`} className="block mb-1 font-medium">
+                                            Type
+                                        </label>
+                                        <select
+                                            id={`impact-type-${impact.id}`}
+                                            value={impact.type}
+                                            onChange={e => updateImpact(index, "type", e.target.value)}
+                                            className="block w-full rounded border border-gray-300 p-2"
+                                        >
+                                            <option value="">Select an impact type...</option>
+                                            {IMPACT_TYPE_OPTIONS.map(({ value, label }) => (
+                                                <option key={value} value={value}>
+                                                    {label}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    {/* Impact Value Input */}
+                                    <div>
+                                        <label className="block mb-1 font-medium">Value</label>
+                                        <input
+                                            type="text"
+                                            value={impact.value || ""}
+                                            onChange={e => updateImpact(index, "value", e.target.value)}
+                                            className="mb-1 block w-full rounded border border-gray-300 p-2"
+                                        />
+                                    </div>
+
+                                    {/* Impact Object Name Input */}
+                                    <div>
+                                        <label className="block mb-1 font-medium">Object Name</label>
+                                        <input
+                                            type="text"
+                                            value={impact.objectName || ""}
+                                            onChange={e => updateImpact(index, "objectName", e.target.value)}
+                                            className="mb-1 block w-full rounded border border-gray-300 p-2"
+                                        />
+                                    </div>
+
+                                    {/* Remove Impact Button */}
+                                    <button
+                                        type="button"
+                                        onClick={() => removeImpact(impact.id)}
+                                        className="absolute top-1 right-1 text-red-600 font-bold text-xl leading-none bg-white rounded-full w-6 h-6 flex items-center justify-center shadow hover:bg-gray-100"
+                                        aria-label="Remove impact"
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
             </div>
 
-
-
-            <div className="flex gap-2 mt-4">
-                <Button onClick={onCancel} variant="secondary" disabled={submitting}>
+            {/* Form buttons */}
+            <div className="flex justify-between mt-5">
+                <Button onClick={onCancel} className="bg-red-500" disabled={submitting}>
                     Cancel
                 </Button>
                 <Button onClick={handleSubmit} disabled={submitting}>
+                    <Save />
                     {submitting ? "Saving..." : "Save"}
                 </Button>
             </div>
+
+            <SuccessModal
+                open={showSuccess}
+                title="Report updated!"
+                message=""
+                onClose={handleModalClose}
+            />
         </div>
     );
 }

@@ -1,5 +1,6 @@
 "use client"
 
+import React, { useEffect } from "react"
 import { useAdminStore } from "../../store/adminStore"
 import { cn } from "../../lib/utils"
 import {
@@ -26,8 +27,19 @@ const navigation = [
 ]
 
 export function AdminSidebar() {
-  const { dashboardStats, sidebarCollapsed, toggleSidebar, setActiveTab } = useAdminStore()
+  // Use selectors to subscribe only to needed parts of the store
+  const dashboardStats = useAdminStore(state => state.dashboardStats)
+  const sidebarCollapsed = useAdminStore(state => state.sidebarCollapsed)
+  const toggleSidebar = useAdminStore(state => state.toggleSidebar)
+  const activeTab = useAdminStore(state => state.activeTab)
+  const setActiveTab = useAdminStore(state => state.setActiveTab)
+  const initializeData = useAdminStore(state => state.initializeData)
+
   const navigate = useNavigate()
+
+  useEffect(() => {
+    initializeData() // load stats on mount
+  }, [initializeData])
 
   const handleNavigation = (path: string, tabId: string) => {
     setActiveTab(tabId)
@@ -83,7 +95,7 @@ export function AdminSidebar() {
         {navigation.map((item) => {
           const Icon = item.icon
           const badgeCount = getBadgeCount(item.id)
-          const active = item.id === useAdminStore.getState().activeTab
+          const isActive = item.id === activeTab
 
           return (
             <div
@@ -91,7 +103,7 @@ export function AdminSidebar() {
               onClick={() => handleNavigation(item.path, item.id)}
               className={cn(
                 "w-full flex items-center justify-between px-3 py-3 mb-1 rounded-lg cursor-pointer text-sm font-medium transition",
-                active
+                isActive
                   ? "bg-blue-700 text-blue-300 shadow-md border border-blue-600"
                   : "text-blue-300 hover:bg-blue-800 hover:text-white"
               )}
@@ -100,10 +112,10 @@ export function AdminSidebar() {
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") handleNavigation(item.path, item.id)
               }}
-              aria-current={active ? "page" : undefined}
+              aria-current={isActive ? "page" : undefined}
             >
               <div className="flex items-center">
-                <Icon className={cn("w-5 h-5", active ? "text-blue-400" : "text-blue-400/70")} />
+                <Icon className={cn("w-5 h-5", isActive ? "text-blue-400" : "text-blue-400/70")} />
                 {!sidebarCollapsed && <span className="ml-3 truncate">{item.name}</span>}
               </div>
               {!sidebarCollapsed && badgeCount > 0 && (

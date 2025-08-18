@@ -2,9 +2,16 @@ import React, { useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
-import { MapPin, Calendar, Users, AlertTriangle, Building2, Heart, Factory } from "lucide-react";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { MapPin,MapPinned, Calendar, Users, User, AlertTriangle, Heart, Bookmark, Building, DollarSign, Shield } from "lucide-react";
 import { useDisasterStore } from "../../store/disasterStore";
 import { useNavigate } from "react-router-dom";
+import "@/styles/new.css"
 
 function DisasterEventsForAdmin() {
     const { events, fetchEvents } = useDisasterStore();
@@ -17,13 +24,13 @@ function DisasterEventsForAdmin() {
     const getSeverityColor = (severity: string) => {
         switch (severity) {
             case "Critical":
-                return "bg-red-500";
+                return "text-red-600 animate-pulse font-bold";
             case "High":
-                return "bg-orange-500";
+                return "text-orange-500 animate-pulse font-bold";
             case "Medium":
-                return "bg-yellow-500";
+                return "text-yellow-500 animate-pulse font-bold";
             default:
-                return "bg-green-500";
+                return "text-light-green-500 animate-pulse font-bold";
         }
     };
 
@@ -42,19 +49,30 @@ function DisasterEventsForAdmin() {
         <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
             <div className="max-w-[1500px] mx-auto">
                 {/* Title and Create Button Row */}
-                <div className="flex justify-between items-center mb-12">
+                <div className="flex justify-between items-center mb-12 h-20">
                     <div>
                         <h2 className="text-4xl font-bold text-blue-900 mb-4">Active Disaster Events</h2>
                         <p className="text-xl text-blue-700 max-w-3xl">
                             Current verified disasters requiring attention and support. Each event is created from community reports and verified by our admin team.
                         </p>
                     </div>
-                    <Button
+
+                   <div className="flex flex-col h-20 justify-between">
+                     <Button
                         className="bg-blue-700 text-white hover:bg-blue-800"
                         onClick={() => navigate("/admin/events/new")}
                     >
                         Create New Event
                     </Button>
+
+                      <Button
+                        className="bg-blue-700 text-white hover:bg-blue-800"
+                        onClick={() => navigate("/admin/mapView")}
+                    >
+                        <MapPinned/>
+                        Map View
+                    </Button>
+                   </div>
                 </div>
 
 
@@ -65,68 +83,147 @@ function DisasterEventsForAdmin() {
                                 key={event.id}
                                 className="group border-0 shadow-lg bg-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden rounded-xl"
                             >
-                                <div className="h-48 bg-blue-700 relative">
+                                <div
+                                    className="h-48 relative bg-gray-200"
+                                    style={{
+                                        backgroundImage: event.firstImageUrl
+                                            ? `url(${event.firstImageUrl})`
+                                            : "linear-gradient(to right, #1e3a8a, #2563eb)",
+                                        backgroundSize: "cover",
+                                        backgroundPosition: "center",
+                                    }}
+                                >
+
                                     <div className="absolute inset-0 bg-black/20" />
-                                    <div className="absolute top-4 left-4 flex items-center space-x-2">
-                                        <div className={`w-3 h-3 rounded-full ${getSeverityColor(event.severity)}`} />
+                                    <div className="absolute top-4 right-4 flex items-center space-x-2 ">
                                         <Badge variant="outline" className={`${getStatusColor(event.status)} font-medium`}>
                                             {event.status}
                                         </Badge>
                                     </div>
-                                    <div className="absolute bottom-4 right-4">
-                                        <AlertTriangle className="h-8 w-8 text-white/80" />
-                                    </div>
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <div className="absolute bottom-4 right-4">
+                                                    <AlertTriangle className={`h-8 w-8 ${getSeverityColor(event.severity)}`} style={{ filter: "drop-shadow(0 0 5px red)" }} />
+                                                </div>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>Severity: {event.severity}</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
                                 </div>
 
-                                <CardHeader className="pb-4">
-                                    <CardTitle className="text-xl font-bold text-blue-900 group-hover:text-blue-600 transition-colors">
+                                <CardHeader className="">
+                                    <CardTitle className="flex justify-between text-xl font-bold text-blue-900 group-hover:text-blue-600 transition-colors">
                                         {event.title}
+                                        <span
+                                            className="text-xs bg-red-100 text-red-700 rounded h-5 mt-2 px-2 font-semibold"
+                                            aria-label="Type"
+                                        >
+                                            {event.disasterTypeName || "N/A"}
+                                        </span>
                                     </CardTitle>
-                                    <CardDescription className="text-blue-700 line-clamp-2">{event.description}</CardDescription>
+
+                                    <CardDescription className="text-blue-700 line-clamp-2 indent-3">{event.description}</CardDescription>
                                 </CardHeader>
 
-                                <CardContent className="space-y-4">
+                                <CardContent className="space-y-4 flex flex-col justify-between">
                                     <div className="space-y-3">
-                                        <div className="flex items-center space-x-3 text-sm text-blue-600">
-                                            <MapPin className="h-4 w-4 text-green-500" />
-                                            <span>{event.location}</span>
+                                        <div className="flex items-center space-x-3 text-blue-600">
+                                            <MapPin className="text-lg h-8 w-6 text-green-500" />
+                                            <span className="text-xs">{event.location}</span>
                                         </div>
                                         <div className="flex items-center space-x-3 text-sm text-blue-600">
                                             <Calendar className="h-4 w-4 text-blue-500" />
-                                            <span>{new Date(event.date).toLocaleDateString()}</span>
+                                            <span>Started Date: {new Date(event.date).toLocaleDateString()}</span>
                                         </div>
-                                        <div className="flex items-center space-x-3 text-sm text-blue-600">
-                                            <Users className="h-4 w-4 text-indigo-500" />
-                                            <span>{event.affectedPeople.toLocaleString()} people affected</span>
+                                        <div className="flex items-center space-x-3 text-sm text-orange-600">
+                                            <User className="h-4 w-4 text-indigo-500" />
+                                            <span>({event.affectedPeople.toLocaleString()}) People affected</span>
                                         </div>
+                                        <div className="flex items-center space-x-3 text-sm text-orange-600">
+                                            <Building className="h-4 w-4 text-indigo-500" />
+                                            <span>({event.affectedInfractructures.toLocaleString()}) Infractructural Damages</span>
+                                        </div>
+                                        {event.affectedFamilies > 0 && (
+                                            <div className="flex items-center space-x-3 text-sm text-orange-600">
+                                                <Users className="h-4 w-4 text-indigo-500" />
+                                                <span>({event.affectedFamilies.toLocaleString()}) Families affected</span>
+                                            </div>
+                                        )}
+                                        {event.currencyChanges.length > 0 && (
+                                            <div className="flex items-center space-x-3 text-sm text-orange-600">
+                                                <DollarSign className="h-4 w-4 text-indigo-500" />
+                                                <span>{event.currencyChanges.join(", ")} ~ Economical Loss</span>
+                                            </div>
+                                        )}
                                     </div>
 
-                                    <div className="flex items-center justify-between pt-2 border-t border-blue-100 text-xs text-blue-500">
-                                        <div className="flex items-center space-x-1">
-                                            <Heart className="h-3 w-3 text-red-400" />
+                                    <div>
+                                        <div className="flex items-center justify-between pt-2 border-t border-blue-100 text-xs text-blue-500">
+                                            <div className="flex gap-1">
+                                                <div className="w-8 h-9 bg-blue-600 rounded-b-full flex items-center justify-center shadow ml-1 mr-0.5">
+                                                    <Shield className="w-5 h-5 text-white" />
+                                                </div>
+                                                <div className="font-semibold">
+                                                    <div className="text-sm text-blue-800">
+                                                        {event.createdUserName || "Unknown"}
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-xs text-gray-500">
+                                                            {event.createdAt
+                                                                ? new Date(event.createdAt).toLocaleString(undefined, {
+                                                                    year: "numeric",
+                                                                    month: "short",
+                                                                    day: "numeric",
+                                                                    hour: "2-digit",
+                                                                    minute: "2-digit",
+                                                                })
+                                                                : "N/A"}
+                                                        </span>
+                                                        <span> . </span>
+                                                        <span
+                                                            className="text-xs bg-gray-200 text-gray-500 rounded px-1 py-0.5 font-semibold"
+                                                            aria-label="Type"
+                                                        >
+                                                            published
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center space-x-1">
+                                                <TooltipProvider>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <Bookmark className="h-4 w-4 text-red-400" />
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p>Save</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </TooltipProvider>
+                                            </div>
                                         </div>
-                                        <div className="flex items-center space-x-1">
-                                            <Building2 className="h-3 w-3 text-blue-400" />
-                                        </div>
-                                    </div>
 
-                                    <div className="flex space-x-2 pt-4">
-                                        <Button
-                                            size="sm"
-                                            className="flex-1 bg-blue-700 text-white hover:from-blue-700 hover:to-indigo-700 shadow-md"
-                                            onClick={() => navigate(`/disasters/${event.id}`)}
-                                        >
-                                            <Heart className="h-4 w-4 mr-2" />
-                                            Request Help
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
-                                            className="flex-1 border-blue-300 text-blue-700 hover:bg-blue-50"
-                                            onClick={() => navigate(`/admin/events/${event.id}`)}
-                                        >
-                                            View Details
-                                        </Button>
+                                        <div className="flex space-x-2 pt-4">
+                                            <Button
+                                                size="sm"
+                                                className="flex-1 bg-blue-700 text-white hover:from-blue-700 hover:to-indigo-700 shadow-md"
+                                                onClick={() => navigate(`/disasters/${event.id}`)}
+                                            >
+                                                <Heart className="h-4 w-4 mr-2" />
+                                                Request Help
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                className="flex-1 border-blue-300 text-blue-700 hover:bg-blue-50"
+                                                onClick={() => navigate(`/admin/events/${event.id}`)}
+                                            >
+                                                View Details
+                                            </Button>
+                                        </div>
                                     </div>
                                 </CardContent>
                             </Card>

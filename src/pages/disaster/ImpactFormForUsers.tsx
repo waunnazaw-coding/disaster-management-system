@@ -5,11 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Search, X } from 'lucide-react';
+import { Search, X, ArrowLeft, Megaphone } from 'lucide-react';
 import DisasterEventSelect, { DisasterEvent } from "@/components/disaster/DisasterEventSelect";
 import { getAllActiveDisasterEvents } from "@/api/disasterEventApi";
 import api from "@/api/axioInstance";
-import { ArrowLeft, FilePlus2 } from "lucide-react";
 import SuccessModal from "@/components/Modals/SuccessModal";
 
 interface ImpactObject {
@@ -51,12 +50,12 @@ function useDebounce(value: string, delay: number) {
     return debouncedValue;
 }
 
-export default function ImpactForm({ onCancel, onSuccess }: ImpactFormProps) {
+export default function ImpactFormForUsers({ onCancel, onSuccess }: ImpactFormProps) {
     const [impactData, setImpactData] = useState<ImpactFormDto>({
         DisasterEventId: null,
         Type: "",
         Objects: [{ objectName: "", value: "" }],
-        Status: "Confirmed",
+        Status: "Pending"
     });
 
     const [disasterEvents, setDisasterEvents] = useState<DisasterEvent[]>([]);
@@ -66,7 +65,7 @@ export default function ImpactForm({ onCancel, onSuccess }: ImpactFormProps) {
     const [hasSelectedEvent, setHasSelectedEvent] = useState(false);
     const [hasTriedSubmit, setHasTriedSubmit] = useState(false);
     const [searchActive, setSearchActive] = useState(false);
-    const [submitting, setSubmitting] = useState(false);
+    const [reporting, setReporting] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     const ignoreNextSearch = useRef(false);
@@ -152,19 +151,19 @@ export default function ImpactForm({ onCancel, onSuccess }: ImpactFormProps) {
     };
 
     async function submitImpact() {
-        if (submitting) return;
-        setSubmitting(true);
+        if (reporting) return; // Prevent extra clicks
+        setReporting(true);
 
         setHasTriedSubmit(true);
 
         if (!impactData.DisasterEventId) {
             toast.error("Please select a Disaster Event");
-            setSubmitting(false);
+            setReporting(false);
             return;
         }
         if (!impactData.Type) {
             toast.error("Please select an Impact Type");
-            setSubmitting(false);
+            setReporting(false);
             return;
         }
 
@@ -183,7 +182,7 @@ export default function ImpactForm({ onCancel, onSuccess }: ImpactFormProps) {
         });
         setImpactData((prev) => ({ ...prev, Objects: updatedObjects }));
         if (hasError) {
-            setSubmitting(false);
+            setReporting(false);
             return;
         }
 
@@ -193,7 +192,7 @@ export default function ImpactForm({ onCancel, onSuccess }: ImpactFormProps) {
                 Type: impactData.Type,
                 Value: obj.value,
                 ObjectName: obj.objectName,
-                Status: impactData.Status,
+                Status: impactData.Status || "Pending",
             }));
 
             const response = await api.post("/Impact/submit-multiple", payload);
@@ -207,7 +206,7 @@ export default function ImpactForm({ onCancel, onSuccess }: ImpactFormProps) {
             toast.error("Error submitting impact form");
             console.error(error);
         } finally {
-            setSubmitting(false);
+            setReporting(false);
         }
     }
 
@@ -263,7 +262,7 @@ export default function ImpactForm({ onCancel, onSuccess }: ImpactFormProps) {
 
     return (
         <div className="max-w-3xl mx-auto p-6 shadow rounded">
-            <h1 className="text-2xl font-bold mb-4 text-blue-500">Event Related Impacts</h1>
+            <h1 className="text-2xl font-bold mb-4 text-blue-500">Related Impact report Survey</h1>
 
             {!searchActive && (
                 <div className="mb-4">
@@ -278,7 +277,7 @@ export default function ImpactForm({ onCancel, onSuccess }: ImpactFormProps) {
                         />
                         <Button
                             variant="outline"
-                            className="ml-0.5 text-gray-500 hover:bg-blue-600 h-11"
+                            className="ml-0.5 hover:text-white hover:bg-blue-600 h-11"
                             onClick={() => setSearchActive(true)}
                         >
                             <Search />
@@ -329,7 +328,7 @@ export default function ImpactForm({ onCancel, onSuccess }: ImpactFormProps) {
 
                         <Button
                             variant="outline"
-                            className="ml-0.5 hover:text-white hover:bg-blue-600 h-11"
+                            className="ml-0.5 text-gray-500 hover:bg-blue-600 h-11"
                             onClick={() => setSearchActive(false)}
                         >
                             <X />
@@ -404,20 +403,20 @@ export default function ImpactForm({ onCancel, onSuccess }: ImpactFormProps) {
                     </Button>
                     <Button
                         onClick={submitImpact}
-                        disabled={submitting || !impactData.Type || !impactData.DisasterEventId}
+                        disabled={reporting || !impactData.Type || !impactData.DisasterEventId}
                     >
-                        {submitting ? "Submitting..." : (
+                        {reporting ? "Reporting..." : (
                             <>
-                                <FilePlus2 className="mr-1" />
-                                Submit
+                                <Megaphone className="mr-1" />
+                                Report
                             </>
                         )}
                     </Button>
 
                     <SuccessModal
                         open={showSuccessModal}
-                        title="Impact has been recorded Successfully!"
-                        message=""
+                        title="Impact has been reported Successfully!"
+                        message="Thank you for your valuable report. We sincerely appreciate your effort and will use this information effectively. Your continued contributions are always welcome. You can report more impacts if needed."
                         onClose={() => {
                             setShowSuccessModal(false);
                             onSuccess(); // keep your existing flow
