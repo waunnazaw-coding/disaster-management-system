@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useEffect } from "react"
 import { useAdminStore } from "../../store/adminStore"
@@ -13,20 +13,38 @@ import {
   ChevronLeft,
   ChevronRight,
   Shield,
-} from "lucide-react"
-import { Button } from "../ui/button"
-import { useNavigate } from "react-router-dom"
+  Home,
+  ClipboardList,
+  ActivityIcon,
+} from "lucide-react";
+import { Button } from "../ui/button";
+import { useNavigate } from "react-router-dom";
 
 const navigation = [
   { id: "dashboard", name: "Overview", icon: LayoutDashboard, path: "dashboard" },
   { id: "events", name: "Disaster Events", icon: Calendar, path: "events" },
   { id: "reports", name: "Reports", icon: AlertTriangle, path: "reports" },
   { id: "requests", name: "Requests", icon: HelpCircle, path: "requests" },
-  { id: "teams", name: "Relief Teams", icon: Users, path: "teams" },
-  { id: "donations", name: "Donators", icon: Heart, path: "donations" },
-]
+  { id: "activity", name: "Activity", icon: ActivityIcon, path: "activity" }, 
+  { id: "assignments", name: "AssignmentsHistory", icon: ClipboardList, path: "assignments" },
+  { id: "donations", name: "Donations", icon: Heart, path: "donations" },
+  { id: "users", name: "Users", icon: Users, path: "users" },
+  { id: "teams", name: "Relief Teams", icon: Users, path: "relief-team-lists" },
+  { id: "admin-invite", name: "Admin Invite", icon: Users, path: "admin-invite" },
+  { id: "financial", name: "Financial Reports", icon: Users, path: "financial-reports" },
+];
 
-export function AdminSidebar() {
+interface AdminSidebarProps {
+  isMobile: boolean;
+  sidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
+}
+
+export function AdminSidebar({
+  isMobile,
+  sidebarOpen,
+  setSidebarOpen,
+}: AdminSidebarProps) {
   // Use selectors to subscribe only to needed parts of the store
   const dashboardStats = useAdminStore(state => state.dashboardStats)
   const sidebarCollapsed = useAdminStore(state => state.sidebarCollapsed)
@@ -42,116 +60,123 @@ export function AdminSidebar() {
   }, [initializeData])
 
   const handleNavigation = (path: string, tabId: string) => {
-    setActiveTab(tabId)
-    navigate(`/admin/${path}`)
-  }
+    setActiveTab(tabId);
+    navigate(`/admin/${path}`);
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  };
+
+  const handleHomeClick = () => {
+    navigate("/");
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  };
 
   const getBadgeCount = (tabId: string) => {
     switch (tabId) {
       case "reports":
-        return dashboardStats.pendingReports
+        return dashboardStats.pendingReports;
       case "requests":
-        return dashboardStats.pendingRequests
+        return dashboardStats.pendingRequests;
       case "donations":
-        return dashboardStats.pendingDonations
+        return dashboardStats.pendingDonations;
       default:
-        return 0
+        return 0;
     }
-  }
+  };
 
   return (
     <div
       className={cn(
-        "fixed left-0 top-0 h-full bg-gradient-to-b from-blue-950 via-blue-900 to-blue-800 shadow-lg border-r border-blue-800 transition-all duration-300 z-50",
-        sidebarCollapsed ? "w-16" : "w-64"
+        "fixed left-0 top-0 h-full z-50 transition-all duration-300",
+        "border-r border-gray-200 bg-white",
+        isMobile ? "w-64" : sidebarCollapsed ? "w-20" : "w-64",
+        isMobile
+          ? sidebarOpen
+            ? "translate-x-0 shadow-xl"
+            : "-translate-x-full"
+          : ""
       )}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-blue-700 bg-blue-900">
-        {!sidebarCollapsed && (
+      <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-slate-800 text-white">
+        {(!sidebarCollapsed || isMobile) && (
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow">
-              <Shield className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h1 className="text-lg font-bold text-white">DisasterAdmin</h1>
-              <p className="text-xs text-blue-300">Management Portal</p>
-            </div>
+            <Shield className="w-6 h-6 text-white" />
+            <span className="font-semibold">Admin Menu</span>
           </div>
         )}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={toggleSidebar}
-          className="p-1.5 hover:bg-blue-700/50 text-white"
-          aria-label="Toggle Sidebar"
-        >
-          {sidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-        </Button>
+        {!isMobile && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleSidebar}
+            className="text-white hover:bg-slate-700"
+          >
+            {sidebarCollapsed ? (
+              <ChevronRight className="w-4 h-4" />
+            ) : (
+              <ChevronLeft className="w-4 h-4" />
+            )}
+          </Button>
+        )}
       </div>
 
-      {/* Navigation */}
-      <nav className="mt-6 px-2">
+      <nav className="mt-4 px-2">
+        {/* Back to Home Button */}
+        {/* <div
+          onClick={handleHomeClick}
+          className={cn(
+            "flex items-center px-3 py-3 mb-2 rounded-lg cursor-pointer",
+            "text-sm font-medium transition-all",
+            "text-slate-600 hover:bg-gray-50"
+          )}
+        >
+          <Home className="w-5 h-5 text-slate-500" />
+          {(!sidebarCollapsed || isMobile) && (
+            <span className="ml-3">Back to Home</span>
+          )}
+        </div> */}
+
+        {/* Navigation Items */}
         {navigation.map((item) => {
-          const Icon = item.icon
-          const badgeCount = getBadgeCount(item.id)
-          const isActive = item.id === activeTab
+          const active = item.id === useAdminStore.getState().activeTab;
+          const badgeCount = getBadgeCount(item.id);
 
           return (
             <div
               key={item.id}
               onClick={() => handleNavigation(item.path, item.id)}
               className={cn(
-                "w-full flex items-center justify-between px-3 py-3 mb-1 rounded-lg cursor-pointer text-sm font-medium transition",
-                isActive
-                  ? "bg-blue-700 text-blue-300 shadow-md border border-blue-600"
-                  : "text-blue-300 hover:bg-blue-800 hover:text-white"
+                "flex items-center px-3 py-3 mb-1 rounded-lg cursor-pointer",
+                "text-sm font-medium transition-all",
+                active
+                  ? "bg-slate-100 text-slate-800 font-semibold"
+                  : "text-slate-600 hover:bg-gray-50"
               )}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") handleNavigation(item.path, item.id)
-              }}
-              aria-current={isActive ? "page" : undefined}
             >
-              <div className="flex items-center">
-                <Icon className={cn("w-5 h-5", isActive ? "text-blue-400" : "text-blue-400/70")} />
-                {!sidebarCollapsed && <span className="ml-3 truncate">{item.name}</span>}
-              </div>
-              {!sidebarCollapsed && badgeCount > 0 && (
-                <span className="bg-red-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow select-none">
-                  {badgeCount}
-                </span>
+              <item.icon
+                className={cn(
+                  "w-5 h-5",
+                  active ? "text-slate-800" : "text-slate-500"
+                )}
+              />
+              {(!sidebarCollapsed || isMobile) && (
+                <div className="flex items-center w-full">
+                  <span className="ml-3 flex-grow">{item.name}</span>
+                  {badgeCount > 0 && (
+                    <span className="ml-auto bg-rose-500 text-white text-xs px-2 py-0.5 rounded-full">
+                      {badgeCount}
+                    </span>
+                  )}
+                </div>
               )}
             </div>
-          )
+          );
         })}
+        
       </nav>
-
-      {/* Stats Summary */}
-      {!sidebarCollapsed && (
-        <div className="absolute bottom-4 left-4 right-4">
-          <div className="bg-blue-800 rounded-lg p-3 border border-blue-700 shadow-sm">
-            <h3 className="text-sm font-semibold text-white mb-2">Quick Stats</h3>
-            <div className="space-y-1 text-xs text-blue-300">
-              <div className="flex justify-between">
-                <span>Active Events:</span>
-                <span className="font-medium text-blue-400">{dashboardStats.activeEvents}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Pending Items:</span>
-                <span className="font-medium text-orange-400">
-                  {dashboardStats.pendingReports + dashboardStats.pendingRequests + dashboardStats.pendingDonations}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>Active Teams:</span>
-                <span className="font-medium text-green-400">{dashboardStats.activeTeams}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
-  )
+  );
 }

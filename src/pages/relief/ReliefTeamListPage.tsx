@@ -1,8 +1,8 @@
-
+import { ReliefTeamList } from "@/components/relief-team/ReliefTeamList"
 const ReliefTeamListPage = () => {
   return (
     <div>
-       <h1>Relief Team List Page</h1>
+       <ReliefTeamList />
     </div>
   )
 }

@@ -1,122 +1,272 @@
-const AboutUsPage = () => {
-    // Placeholder data for impact stats; replace with live data as needed
-    const reliefTeamsCount = 25;
-    const disastersHandled = 40;
-    const volunteersCount = 350;
-    const aidDistributed = "15,000+";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Shield, Users, Heart, Award, Target, Eye, Globe, Handshake } from 'lucide-react'
 
-    return (
-        <section className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50 py-16 px-3 sm:px-6 md:px-20">
-            <div className="max-w-5xl mx-auto bg-white shadow-2xl rounded-3xl p-6 md:p-12">
-                {/* Mission & Vision */}
-                <h1 className="text-4xl font-extrabold text-blue-700 mb-6 text-center tracking-wide">
-                    Our Mission & Vision
-                </h1>
-                <p className="text-lg text-gray-700 leading-relaxed mb-8 text-center">
-                    We exist to build resilient communities across Myanmar by coordinating timely disaster relief efforts and empowering local people with resources, education, and technology.
+const teamMembers = [
+  {
+    name: 'Dr. Thant Zin',
+    role: 'Director',
+    image: '/placeholder.svg?height=200&width=200',
+    bio: 'Leading disaster management expert with 15+ years experience in Myanmar.'
+  },
+  {
+    name: 'Daw Khin Mar',
+    role: 'Operations Manager',
+    image: '/placeholder.svg?height=200&width=200',
+    bio: 'Coordinates emergency response operations across all regions of Myanmar.'
+  },
+  {
+    name: 'U Aung Kyaw',
+    role: 'Community Outreach',
+    image: '/placeholder.svg?height=200&width=200',
+    bio: 'Builds partnerships with local communities and volunteer networks.'
+  },
+  {
+    name: 'Ma Thandar',
+    role: 'Training Coordinator',
+    image: '/placeholder.svg?height=200&width=200',
+    bio: 'Develops and delivers disaster preparedness training programs.'
+  }
+]
+
+const achievements = [
+  {
+    number: '50+',
+    label: 'Regions Covered',
+    icon: <Globe className="h-6 w-6" />
+  },
+  {
+    number: '1000+',
+    label: 'Lives Protected',
+    icon: <Shield className="h-6 w-6" />
+  },
+  {
+    number: '500+',
+    label: 'Volunteers Trained',
+    icon: <Users className="h-6 w-6" />
+  },
+  {
+    number: '24/7',
+    label: 'Emergency Response',
+    icon: <Heart className="h-6 w-6" />
+  }
+]
+
+const values = [
+  {
+    title: 'Community First',
+    description: 'We prioritize the needs and safety of Myanmar communities above all else.',
+    icon: <Users className="h-8 w-8" />
+  },
+  {
+    title: 'Rapid Response',
+    description: 'Quick and effective emergency response when disasters strike.',
+    icon: <Shield className="h-8 w-8" />
+  },
+  {
+    title: 'Local Knowledge',
+    description: 'Deep understanding of Myanmar\'s unique geographical and cultural context.',
+    icon: <Heart className="h-8 w-8" />
+  },
+  {
+    title: 'Collaboration',
+    description: 'Working together with government, NGOs, and communities for better outcomes.',
+    icon: <Handshake className="h-8 w-8" />
+  }
+]
+
+export default function AboutPage() {
+  return (
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="text-center mb-16">
+          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">About DisasterGuard Myanmar</h1>
+          <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+            We are dedicated to protecting communities across Myanmar through comprehensive disaster management, 
+            emergency response, and community resilience building programs.
+          </p>
+        </div>
+
+        {/* Mission & Vision */}
+        <div className="grid lg:grid-cols-2 gap-12 mb-16">
+          <Card className="border-0 shadow-lg">
+            <CardHeader className="text-center pb-6">
+              <div className="mx-auto h-16 w-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                <Target className="h-8 w-8 text-red-600" />
+              </div>
+              <CardTitle className="text-2xl">Our Mission</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription className="text-center text-lg leading-relaxed">
+                To build resilient communities across Myanmar by providing comprehensive disaster management services, 
+                emergency response coordination, and community-based preparedness programs that save lives and reduce suffering.
+              </CardDescription>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-lg">
+            <CardHeader className="text-center pb-6">
+              <div className="mx-auto h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                <Eye className="h-8 w-8 text-blue-600" />
+              </div>
+              <CardTitle className="text-2xl">Our Vision</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription className="text-center text-lg leading-relaxed">
+                A Myanmar where every community is prepared, protected, and resilient against disasters, 
+                with the knowledge and resources needed to respond effectively to emergencies and recover quickly.
+              </CardDescription>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Achievements */}
+        <div className="mb-16">
+          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Our Impact</h2>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+            {achievements.map((achievement, index) => (
+              <Card key={index} className="border-0 shadow-lg text-center">
+                <CardContent className="p-8">
+                  <div className="mx-auto h-16 w-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                    {achievement.icon}
+                  </div>
+                  <div className="text-4xl font-bold text-red-600 mb-2">{achievement.number}</div>
+                  <div className="text-gray-600 font-medium">{achievement.label}</div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Our Story */}
+        <div className="mb-16">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Story</h2>
+              <div className="space-y-4 text-lg text-gray-600 leading-relaxed">
+                <p>
+                  DisasterGuard Myanmar was founded in 2018 following the devastating impacts of Cyclone Nargis 
+                  and subsequent natural disasters that highlighted the critical need for comprehensive disaster 
+                  management in Myanmar.
                 </p>
-
-                {/* Who You Are */}
-                <div className="mb-10">
-                    <h2 className="text-2xl md:text-3xl font-semibold text-blue-700 mb-3 mt-6">
-                        Who We Are
-                    </h2>
-                    <p className="text-gray-700 leading-relaxed">
-                        We are a dedicated nonprofit organization partnering with local volunteers, government agencies, and international collaborators to provide humanitarian aid and disaster response in Myanmar.
-                    </p>
-                </div>
-
-                {/* What You Do */}
-                <div className="mb-10">
-                    <h2 className="text-2xl md:text-3xl font-semibold text-blue-700 mb-3">
-                        What We Do
-                    </h2>
-                    <ul className="list-disc list-inside text-gray-700 leading-relaxed ml-6 space-y-1">
-                        <li>Coordinate rapid disaster response teams to deliver aid and support.</li>
-                        <li>Engage and train local volunteers for efficient community assistance.</li>
-                        <li>Distribute essential resources such as food, medical kits, and shelter.</li>
-                        <li>Leverage technology to improve communication, mapping, and resource tracking.</li>
-                        <li>Promote disaster preparedness through education and awareness programs.</li>
-                    </ul>
-                </div>
-
-                {/* Impact / Proof Points */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-14 text-center">
-                    <div className="bg-blue-100 rounded-xl p-6 shadow transition-transform hover:scale-105">
-                        <h3 className="text-3xl font-bold text-blue-800">{reliefTeamsCount}</h3>
-                        <p className="text-gray-700 mt-2 font-semibold">Active Relief Teams</p>
-                    </div>
-                    <div className="bg-orange-100 rounded-xl p-6 shadow transition-transform hover:scale-105">
-                        <h3 className="text-3xl font-bold text-orange-800">{disastersHandled}</h3>
-                        <p className="text-gray-700 mt-2 font-semibold">Disasters Handled</p>
-                    </div>
-                    <div className="bg-green-100 rounded-xl p-6 shadow transition-transform hover:scale-105">
-                        <h3 className="text-3xl font-bold text-green-800">{volunteersCount}</h3>
-                        <p className="text-gray-700 mt-2 font-semibold">Registered Volunteers</p>
-                    </div>
-                    <div className="bg-teal-100 rounded-xl p-6 shadow transition-transform hover:scale-105">
-                        <h3 className="text-3xl font-bold text-teal-800">{aidDistributed}</h3>
-                        <p className="text-gray-700 mt-2 font-semibold">Aid Kits Distributed</p>
-                    </div>
-                </div>
-
-
-                {/* Local Relevance */}
-                <div className="mb-10">
-                    <h2 className="text-2xl md:text-3xl font-semibold text-blue-700 mb-3">
-                        Local Challenges & Our Response
-                    </h2>
-                    <p className="text-gray-700 leading-relaxed">
-                        Myanmar faces frequent disasters, from cyclones to floods and earthquakes. We tailor our strategies to local geography, infrastructure, and communities to ensure relief is effective, rapid, and sustainable.
-                    </p>
-                </div>
-
-                {/* Core Values */}
-                <div className="mb-12">
-                    <h2 className="text-2xl md:text-3xl font-semibold text-blue-700 mb-4">
-                        Our Core Values
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-                        <div className="bg-blue-50 rounded-xl p-6 shadow hover:scale-105 transition">
-                            <h3 className="text-2xl font-semibold text-blue-700 mb-3">Collaboration</h3>
-                            <p className="text-gray-700">We work with partners and communities across Myanmar to maximize impact.</p>
-                        </div>
-                        <div className="bg-orange-50 rounded-xl p-6 shadow hover:scale-105 transition">
-                            <h3 className="text-2xl font-semibold text-orange-700 mb-3">Empowerment</h3>
-                            <p className="text-gray-700">We equip people with tools and knowledge to recover and prepare for tomorrow.</p>
-                        </div>
-                        <div className="bg-green-50 rounded-xl p-6 shadow hover:scale-105 transition">
-                            <h3 className="text-2xl font-semibold text-green-700 mb-3">Transparency & Innovation</h3>
-                            <p className="text-gray-700">We operate openly and leverage technology for effective disaster management.</p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Technical Supporters */}
-                <div className="mb-4">
-                    <h2 className="text-2xl md:text-3xl font-semibold text-blue-700 mb-6 text-center">Our Technical Supporters</h2>
-                    <div className="flex flex-wrap gap-6 justify-center items-center">
-                        <div className="bg-white p-4 rounded-lg shadow flex flex-col items-center border">
-                            <img
-                                src="https://aceinspiration.com/wp-content/uploads/2017/08/logo-ACE-white-with-shadow.png"
-                                alt="ACE Inspiration Logo"
-                                className="h-12 mb-2"
-                                style={{objectFit:"contain"}}
-                            />
-                            <span className="font-bold text-blue-800">ACE Inspiration</span>
-                            <span className="text-xs text-gray-500">Technical Partner</span>
-                        </div>
-                        {/* Add more support organizations as needed */}
-                    </div>
-                </div>
-
-                {/* Emotional Connection */}
-                <blockquote className="mt-10 text-center italic font-light text-gray-600">
-                    “Together, we build a safer, stronger Myanmar—standing resilient through every adversity and challenge.”
-                </blockquote>
+                <p>
+                  Our organization emerged from the recognition that Myanmar's unique geographical position, 
+                  diverse topography, and monsoon climate create specific disaster risks that require 
+                  locally-adapted solutions and community-centered approaches.
+                </p>
+                <p>
+                  Since our inception, we have worked tirelessly to build partnerships with local communities, 
+                  government agencies, and international organizations to create a robust disaster management 
+                  ecosystem that protects lives and livelihoods across Myanmar.
+                </p>
+              </div>
             </div>
-        </section>
-    );
-};
+            <div className="relative">
+              <img
+                src="/placeholder.svg?height=500&width=600"
+                alt="Our story"
+                className="rounded-2xl shadow-2xl"
+              />
+            </div>
+          </div>
+        </div>
 
-export default AboutUsPage;
+        {/* Our Values */}
+        <div className="mb-16">
+          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Our Values</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {values.map((value, index) => (
+              <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+                <CardHeader className="text-center pb-4">
+                  <div className="mx-auto h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                    {value.icon}
+                  </div>
+                  <CardTitle className="text-xl">{value.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-center">
+                    {value.description}
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Team */}
+        <div className="mb-16">
+          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Our Leadership Team</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {teamMembers.map((member, index) => (
+              <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+                <CardHeader className="text-center pb-4">
+                  <div className="mx-auto h-32 w-32 rounded-full overflow-hidden mb-4">
+                    <img
+                      src={member.image || "/placeholder.svg"}
+                      alt={member.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <CardTitle className="text-xl">{member.name}</CardTitle>
+                  <CardDescription className="text-red-600 font-medium">
+                    {member.role}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-center">
+                    {member.bio}
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Partners */}
+        <div className="mb-16">
+          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Our Partners</h2>
+          <Card className="border-0 shadow-lg">
+            <CardContent className="p-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-items-center">
+                <div className="text-center">
+                  <div className="h-16 w-16 bg-gray-200 rounded-lg mx-auto mb-2"></div>
+                  <p className="text-sm text-gray-600">Ministry of Social Welfare</p>
+                </div>
+                <div className="text-center">
+                  <div className="h-16 w-16 bg-gray-200 rounded-lg mx-auto mb-2"></div>
+                  <p className="text-sm text-gray-600">UN Office Myanmar</p>
+                </div>
+                <div className="text-center">
+                  <div className="h-16 w-16 bg-gray-200 rounded-lg mx-auto mb-2"></div>
+                  <p className="text-sm text-gray-600">Red Cross Myanmar</p>
+                </div>
+                <div className="text-center">
+                  <div className="h-16 w-16 bg-gray-200 rounded-lg mx-auto mb-2"></div>
+                  <p className="text-sm text-gray-600">Local NGOs</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* CTA */}
+        <div className="bg-gradient-to-r from-red-600 to-red-700 rounded-2xl p-8 text-white text-center">
+          <h2 className="text-3xl font-bold mb-4">Join Our Mission</h2>
+          <p className="text-xl text-red-100 mb-8 max-w-3xl mx-auto">
+            Help us build a more resilient Myanmar. Whether through volunteering, partnerships, 
+            or community engagement, there are many ways to get involved.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" variant="secondary" className="text-lg px-8">
+              Become a Volunteer
+            </Button>
+            <Button size="lg" variant="outline" className="text-lg px-8 border-white text-red-400 hover:bg-white hover:text-red-600">
+              Partner With Us
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

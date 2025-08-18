@@ -1,20 +1,18 @@
-import axios, { AxiosError } from "axios";
-import type { InternalAxiosRequestConfig } from "axios";
+// src/api/axioInstance.ts
+import axios from "axios";
+import { useAuthStore } from "@/store/authStore";
+import {
+  getAccessToken,
+  getRefreshToken,
+  storeTokens,
+  removeTokens,
+  isTokenExpired
+} from "@/hooks/setToken";
 
 const BASE_URL = "http://localhost:5188/api";
 const AUTH_TOKEN_KEY = "authToken";
 const USER_DATA_KEY = "userData";
 
-// Centralized logout function
-const logout = () => {
-  localStorage.removeItem(AUTH_TOKEN_KEY);
-  localStorage.removeItem(USER_DATA_KEY);
-  if (!window.location.pathname.includes("/login")) {
-    window.location.href = "/login";
-  }
-};
-
-// Create axios instance
 const api = axios.create({
   baseURL: BASE_URL,
   headers: {
@@ -22,73 +20,58 @@ const api = axios.create({
   },
 });
 
-api.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+api.interceptors.request.use((config) => {
+  const token = getAccessToken();
+  if (token) {
     config.headers = config.headers ?? {};
-    if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
-      if (process.env.NODE_ENV === "development") {
-        console.debug("[API] Authorization header set");
-      }
-    } else {
-      if ("Authorization" in config.headers) {
-        delete config.headers["Authorization"];
-      }
-      if (process.env.NODE_ENV === "development") {
-        console.debug("[API] No token found, Authorization header removed");
-      }
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
-// Response interceptor to handle errors globally
+// Refresh token logic
+async function refreshAccessToken() {
+  try {
+    const refreshToken = getRefreshToken();
+    const accessToken = getAccessToken();
+    if (!refreshToken) throw new Error("No refresh token found");
+
+    const response = await axios.post(`${BASE_URL}/auth/refresh-token`, {
+      accessToken,
+      refreshToken,
+    });
+
+    const { accessToken: newToken, refreshToken: newRefresh, accessTokenExpiration } =
+      response.data.data || response.data;
+
+    storeTokens(newToken, newRefresh ?? refreshToken, accessTokenExpiration);
+    return newToken;
+  } catch {
+    // Properly clear auth state as well
+    const logout = useAuthStore.getState().logout;
+    await logout();
+    throw new Error("Session expired");
+  }
+}
+
+// Auto-refresh on 401
 api.interceptors.response.use(
   (response) => response,
-  async (error: AxiosError) => {
-    if (error.response) {
-      const status = error.response.status;
-
-      switch (status) {
-        case 401:
-          console.warn("[API] 401 Unauthorized - token may be invalid or expired");
-          // Optional: Implement token refresh logic here
-          // For example:
-          // if (!error.config._retry) {
-          //   error.config._retry = true;
-          //   const newToken = await refreshToken();
-          //   if (newToken) {
-          //     localStorage.setItem(AUTH_TOKEN_KEY, newToken);
-          //     error.config.headers['Authorization'] = `Bearer ${newToken}`;
-          //     return api(error.config);
-          //   }
-          // }
-          logout();
-          break;
-
-        case 404:
-          console.error(`[API] 404 Not Found: ${error.config?.url}`);
-          // Optional: Show user-friendly notification here
-          break;
-
-        default:
-          if (process.env.NODE_ENV === "development") {
-            console.warn(`[API] Error ${status}:`, error.response.data);
-          }
-          break;
+  async (error) => {
+    if (error.response?.status === 401) {
+      try {
+        const newAccessToken = await refreshAccessToken();
+        error.config.headers["Authorization"] = `Bearer ${newAccessToken}`;
+        return api.request(error.config);
+      } catch {
+        const logout = useAuthStore.getState().logout;
+        await logout();
       }
-    } else if (error.request) {
-      // Request was made but no response received
-      console.error("[API] No response received:", error.request);
-    } else {
-      // Something else happened setting up the request
-      console.error("[API] Request error:", error.message);
     }
-
     return Promise.reject(error);
   }
 );
 
+
+export { storeTokens, isTokenExpired };
 export default api;
