@@ -28,6 +28,7 @@ import ActivitiesPage from "@/pages/public/ActivitiesPage";
 import ActivityDetailPage from "@/pages/public/ActivityDetailPage";
 import ActivityPage from "@/pages/admin/AdminActivityPage";
 import ReliefActivityPage from "@/pages/relief/ReliefActivityPage";
+import GdacsEventsPage from "@/pages/disaster/disaster-map"
 
 const PublicLayout = lazy(
   () => import("@/components/user-layout/PublicLayout")
@@ -305,7 +306,7 @@ const router = createBrowserRouter([
             element: <AssignRequestsToReliefPage />,
           },
           { path: "admin/activity", element: <ActivityPage /> },
-          { path: "admin/financial-reports", element: <FinancialReportsPage /> },
+           { path: "admin/financial-reports", element: <FinancialReportsPage /> },
         ],
       },
     ],

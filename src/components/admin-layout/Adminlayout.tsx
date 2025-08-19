@@ -7,6 +7,7 @@ import { AdminNavbar } from "./AdminNavbar";
 import { Outlet, useLocation } from "react-router-dom";
 import { AdminSidebar } from "./AdminSidebar";
 import { Toaster } from "sonner";
+import DisasterNotification from "@/components/disaster-alert/disaster-notification";
 
 function AdminLayout({ children }: { children?: React.ReactNode }) {
   const initializeData = useAdminStore((state) => state.initializeData);
@@ -99,6 +100,8 @@ function AdminLayout({ children }: { children?: React.ReactNode }) {
           </div>
         </main>
       </div>
+
+      <DisasterNotification />
 
       <Toaster
         position="top-right"
