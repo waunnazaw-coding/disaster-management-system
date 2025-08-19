@@ -1,417 +1,204 @@
-import React, { useState, useRef, useEffect } from "react";
-import { MapContainer, TileLayer, GeoJSON, useMap, Marker, Popup } from "react-leaflet";
-import L, { LeafletMouseEvent } from "leaflet";
-import "leaflet/dist/leaflet.css";
-import ReactDOM from "react-dom";
+"use client";
 
-// Fix default Leaflet icon issue
-import iconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png";
-import iconUrl from "leaflet/dist/images/marker-icon.png";
-import shadowUrl from "leaflet/dist/images/marker-shadow.png";
+import React, { useEffect, useRef, useState } from "react";
+import Map from "ol/Map";
+import View from "ol/View";
+import TileLayer from "ol/layer/Tile";
+import XYZ from "ol/source/XYZ";
+import VectorLayer from "ol/layer/Vector";
+import VectorSource from "ol/source/Vector";
+import GeoJSON from "ol/format/GeoJSON";
+import Overlay from "ol/Overlay";
+import { fromLonLat } from "ol/proj";
+import { Style, Stroke, Fill } from "ol/style";
+import { getAllActiveDisasterEvents, DisasterEvent } from "@/api/disasterEventApi";
+import { getFeaturesCentroid } from "@/utils/geoUnils";
+import { Geometry } from "ol/geom";
 
-const DefaultIcon = L.icon({
-  iconRetinaUrl,
-  iconUrl,
-  shadowUrl,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-});
+const MAPTILER_KEY = "YrtFyZTTaE2cewEtIi2z";
 
-L.Marker.prototype.options.icon = DefaultIcon;
-
-interface Impact {
-  type: string;
-  value: string;
-  objectName?: string;
-}
-
-interface ReportPhoto {
-  id: number;
-  disasterEventId: number;
-  filePath: string;
-  fileType: "Photo" | "Video";
-}
-
-interface DisasterEvent {
-  id: number;
-  name: string;
-  year: number;
-  type: string;
-  description: string;
-  impacts: Impact[];
-  reportPhotos?: ReportPhoto[];
-}
-
-interface GeoJSONFeature {
-  type: "Feature";
-  geometry: GeoJSON.Geometry;
-  properties: DisasterEvent;
-}
-
-interface GeoJSONData {
-  type: "FeatureCollection";
-  features: GeoJSONFeature[];
-}
-
-// Sample backend GeoJSON data (points + polygons)
-const sampleGeoJSONData: GeoJSONData = {
-  type: "FeatureCollection",
-  features: [
-    {
-      type: "Feature",
-      geometry: {
-        type: "Point",
-        coordinates: [96.15, 16.85],
-      },
-      properties: {
-        id: 1,
-        name: "Cyclone Nargis 2",
-        year: 2018,
-        type: "Cyclone",
-        description: "Severe cyclone with significant damage and casualties.",
-        impacts: [
-          { type: "Affected People", value: "500000" },
-          { type: "Deaths", value: "1000" },
-        ],
-        reportPhotos: [
-          {
-            id: 1,
-            disasterEventId: 1,
-            filePath: "https://example.com/photos/cyclone-nargis-2-damage.jpg",
-            fileType: "Photo",
-          },
-          {
-            id: 2,
-            disasterEventId: 1,
-            filePath: "https://example.com/videos/cyclone-nargis-2-storm.mp4",
-            fileType: "Video",
-          },
-        ],
-      },
-    },
-    {
-      type: "Feature",
-      geometry: {
-        type: "Polygon",
-        coordinates: [
-          [
-            [96.0, 16.5],
-            [96.6, 16.5],
-            [96.6, 17.0],
-            [96.0, 17.0],
-            [96.0, 16.5],
-          ],
-        ],
-      },
-      properties: {
-        id: 1,
-        name: "Cyclone Nargis 2",
-        year: 2018,
-        type: "Cyclone",
-        description: "Severe cyclone with significant damage and casualties.",
-        impacts: [
-          { type: "Affected People", value: "500000" },
-          { type: "Deaths", value: "1000" },
-        ],
-        reportPhotos: [
-          {
-            id: 1,
-            disasterEventId: 1,
-            filePath: "https://example.com/photos/cyclone-nargis-2-damage.jpg",
-            fileType: "Photo",
-          },
-          {
-            id: 2,
-            disasterEventId: 1,
-            filePath: "https://example.com/videos/cyclone-nargis-2-storm.mp4",
-            fileType: "Video",
-          },
-        ],
-      },
-    },
-    // Add more point features (without polygons) similarly for other disasters
-    {
-      type: "Feature",
-      geometry: { type: "Point", coordinates: [96.15, 16.8] },
-      properties: {
-        id: 2,
-        name: "Yangon Flood",
-        year: 2019,
-        type: "Flood",
-        description: "Flooding affected large areas in Yangon.",
-        impacts: [
-          { type: "Affected People", value: "200000" },
-          { type: "Deaths", value: "50" },
-        ],
-      },
-    },
-    // ... More disaster events (total 10+)
-  ],
+const MAP_STYLE_URL = {
+  Mierune: `https://api.maptiler.com/maps/jp-mierune-streets/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`,
+  setellite: `https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.jpg?key=${MAPTILER_KEY}`,
+  streets: `https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`,
+  basic: `https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`,
+  topo: `https://api.maptiler.com/maps/topo/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`,
 };
 
-type ModalProps = {
-  event: DisasterEvent | null;
-  onClose: () => void;
-};
+const MapView: React.FC = () => {
+  const mapRef = useRef<HTMLDivElement | null>(null);
+  const [mapInstance, setMapInstance] = useState<Map | null>(null);
+  const overlaysRef = useRef<Overlay[]>([]);
+  const [events, setEvents] = useState<DisasterEvent[]>([]);
+  const [selectedStyle, setSelectedStyle] = useState<keyof typeof MAP_STYLE_URL>("Mierune");
+  const [searchQuery, setSearchQuery] = useState("");
 
-function EventModal({ event, onClose }: ModalProps) {
-  if (!event) return null;
+  // Fetch events
+  useEffect(() => {
+    const fetchEvents = async () => {
+      const data = await getAllActiveDisasterEvents();
+      setEvents(data);
+    };
+    fetchEvents();
+  }, []);
 
-  return ReactDOM.createPortal(
-    <div
-      className="fixed inset-0 z-50 bg-black bg-opacity-60 flex justify-center items-center p-4"
-      onClick={onClose}
-    >
-      <div
-        className="max-w-3xl bg-white rounded-md overflow-auto max-h-[90vh] p-6 relative"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-2xl font-bold text-gray-600 hover:text-gray-900"
-          aria-label="Close modal"
-        >
-          &times;
-        </button>
-        <h2 className="text-2xl font-semibold mb-2 text-blue-900">
-          {event.name} ({event.year})
-        </h2>
-        <p className="mb-4">{event.description}</p>
-        <h3 className="font-semibold mb-1">Impacts</h3>
-        <ul className="list-disc list-inside mb-4 text-gray-800">
-          {event.impacts.map((imp, idx) => (
-            <li key={idx}>
-              {imp.type}: {imp.value}
-              {imp.objectName ? ` (${imp.objectName})` : ""}
-            </li>
-          ))}
-        </ul>
+  // Initialize map
+  useEffect(() => {
+    if (!mapRef.current) return;
 
-        {event.reportPhotos && event.reportPhotos.length > 0 && (
-          <>
-            <h3 className="font-semibold mb-2">Photos & Videos</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {event.reportPhotos.map(({ id, filePath, fileType }) => (
-                <div key={id} className="rounded shadow overflow-hidden border">
-                  {fileType === "Photo" ? (
-                    <img
-                      src={filePath}
-                      alt={`${event.name} photo`}
-                      className="object-cover w-full h-48"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <video
-                      src={filePath}
-                      controls
-                      className="w-full h-48 bg-black"
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-      </div>
-    </div>,
-    document.body
-  );
-}
+    const tileLayer = new TileLayer({
+      source: new XYZ({ url: MAP_STYLE_URL[selectedStyle], tileSize: 512, maxZoom: 20 }),
+    });
 
-const MapView = ({
-  geojson,
-  onSelectEvent,
-}: {
-  geojson: GeoJSONData;
-  onSelectEvent: (event: DisasterEvent) => void;
-}) => {
-  const mapRef = useRef<L.Map>(null);
+    const map = new Map({
+      target: mapRef.current,
+      layers: [tileLayer],
+      view: new View({ center: fromLonLat([96.1, 16]), zoom: 5.3 }),
+    });
 
-  // Remember currently highlighted polygon to unhighlight on next
-  const highlightedPolygonRef = useRef<L.Layer | null>(null);
+    setMapInstance(map);
 
-  // Custom style function to style points and polygons differently
-  const styleFunction = (
-    feature: L.GeoJSONFeature
-  ): L.PathOptions | L.PathOptions[] => {
-    const geomType = feature.geometry.type;
-    if (geomType === "Polygon" || geomType === "MultiPolygon") {
-      return {
-        fillColor: "rgba(255,0,0,0.3)",
-        color: "rgba(255,0,0,0.8)",
-        weight: 2,
-      };
-    } else {
-      return {
-        radius: 7,
-        fillColor: "rgba(255, 0, 0, 0.7)",
-        color: "#fff",
-        weight: 2,
-        opacity: 1,
-        fillOpacity: 1,
-      };
-    }
-  };
+    return () => map.setTarget(undefined);
+  }, []);
 
-  // Handler when clicking a feature
-  const onEachFeature = (
-    feature: GeoJSON.Feature,
-    layer: L.Layer
-  ) => {
-    if (feature.geometry.type === "Point") {
-      layer.on("click", () => {
-        const eventData = feature.properties as DisasterEvent;
-        if (!eventData) return;
-        onSelectEvent(eventData);
+  // Update tile layer when style changes
+  useEffect(() => {
+    if (!mapInstance) return;
 
-        // Zoom to polygon if available, else zoom to marker
-        if (highlightedPolygonRef.current) {
-          // Remove old highlight
-          mapRef.current?.removeLayer(highlightedPolygonRef.current);
-          highlightedPolygonRef.current = null;
-        }
+    const layers = mapInstance.getLayers().getArray();
+    const oldTileLayer = layers[0] as TileLayer<XYZ>;
+    mapInstance.removeLayer(oldTileLayer);
 
-        // Find corresponding polygon in GeoJSON for this event id
-        const polygonFeature = geojson.features.find(
-          (f) =>
-            f.properties.id === eventData.id &&
-            (f.geometry.type === "Polygon" || f.geometry.type === "MultiPolygon")
-        );
+    const newTileLayer = new TileLayer({
+      source: new XYZ({ url: MAP_STYLE_URL[selectedStyle], tileSize: 512, maxZoom: 20 }),
+    });
+    mapInstance.getLayers().insertAt(0, newTileLayer);
+  }, [selectedStyle, mapInstance]);
 
-        if (polygonFeature && mapRef.current) {
-          const polygonLayer = L.geoJSON(polygonFeature.geometry, {
-            style: {
-              color: "#0033cc",
-              weight: 3,
-              fillColor: "#0033cc",
-              fillOpacity: 0.3,
-            },
-          }).addTo(mapRef.current);
+  // Map overlays for events (your existing code)
+  useEffect(() => {
+    if (!mapInstance) return;
 
-          polygonLayer.bringToFront();
-          highlightedPolygonRef.current = polygonLayer;
-
-          mapRef.current.fitBounds(polygonLayer.getBounds(), {
-            maxZoom: 12,
-            padding: [50, 50],
+    const vectorSource = new VectorSource();
+    const vectorLayer = new VectorLayer({
+      source: vectorSource,
+      style: feature => {
+        const geom = feature.getGeometry();
+        if (geom?.getType() === "Polygon") {
+          return new Style({
+            stroke: new Stroke({ color: "red", width: 2 }),
+            fill: new Fill({ color: "rgba(255,0,0,0.2)" }),
           });
-        } else {
-          // Zoom to marker
-          const coords = (feature.geometry as GeoJSON.Point).coordinates;
-          mapRef.current?.setView([coords[1], coords[0]], 10);
         }
+        return undefined;
+      }
+    });
+    mapInstance.addLayer(vectorLayer);
+
+    let polygonAppearedZoom: number | null = null;
+    const zoomThresholdOffset = 2;
+    const view = mapInstance.getView();
+
+    events.forEach(event => {
+      if (!event.locationGeoJson) return;
+
+      let geoJsonObj;
+      try {
+        geoJsonObj = JSON.parse(event.locationGeoJson);
+      } catch {
+        return;
+      }
+
+      const features = new GeoJSON().readFeatures(geoJsonObj, { featureProjection: "EPSG:3857" });
+      if (!features.length) return;
+
+      const geometries = features.map(f => f.getGeometry()).filter((g): g is Geometry => g !== undefined);
+      if (!geometries.length) return;
+
+      const overlayPosition = getFeaturesCentroid(geometries);
+
+      const overlayEl = document.createElement("div");
+      overlayEl.style.position = "absolute";
+      overlayEl.style.cursor = "pointer";
+      overlayEl.style.width = "20px";
+      overlayEl.style.height = "20px";
+      overlayEl.style.transform = "translate(-50%, -50%)";
+      overlayEl.style.pointerEvents = "auto";
+      overlayEl.innerHTML = `
+<svg width="30" height="30" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#D51D1D"/>
+  <circle cx="12" cy="9" r="3" fill="white"/>
+</svg>
+`;
+
+      overlayEl.addEventListener("click", () => {
+        vectorSource.clear();
+        features.forEach(f => vectorSource.addFeature(f));
+        const geom = geometries[0];
+        if (!geom) return;
+        view.fit(geom.getExtent(), { padding: [50, 50, 50, 50], maxZoom: 15, duration: 1000 });
+        let opacity = 0;
+        const interval = setInterval(() => {
+          opacity += 0.05;
+          if (opacity >= 0.2) { opacity = 0.2; clearInterval(interval); }
+          vectorLayer.setStyle(f => new Style({ stroke: new Stroke({ color: "red", width: 2 }), fill: new Fill({ color: `rgba(255,0,0,${opacity})` }) }));
+        }, 50);
       });
+
+      const overlay = new Overlay({ element: overlayEl, position: overlayPosition, positioning: "center-center" });
+      mapInstance.addOverlay(overlay);
+      overlaysRef.current.push(overlay);
+    });
+
+    return () => {
+      mapInstance.removeLayer(vectorLayer);
+      overlaysRef.current.forEach(o => mapInstance.removeOverlay(o));
+      overlaysRef.current = [];
+    };
+  }, [mapInstance, events]);
+
+  // --- SEARCH FUNCTION ---
+  const handleSearch = async () => {
+    if (!searchQuery || !mapInstance) return;
+
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}`);
+      const results = await response.json();
+      if (results.length === 0) return;
+
+      const { lon, lat } = results[0];
+      const view = mapInstance.getView();
+      view.animate({ center: fromLonLat([parseFloat(lon), parseFloat(lat)]), zoom: 14, duration: 1000 });
+    } catch (err) {
+      console.error(err);
     }
   };
 
   return (
-    <MapContainer
-      center={[21.9162, 95.956]}
-      zoom={6}
-      scrollWheelZoom
-      style={{ height: "600px", width: "100%" }}
-      whenCreated={(map) => (mapRef.current = map)}
-      zoomControl={false}
-    >
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <GeoJSON
-        data={geojson as any}
-        style={styleFunction}
-        onEachFeature={onEachFeature}
-        pointToLayer={(feature, latlng) =>
-          L.circleMarker(latlng, styleFunction(feature as any))
-        }
-      />
-      {/* Add zoom control at top right*/}
-      <L.Control.Zoom position="topright" />
-    </MapContainer>
+    <section className="bg-white">
+      {/* Search box */}
+      <div style={{ position: "absolute", top: 10, right: 10, zIndex: 1000, background: "white", padding: "5px 10px", borderRadius: 4 }}>
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          placeholder="Search location"
+          style={{ padding: "2px 5px" }}
+        />
+        <button onClick={handleSearch} style={{ marginLeft: 5, padding: "2px 5px" }}>Go</button>
+      </div>
+
+      {/* Map style selector */}
+      <div style={{ position: "absolute", top: 50, left: 10, zIndex: 1000, background: "white", padding: "5px 10px", borderRadius: 4 }}>
+        <label htmlFor="mapStyle">Map Style: </label>
+        <select id="mapStyle" value={selectedStyle} onChange={e => setSelectedStyle(e.target.value as keyof typeof MAP_STYLE_URL)}>
+          {Object.keys(MAP_STYLE_URL).map(style => (<option key={style} value={style}>{style}</option>))}
+        </select>
+      </div>
+
+      <div ref={mapRef} style={{ width: "100%", height: "82vh", position: "relative" }} />
+    </section>
   );
 };
 
-const ListView = ({
-  events,
-}: {
-  events: DisasterEvent[];
-}) => (
-  <div className="max-w-4xl mx-auto space-y-6">
-    {events.map((event) => (
-      <div
-        key={event.id}
-        className="bg-white shadow rounded p-4 border border-gray-300"
-      >
-        <h3 className="text-xl font-semibold text-blue-900 mb-1">
-          {event.name} ({event.year})
-        </h3>
-        <p className="mb-2 text-gray-700">{event.description}</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-600">
-          {event.impacts.map((impact, i) => (
-            <div key={i}>
-              <span className="font-semibold">{impact.type}:</span> {impact.value}
-              {impact.objectName ? ` (${impact.objectName})` : ""}
-            </div>
-          ))}
-        </div>
-        {event.reportPhotos && event.reportPhotos.length > 0 && (
-          <p className="mt-2 italic text-sm text-gray-500">
-            {event.reportPhotos.length} photo/video{event.reportPhotos.length > 1 ? "s" : ""} available.
-          </p>
-        )}
-      </div>
-    ))}
-  </div>
-);
-
-export default function DisasterDashboard() {
-  const [view, setView] = useState<"map" | "list">("map");
-  const [selectedEvent, setSelectedEvent] = useState<DisasterEvent | null>(null);
-
-  // Extract disaster events from GeoJSON properties uniquely (for list view)
-  // Deduplicate by id, picking just one per unique disaster event
-  const uniqueEvents = React.useMemo(() => {
-    const map = new Map<number, DisasterEvent>();
-    for (const feature of sampleGeoJSONData.features) {
-      const event = feature.properties;
-      if (!map.has(event.id)) map.set(event.id, event);
-    }
-    return Array.from(map.values());
-  }, [sampleGeoJSONData]);
-
-  return (
-    <div className="max-w-7xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Disaster Events in Myanmar (2015 - 2025)</h1>
-
-      <div className="mb-6 flex gap-4">
-        <button
-          onClick={() => setView("map")}
-          className={`px-4 py-2 rounded ${
-            view === "map" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-          }`}
-          aria-pressed={view === "map"}
-        >
-          Map View
-        </button>
-        <button
-          onClick={() => setView("list")}
-          className={`px-4 py-2 rounded ${
-            view === "list" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-          }`}
-          aria-pressed={view === "list"}
-        >
-          Data List View
-        </button>
-      </div>
-
-      <p className="mb-6 text-lg font-semibold">
-        Total Disaster Events: <span className="text-red-600 font-bold">{uniqueEvents.length}</span>
-      </p>
-
-      {view === "map" ? (
-        <MapView geojson={sampleGeoJSONData} onSelectEvent={setSelectedEvent} />
-      ) : (
-        <ListView events={uniqueEvents} />
-      )}
-
-      <EventModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />
-    </div>
-  );
-}
+export default MapView;

@@ -1,6 +1,13 @@
 import { lazy, Suspense } from "react";
 import { createBrowserRouter } from "react-router-dom";
-
+import DisasterEventWizard from "../pages/admin/DisasterEventWizard";
+import EventDetailsPage from "@/pages/disaster/EventDetails";
+import DisasterEventUpdatePage from "@/pages/admin/DisasterEventUpdatePage";
+import EventDetailsPageForAdmin from "@/pages/admin/EventDetailsPageForAdmin";
+import DisasterEventsForAdmin from "@/pages/admin/EventsPageForAdimin";
+import DisasterReportList from "../components/disaster/DisasterReportList";
+import DisasterReportDetail from "@/components/disaster/DisasterReportDetail";
+import MapView from "@/components/disaster/DisasterEventMap";
 import UserProfile from "@/pages/user/Profile";
 import DonationManagement from "@/components/admin-layout/DonationManagement";
 import UserManagementPage from "@/pages/admin/UserManagementPage";
@@ -44,8 +51,8 @@ const HomePage = lazy(() => import("@/pages/HomePage"));
 const DisasterEventPage = lazy(
   () => import("../pages/disaster/DisasterEventsPage")
 );
-const DisasterReportForm = lazy(
-  () => import("../pages/disaster/DisasterReportForm")
+const DisasterReportWizard = lazy(
+  () => import("../pages/disaster/DIsasterReportWizard")
 );
 const AssistantRequestPage = lazy(
   () => import("@/pages/disaster/AssistantRequestPage")
@@ -121,7 +128,7 @@ const router = createBrowserRouter([
       },
       { path: "disasters", element: <DisasterEventPage /> },
       { path: "awareness", element: <AwarenessPage /> },
-      { path: "disasters/report", element: <DisasterReportForm /> },
+      { path: "disasters/report", element: <DisasterReportWizard /> },
       {
         path: "requests",
         children: [
@@ -201,11 +208,48 @@ const router = createBrowserRouter([
               </Suspense>
             ),
           },
+
+          { path: "disasters", element: <DisasterEventPage /> },
+          { path: "disasters/report", element: <DisasterReportWizard /> },
+          { path: "disasters/:id", element: <EventDetailsPage /> },
+
+          { path: "requests/assistant", element: <AssistantRequestPage /> },
+
+          { path: "teams/relief", element: <ReliefTeamListPage /> },
+
+          { path: "donations/new", element: <DonationFormPage /> },
+
+          { path: "volunteers/apply", element: <VolunteerForm /> },
+
+          { path: "about", element: <AboutUsPage /> },
         ],
       },
     ],
   },
 
+  // Admin protected routes
+  {
+    element: <ProtectedRoute allowedRoles={["Admin", "SysAdmin"]} />,
+    children: [
+      {
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <AdminLayout />
+          </Suspense>
+        ),
+        children: [
+          { path: "admin/dashboard", element: <AdminDashboard /> },
+          { path: "admin/events", element: <DisasterEventsForAdmin /> },
+          { path: "admin/events/new", element: <DisasterEventWizard /> },
+          { path: "admin/events/update/:id", element: <DisasterEventUpdatePage /> },
+          { path: "admin/events/:id", element: <EventDetailsPageForAdmin /> },
+          { path: "admin/reports", element: <DisasterReportList /> },
+          { path: "admin/reports/:id", element: <DisasterReportDetail /> },
+          { path: "admin/mapView", element: <MapView /> },
+        ],
+      },
+    ],
+  },
   // Public routes nested under PublicLayout
   {
     path: "/",
@@ -217,30 +261,29 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
 
-      { path: "disasters", element: <DisasterEventPage /> },
-      { path: "disasters/report", element: <DisasterReportForm /> },
+  { path: "disasters", element: <DisasterEventPage /> },
 
-      { path: "requests/assistant", element: <AssistantRequestPage /> },
-      //{ path: "requests/assistant/new", element: <AssistantRequestForm /> },
+  { path: "requests/assistant", element: <AssistantRequestPage /> },
+  //{ path: "requests/assistant/new", element: <AssistantRequestForm /> },
 
-      { path: "teams/relief", element: <ReliefTeamListPage /> },
+  { path: "teams/relief", element: <ReliefTeamListPage /> },
 
-      { path: "donations/new", element: <DonationFormPage /> },
+  { path: "donations/new", element: <DonationFormPage /> },
 
-      { path: "volunteers/apply", element: <VolunteerForm /> },
+  { path: "volunteers/apply", element: <VolunteerForm /> },
 
-      { path: "emergency-contacts", element: <EmergencyContact /> },
+  { path: "emergency-contacts", element: <EmergencyContact /> },
 
-      { path: "about", element: <AboutUsPage /> },
-      // New activity routes
-      { path: "activities", element: <ActivitiesPage /> },
-      { path: "activities/:id", element: <ActivityDetailPage /> },
-    ],
+  { path: "about", element: <AboutUsPage /> },
+  // New activity routes
+  { path: "activities", element: <ActivitiesPage /> },
+  { path: "activities/:id", element: <ActivityDetailPage /> },
+],
   },
 
-  // Admin protected routes
-  {
-    element: <ProtectedRoute allowedRoles={["Admin", "SysAdmin"]} />,
+// Admin protected routes
+{
+  element: <ProtectedRoute allowedRoles={["Admin", "SysAdmin"]} />,
     children: [
       {
         element: (
@@ -262,14 +305,14 @@ const router = createBrowserRouter([
             element: <AssignRequestsToReliefPage />,
           },
           { path: "admin/activity", element: <ActivityPage /> },
-           { path: "admin/financial-reports", element: <FinancialReportsPage /> },
+          { path: "admin/financial-reports", element: <FinancialReportsPage /> },
         ],
       },
     ],
   },
 
-  {
-    element: <ProtectedRoute allowedRoles={["ReliefTeam"]} />,
+{
+  element: <ProtectedRoute allowedRoles={["ReliefTeam"]} />,
     children: [
       {
         element: (
@@ -285,9 +328,9 @@ const router = createBrowserRouter([
       },
     ],
   },
-  // Catch-all 404 fallback route
-  {
-    path: "*",
+// Catch-all 404 fallback route
+{
+  path: "*",
     element: (
       <h2 className="text-center mt-20 text-2xl">404: Page Not Found</h2>
     ),

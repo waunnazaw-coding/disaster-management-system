@@ -1,7 +1,8 @@
 "use client";
 
-import { useAdminStore } from "../../store/adminStore";
-import { cn } from "../../lib/utils";
+import React, { useEffect } from "react"
+import { useAdminStore } from "../../store/adminStore"
+import { cn } from "../../lib/utils"
 import {
   LayoutDashboard,
   AlertTriangle,
@@ -33,7 +34,6 @@ const navigation = [
   { id: "financial", name: "Financial Reports", icon: Users, path: "financial-reports" },
 ];
 
-
 interface AdminSidebarProps {
   isMobile: boolean;
   sidebarOpen: boolean;
@@ -45,9 +45,19 @@ export function AdminSidebar({
   sidebarOpen,
   setSidebarOpen,
 }: AdminSidebarProps) {
-  const { dashboardStats, sidebarCollapsed, toggleSidebar, setActiveTab } =
-    useAdminStore();
-  const navigate = useNavigate();
+  // Use selectors to subscribe only to needed parts of the store
+  const dashboardStats = useAdminStore(state => state.dashboardStats)
+  const sidebarCollapsed = useAdminStore(state => state.sidebarCollapsed)
+  const toggleSidebar = useAdminStore(state => state.toggleSidebar)
+  const activeTab = useAdminStore(state => state.activeTab)
+  const setActiveTab = useAdminStore(state => state.setActiveTab)
+  const initializeData = useAdminStore(state => state.initializeData)
+
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    initializeData() // load stats on mount
+  }, [initializeData])
 
   const handleNavigation = (path: string, tabId: string) => {
     setActiveTab(tabId);
