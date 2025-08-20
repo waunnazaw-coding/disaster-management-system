@@ -269,12 +269,12 @@ export default function DisasterDashboard() {
                       {todaysEvents[currentRotatingIndex]?.eventType}
                     </Badge>
                     <span className="text-sm text-card-foreground font-medium truncate max-w-md">
-                      {todaysEvents[currentRotatingIndex]?.locationAddress || "Unknown location"}
+                      {todaysEvents[currentRotatingIndex]?.impact}
                     </span>
                     <Badge
                       className="text-xs"
                       style={{
-                        backgroundColor: severityColors[todaysEvents[currentRotatingIndex]?.severity || "Green"],
+                        backgroundColor: severityColors[todaysEvents[currentRotatingIndex]?.severity ],
                         color: "white",
                       }}
                     >
