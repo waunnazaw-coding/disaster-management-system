@@ -8,7 +8,7 @@ import { useAssistanceRequestsStore } from '@/store/assistanceRequestStore';
 import { UserRequestsTable } from '@/components/assistance_requests/UserRequestTable';
 
 // ✅ Correct import for react-hot-toast
-import toast from 'react-hot-toast';
+import {toast} from 'sonner';
 import { AssistanceRequest } from '@/types/assistanceRequests';
 
 export default function UserRequestsPage() {

@@ -163,19 +163,25 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
   },
 
   removeActivity: async (id: number) => {
-    set({ loading: true, error: null });
-    try {
-      await deleteActivity(id);
-      set((state) => ({
-        activities: state.activities.filter(a => a.id !== id),
-        loading: false
-      }));
-      await get().fetchStats(); // Refetch stats
-      toast.success('Activity deleted successfully!');
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to delete activity';
-      set({ error: message, loading: false });
-      toast.error(message);
+    // Optimistically remove from UI immediately
+  set((state) => ({
+    activities: state.activities.filter(a => a.id !== id),
+    // Clear current activity if it's the one being deleted
+    currentActivity: state.currentActivity?.id === id ? null : state.currentActivity
+  }));
+
+  try {
+    // Proceed with actual API deletion
+    await deleteActivity(id);
+    await get().fetchStats();
+    toast.success('Activity deleted successfully!');
+  } catch (error) {
+    // Revert on error
+    const message = error instanceof Error ? error.message : 'Failed to delete activity';
+    toast.error(message);
+    
+    // Re-fetch activities to restore correct state
+    await get().fetchActivities();
     }
   },
 
