@@ -165,7 +165,7 @@ export const useReliefStore = create(
     },
 
     logout: () => {
-      authService.logout();
+      // authService.logout();
       localStorage.removeItem("authToken");
       window.location.href = "/";
     },

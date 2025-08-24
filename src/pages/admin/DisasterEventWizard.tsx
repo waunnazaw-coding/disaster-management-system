@@ -11,11 +11,11 @@ export default function DisasterEventWizard() {
   const reset = () => setMode("none");
 
   return (
-    <div className="min-h-[60vh] flex items-center justify-center bg-gray-100 p-4">
-      <div className="w-full max-w-3xl bg-white rounded-xl shadow-md p-6">
+    <div className="py-10 flex items-center justify-center p-4">
+      <div className="w-full max-w-3xl bg-white rounded-xl p-6">
         {mode === "none" && (
-          <>
-            <h1 className="text-2xl font-bold mb-6 text-center">
+          <div className="py-40 p-6 rounded h-20">
+            <h1 className="text-2xl font-bold mb-12 text-center">
               Choose Survey for Reporting Disaster
             </h1>
             <div className="flex gap-4">
@@ -33,7 +33,7 @@ export default function DisasterEventWizard() {
                 Disaster Impact
               </Button>
             </div>
-          </>
+          </div>
         )}
 
         {mode === "occurrence" && (

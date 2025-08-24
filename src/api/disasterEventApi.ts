@@ -18,6 +18,8 @@ export interface DisasterEvent {
   locationGeoJson?: any; // optional polygon GeoJSON
   firstImageUrl?: string;
   affectedPeople?: number;
+  createdUserName: string;
+  createdAt: string;
 }
 
 
@@ -28,6 +30,12 @@ export async function getAllDisasterEvents(): Promise<DisasterEvent[]> {
 
 export async function getAllActiveDisasterEvents(): Promise<DisasterEvent[]> {
   const response = await api.get("/DisasterEvent/all-active");
+  console.log(response.data.data)
+  return response.data.data;
+}
+
+export async function getAllForMapViewEvent(): Promise<DisasterEvent[]> {
+  const response = await api.get("/DisasterEvent/all-map-view");
   console.log(response.data.data)
   return response.data.data;
 }

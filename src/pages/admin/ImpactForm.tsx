@@ -243,7 +243,7 @@ export default function ImpactForm({ onCancel, onSuccess }: ImpactFormProps) {
             case "Infrastructure Damage":
                 return "Object Type and Name";
             case "Economic Loss":
-                return "Currency ($/K/etc.,)";
+                return "Currency (USD/MMK/etc.,), don't provide in symbol";
             case "Environmental Impact":
                 return "Effected Type/Name";
             case "Displacement":
@@ -262,8 +262,8 @@ export default function ImpactForm({ onCancel, onSuccess }: ImpactFormProps) {
     };
 
     return (
-        <div className="max-w-3xl mx-auto p-6 shadow rounded">
-            <h1 className="text-2xl font-bold mb-4 text-blue-500">Event Related Impacts</h1>
+        <div className="max-w-3xl mx-auto p-6 shadow-xl border-2 rounded">
+            <h1 className="text-2xl font-bold mb-4">Event Related Impacts</h1>
 
             {!searchActive && (
                 <div className="mb-4">

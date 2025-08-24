@@ -370,7 +370,7 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="Active">Active</SelectItem>
-                        <SelectItem value="Case closed">Case closed</SelectItem>
+                        <SelectItem value="Closed">Case closed</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
