@@ -23,12 +23,10 @@ const ProtectedRoute: React.FC<Props> = ({
     return <Navigate to="/unauthorized" replace />;
   }
 
-  // ✅ If children provided, render them
   if (children) {
     return <>{children}</>;
   }
 
-  // ✅ Otherwise fallback to Outlet for nested routes
   return <Outlet />;
 };
 

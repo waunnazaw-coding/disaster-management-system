@@ -23,6 +23,7 @@ import { useNavigate } from "react-router-dom";
 const navigation = [
   { id: "dashboard", name: "Overview", icon: LayoutDashboard, path: "dashboard" },
   { id: "events", name: "Disaster Events", icon: Calendar, path: "events" },
+  { id: "gdacs-events", name: "Global Disaster Management Dashboard", icon: Calendar, path: "gdacs-events" },
   { id: "reports", name: "Reports", icon: AlertTriangle, path: "reports" },
   { id: "requests", name: "Requests", icon: HelpCircle, path: "requests" },
   { id: "activity", name: "Activity", icon: ActivityIcon, path: "activity" }, 

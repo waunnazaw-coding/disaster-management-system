@@ -274,7 +274,7 @@ export const ActivityDetails: React.FC<ActivityDetailsProps> = ({
                       </div>
                     )}
 
-                    <div className="flex items-start gap-3">
+                    {/* <div className="flex items-start gap-3">
                       <Users className="h-4 w-4 mt-0.5 text-slate-500" />
                       <div>
                         <div className="text-slate-500">People Helped</div>
@@ -288,7 +288,7 @@ export const ActivityDetails: React.FC<ActivityDetailsProps> = ({
                         <div className="text-slate-500">Expense</div>
                         <div className="font-medium">{expense}</div>
                       </div>
-                    </div>
+                    </div> */}
 
                     <div className="flex items-start gap-3">
                       <Clock className="h-4 w-4 mt-0.5 text-slate-500" />

@@ -73,8 +73,9 @@ export const ResetPasswordForm = () => {
 
   try {
       const result = await authService.resetPassword(payload);
-      toast.success(result.message || "Password reset successfully! You can now sign in.");
-      navigate("/login");
+    toast.success(result.message || "Password reset successfully! You can now sign in.");
+    console.log("Reset success, navigating to login");
+      navigate(`/login?email=${encodeURIComponent(data.email)}`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to reset password. Please try again.");
       console.error("Reset password error:", error);
