@@ -129,6 +129,7 @@ export const useReliefStore = create(
 
         // 2. Get relief team ID for this user
         const teamResponse = await getReliefTeamByUser(userResponse.data.id);
+        console.log("teamResponse:", teamResponse);
         
         set({
           currentUser: {
@@ -165,7 +166,7 @@ export const useReliefStore = create(
     },
 
     logout: () => {
-      authService.logout();
+      // authService.logout();
       localStorage.removeItem("authToken");
       window.location.href = "/";
     },

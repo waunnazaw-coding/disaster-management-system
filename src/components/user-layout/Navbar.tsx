@@ -40,7 +40,7 @@ function UtilityBar() {
 // Navigation items config
 const navItems = [
   { href: '/', label: 'Home' },
-  { href: '/events', label: 'Disaster History' },
+  { href: '/disasters', label: 'Disaster Events' },
   { href: '/activities', label: 'Activities' },
   { href: '/awareness', label: 'Awareness' },
   { href: '/about', label: 'About' },

@@ -1,10 +1,28 @@
 import {Link} from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Shield, AlertTriangle, Users, Heart, Phone, MapPin, Clock } from 'lucide-react'
+import { Shield, AlertTriangle, Users, Heart, Phone, MapPin, Clock, Loader2 } from 'lucide-react'
 import myanmar from '@/images/myanmar-disaster.png'
+import { useActivityStore } from '@/store/activityStore'
+import { useEffect } from 'react'
+import ActivityCard from '@/components/activity/ActivityCard'
+import DonationToast from '@/components/donations/DonationToast'
 
 export default function HomePage() {
+   const { activities, loading } = useActivityStore();
+
+
+     useEffect(() => {
+    // Fetch activities for home page
+    if (activities.length === 0) {
+      useActivityStore.getState().fetchActivities();
+    }
+  }, []);
+
+  // Get 3 most recent activities
+  const recentActivities = [...activities]
+    .sort((a, b) => new Date(b.activityDate).getTime() - new Date(a.activityDate).getTime())
+    .slice(0, 3);
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -140,6 +158,43 @@ export default function HomePage() {
         </div>
       </section>
 
+       {/* ---- Recent Activities ---- */}
+      <section className="max-w-6xl mx-auto px-4 py-12 bg-white">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 ">Recent Relief Activities</h2>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            See how relief teams are actively helping communities affected by recent disasters
+          </p>
+        </div>
+
+        {loading ? (
+          <div className="flex justify-center py-6">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          </div>
+        ) : recentActivities.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {recentActivities.map(activity => (
+              <ActivityCard
+                key={activity.id}
+                activity={activity}
+                onView={() => window.location.href = `/activities/${activity.id}`}
+                isAdmin={false}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-gray-600">No recent activities found</p>
+          </div>
+        )}
+
+        <div className="text-center mt-10">
+          <Button asChild variant="outline" className="border-red-600 text-red-600 hover:bg-red-50">
+            <Link to="/activities">View All Activities</Link>
+          </Button>
+        </div>
+      </section>
+
       {/* Recent Events */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -238,6 +293,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      <DonationToast />
     </div>
   )
 }

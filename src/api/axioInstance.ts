@@ -9,9 +9,7 @@ import {
   isTokenExpired
 } from "@/hooks/setToken";
 
-const BASE_URL = "http://localhost:5188/api";
-const AUTH_TOKEN_KEY = "authToken";
-const USER_DATA_KEY = "userData";
+const BASE_URL = "https://localhost:7148/api";
 
 const api = axios.create({
   baseURL: BASE_URL,

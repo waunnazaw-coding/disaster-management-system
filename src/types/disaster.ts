@@ -9,6 +9,13 @@ export interface Impact {
   objectName?: string    // Optional e.g. "Main Pagoda"
 }
 
+export interface Filters {
+  disasterType: string;
+  startDate: Date | null;
+  status: string;
+}
+
+
 export interface Location {
   id: number
   name: string

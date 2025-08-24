@@ -201,7 +201,7 @@ export default function DisasterEventForm({ onCancel, onSuccess }: DisasterEvent
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6 shadow rounded">
+    <div className="max-w-3xl mx-auto p-6 shadow-xl border-2 rounded">
       <h1 className="text-2xl font-bold mb-4">Disaster Event Survey</h1>
 
       {step === 1 && (

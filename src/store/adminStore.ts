@@ -299,7 +299,7 @@ export const useAdminStore = create<AdminState>((set) => ({
   toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
   
   logout: () => {
-    authService.logout();
+    // authService.logout();
     localStorage.removeItem("authToken");
     window.location.href = "/";
   },

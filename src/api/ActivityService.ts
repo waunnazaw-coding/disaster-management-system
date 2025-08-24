@@ -95,8 +95,16 @@ export const updateActivity = async (data: UpdateReliefTeamActivityDTO): Promise
 };
 
 export const deleteActivity = async (id: number): Promise<void> => {
-  try {
-    await api.delete(`/ReliefTeamActivity/${id}`);
+   try {
+    const response = await api.delete(`/ReliefTeamActivity/${id}`);
+    
+    // Verify successful deletion
+    if (response.status !== 200) {
+      throw new Error(`Delete failed with status ${response.status}`);
+    }
+    
+    // Add small delay to ensure backend completes
+    await new Promise(resolve => setTimeout(resolve, 100));
   } catch (error) {
     console.error(`Failed to delete activity ${id}:`, error);
     throw new Error(`Failed to delete activity ${id}`);

@@ -110,7 +110,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
     try {
       await authService.register(data)
       toast.success(`Welcome to Disaster Recovery Platform, ${data.name}!`)
-      navigate("/login")
+      navigate(`/login?email=${encodeURIComponent(data.email)}`);
     } catch (error: any) {
       let errorMessage = "Registration failed. Please try again."
 
@@ -141,7 +141,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
       //setUser(data.user.name || "User");
 
       toast.success("Google sign in successful!");
-      navigate("/dashboard");
+      // navigate("/dashboard");
     } catch (error) {
       toast.error("Google login failed. Please try again.");
     }

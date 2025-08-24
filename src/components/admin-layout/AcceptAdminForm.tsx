@@ -82,7 +82,7 @@ export const AcceptAdminInviteForm = () => {
         description: "You can now access the disaster response dashboard",
       })
 
-      navigate("/login")
+      navigate(`/login?email=${encodeURIComponent(data.email)}`);
     } catch (error: any) {
       toast.error("Failed to accept invite", {
         description: error.message || "Please try again later",
