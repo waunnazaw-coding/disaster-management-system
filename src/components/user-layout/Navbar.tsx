@@ -27,7 +27,7 @@ function UtilityBar() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <Link to="/disasters/report" className="hover:underline">Survey</Link>
+            <Link to="/disasters/impact-survey" className="hover:underline">Survey</Link>
             <Link to="/emergency-contacts" className="hover:underline">Emergency Contacts</Link>
             <Link to="/donations" className="hover:underline">Donate Now</Link>
           </div>

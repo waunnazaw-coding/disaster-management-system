@@ -52,6 +52,7 @@ import VolunteerForm from "@/pages/donation/VolunteerForm";
 import AboutUsPage from "@/pages/AboutUs";
 import AdminDashboard from "../pages/admin/Dashboard";
 import DisasterDashboard from "@/pages/disaster/disaster-map";
+import ImpactSurveyPage from "@/pages/disaster/impact-survey";
 
 // Loading fallback UI (for Suspense boundaries)
 const LoadingFallback = () => (
@@ -97,6 +98,7 @@ const router = createBrowserRouter([
       { path: "awareness", element: <AwarenessPage /> },
       { path: "disasters/report", element: <DisasterReportWizard /> },
       { path: "disasters/:id", element: <EventDetailsPage /> },
+      { path: "disasters/impact-survey", element: <ImpactSurveyPage /> },
       {
         path: "requests",
         children: [

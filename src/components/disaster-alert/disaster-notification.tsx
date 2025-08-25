@@ -34,9 +34,9 @@ const DisasterNotification: React.FC = () => {
 
     newConnection.on("ReceiveDisasterUpdate", (eventData) => {
       console.log("Disaster update received:", eventData);
-      toast.info(`New Disaster Alert: ${eventData.description}`, {
+      toast.info(`New Disaster Alert: ${eventData.DisasterNotification}`, {
         position: "top-right",
-        autoClose: 5000,
+        autoClose: 10000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
