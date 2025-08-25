@@ -3,39 +3,24 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Filters } from "./MapLayout";
 import { format } from "date-fns";
-import { CalendarIcon, Shield } from "lucide-react";
-
-const disasterTypes = [
-  "Earthquake",
-  "Flood",
-  "Hurricane",
-  "Tornado",
-  "Wildfire",
-  "Landslide",
-  "Volcanic Eruption",
-  "Drought",
-  "Pandemic",
-  "Chemical Spill",
-  "Nuclear Accident",
-  "Cyber Attack",
-  "Terrorism",
-  "Industrial Accident",
-];
+import { CalendarIcon, Search, Filter, X, MapPin, AlertTriangle } from "lucide-react";
+import { Filters } from "./MapLayout";
+import { DisasterEvent } from "@/api/disasterEventApi";
 
 interface MapNavbarProps {
   filters: Filters;
   setFilters: React.Dispatch<React.SetStateAction<Filters>>;
+  events: DisasterEvent[];
+  onSelectEvent?: (event: DisasterEvent) => void;
 }
 
-const MapNavbar: React.FC<MapNavbarProps> = ({ filters, setFilters }) => {
-  const [date, setDate] = useState<Date | undefined>(
-    filters.startDate ? new Date(filters.startDate) : undefined
-  );
+const MapNavbar: React.FC<MapNavbarProps> = ({ filters, setFilters, events, onSelectEvent }) => {
+  const [date, setDate] = useState<Date | undefined>(filters.startDate ? new Date(filters.startDate) : undefined);
+  const [searchText, setSearchText] = useState(filters.searchQuery);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const handleChange = (field: keyof Filters, value: string) => {
     setFilters(prev => ({ ...prev, [field]: value }));
@@ -43,120 +28,195 @@ const MapNavbar: React.FC<MapNavbarProps> = ({ filters, setFilters }) => {
 
   const handleDateChange = (selectedDate: Date | undefined) => {
     setDate(selectedDate);
-    if (selectedDate) {
-      const formattedDate = format(selectedDate, "yyyy-MM-dd");
-      handleChange("startDate", formattedDate);
-    } else {
-      handleChange("startDate", "");
-    }
+    handleChange("startDate", selectedDate ? format(selectedDate, "yyyy-MM-dd") : "");
   };
 
   const handleClear = () => {
-    setFilters({ disasterType: "", status: "", startDate: "" });
+    setFilters({ disasterType: "", status: "", startDate: "", searchQuery: "" });
     setDate(undefined);
+    setSearchText("");
   };
 
-  return (
-    <header className="h-20 flex items-center gap-10 px-6 bg-gradient-to-r from-slate-50 to-gray-50 border-b border-gray-200 shadow-lg backdrop-blur-sm">
-      {/* Left Section - Logo/Title */}
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center shadow-md">
-         <Shield/>
-        </div>
-        <div>
-          <h1 className="text-xl font-bold text-gray-900 tracking-tight">Disaster Events</h1>
-          <p className="text-xs text-gray-500 font-medium">Real-time monitoring system</p>
-        </div>
-      </div>
+  const handleSearch = () => {
+    handleChange("searchQuery", searchText);
+    setShowSuggestions(false);
+  };
 
-      {/* Center Section - Filters */}
-      <div className="flex items-center gap-6 bg-white/70 backdrop-blur-sm px-6 py-3 rounded-2xl shadow-md border border-white/50">
-        {/* Disaster Type Filter */}
-        <div className="relative">
-          <Select
-            value={filters.disasterType}
-            onValueChange={val => handleChange("disasterType", val)}
-          >
-            <SelectTrigger className="w-[170px] h-10 bg-white border-gray-200 hover:border-gray-300 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all duration-200 rounded-lg shadow-sm">
-              <SelectValue placeholder="Disaster Type" className="text-gray-900" />
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  // Autocomplete from events
+  const suggestions = events
+    .filter(e => e.name.toLowerCase().includes(searchText.toLowerCase()) && searchText)
+    .slice(0, 5);
+
+  // Count active filters
+  const activeFiltersCount = Object.values(filters).filter(Boolean).length;
+
+  return (
+    <header className="relative h-20 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b border-slate-700/50 shadow-2xl">
+      {/* Background pattern overlay */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.15)_1px,transparent_0)] bg-[length:24px_24px] opacity-30"></div>
+
+      <div className="relative h-full flex items-center justify-center gap-6 px-8">
+        {/* Brand/Title Section */}
+        <div className="flex items-center gap-3 mr-4">
+          <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
+            <MapPin className="w-6 h-6 text-white" />
+          </div>
+          <div className="hidden md:block">
+            <h1 className="text-xl font-bold text-white tracking-tight">
+              Disaster Map
+            </h1>
+            <p className="text-xs text-slate-300">Real-time monitoring</p>
+          </div>
+        </div>
+
+        {/* Search Section */}
+        <div className="relative flex-shrink-0">
+          <div className="relative w-65">
+            <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-slate-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search disasters, locations, or types..."
+              value={searchText}
+              onChange={e => {
+                setSearchText(e.target.value);
+                setShowSuggestions(true);
+              }}
+              onKeyPress={handleKeyPress}
+              onFocus={() => setShowSuggestions(true)}
+              className="w-full h-10 pl-5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-slate-300 focus:bg-white/15 focus:border-red-400/50 focus:ring-2 focus:ring-red-400/20 transition-all duration-300"
+            />
+            {searchText && (
+              <button
+                onClick={() => {
+                  setSearchText("");
+                  setShowSuggestions(false);
+                }}
+                className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-white transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+
+            {/* Autocomplete Suggestions */}
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute top-full left-0 w-full mt-2 bg-white/95 backdrop-blur-md border border-white/20 rounded-xl shadow-2xl z-50 overflow-hidden">
+                {suggestions.map(event => (
+                  <div
+                    key={event.id}
+                    className="px-4 py-3 cursor-pointer hover:bg-red-50/80 transition-colors border-b border-slate-100/50 last:border-b-0 group"
+                    onClick={() => {
+                      setSearchText(event.name);
+                      handleSearch();
+                      onSelectEvent?.(event);
+                      setShowSuggestions(false);
+                    }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center group-hover:bg-red-200 transition-colors">
+                        <AlertTriangle className="w-4 h-4 text-red-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-slate-900">{event.name}</p>
+                        <p className="text-xs text-slate-500">{event.disasterTypeName} • {event.status}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Filters Section */}
+        <div className="flex items-center gap-4">
+          {/* Disaster Type Filter */}
+          <Select value={filters.disasterType} onValueChange={val => handleChange("disasterType", val)}>
+            <SelectTrigger
+              className="w-44 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white hover:bg-white/15 transition-all duration-300 [&>svg]:text-white"
+              style={{ height: "40px" }}
+            >
+              <SelectValue placeholder="🌪️ Disaster Type" className="text-white" />
             </SelectTrigger>
-            <SelectContent className="bg-white border border-gray-200 rounded-xl shadow-xl">
-              {disasterTypes.map(type => (
-                <SelectItem 
-                  key={type} 
-                  value={type}
-                  className="hover:bg-red-50 hover:text-red-700 cursor-pointer transition-colors duration-150"
-                >
-                  {type}
-                </SelectItem>
+            <SelectContent className="bg-white/95 backdrop-blur-md border border-white/20">
+              {[...new Set(events.map(e => e.disasterTypeName))].map(type => (
+                <SelectItem key={type} value={type} className="hover:bg-red-50">{type}</SelectItem>
               ))}
             </SelectContent>
           </Select>
-        </div>
 
-        {/* Status Filter */}
-        <div className="relative">
-          <Select
-            value={filters.status}
-            onValueChange={val => handleChange("status", val)}
-          >
-            <SelectTrigger className="w-[150px] h-10 bg-white border-gray-200 hover:border-gray-300 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all duration-200 rounded-lg shadow-sm">
-              <SelectValue placeholder="Disaster Status" className="text-gray-900" />
+          {/* Status Filter */}
+          <Select value={filters.status} onValueChange={val => handleChange("status", val)}>
+            <SelectTrigger
+              className="w-36 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white hover:bg-white/15 transition-all duration-300 [&>svg]:text-white"
+              style={{ height: "40px" }}
+            >
+              <SelectValue placeholder="📊 Status" className="text-white" />
             </SelectTrigger>
-            <SelectContent className="bg-white border border-gray-200 rounded-xl shadow-xl">
-              <SelectItem value="Active" className="hover:bg-green-50 hover:text-green-700 cursor-pointer transition-colors duration-150">
+            <SelectContent className="bg-white/95 backdrop-blur-md border border-white/20">
+              <SelectItem value="Active" className="hover:bg-green-50">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                   Active
                 </div>
               </SelectItem>
-              <SelectItem value="Closed" className="hover:bg-gray-50 hover:text-gray-700 cursor-pointer transition-colors duration-150">
+              <SelectItem value="Closed" className="hover:bg-gray-50">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                  Case Closed
+                  Closed
                 </div>
               </SelectItem>
             </SelectContent>
           </Select>
-        </div>
 
-        {/* Date Filter */}
-        <div className="relative">
+          {/* Date Filter */}
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className="w-[160px] h-10 justify-start text-left font-normal bg-white border-gray-200 hover:border-gray-300 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all duration-200 rounded-lg shadow-sm"
+                className="h-10 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white hover:bg-white/15 hover:text-white transition-all duration-300"
               >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {date ? format(date, "MMM dd, yyyy") : "Date Range"}
+                {date ? format(date, "MMM dd, yyyy") : "📅 Date"}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 bg-white border border-gray-200 rounded-xl shadow-xl" align="start">
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={handleDateChange}
-                initialFocus
-                className="rounded-lg"
-              />
+            <PopoverContent className="p-0 bg-white/95 backdrop-blur-md border border-white/20">
+              <Calendar mode="single" selected={date} onSelect={handleDateChange} initialFocus />
             </PopoverContent>
           </Popover>
         </div>
 
-        {/* Clear Filters Button */}
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={handleClear}
-          className="h-10 px-4 bg-white hover:bg-gray-50 border-gray-200 hover:border-gray-300 text-gray-700 hover:text-gray-900 transition-all duration-200 rounded-lg shadow-sm font-medium"
-        >
-          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-          Clear Filters
-        </Button>
+        {/* Action Buttons */}
+        <div className="flex items-center gap-3">
+
+          {activeFiltersCount > 0 && (
+            <Button
+              variant="outline"
+              onClick={handleClear}
+              className="h-12 px-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white hover:bg-red-500/20 hover:border-red-400/50 transition-all duration-300 relative"
+            >
+              <Filter className="mr-2 h-4 w-4" />
+              Clear
+              {activeFiltersCount > 0 && (
+                <span className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </Button>
+          )}
+        </div>
       </div>
+
+      {/* Active Filters Indicator */}
+      {activeFiltersCount > 0 && (
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 via-orange-500 to-red-500 animate-pulse"></div>
+      )}
     </header>
   );
 };

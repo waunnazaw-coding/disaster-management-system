@@ -18,7 +18,7 @@ interface MapLayoutProps {
   controls?: ReactNode;
 }
 
-const MapLayout: React.FC<MapLayoutProps> = ({ children, controls }) => {
+const MapPublicLayout: React.FC<MapLayoutProps> = ({ children, controls }) => {
   const [filters, setFilters] = useState<Filters>({
     disasterType: "",
     status: "",
@@ -41,7 +41,7 @@ const MapLayout: React.FC<MapLayoutProps> = ({ children, controls }) => {
   }, []);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-82px)]" style={{ margin: "-25px" }}>
+    <div className="flex flex-col h-[calc(100vh-82px)]">
       <MapNavbar
         filters={filters}
         setFilters={setFilters}
@@ -62,4 +62,4 @@ const MapLayout: React.FC<MapLayoutProps> = ({ children, controls }) => {
   );
 };
 
-export default MapLayout;
+export default MapPublicLayout;

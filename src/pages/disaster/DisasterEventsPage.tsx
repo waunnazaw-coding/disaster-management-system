@@ -105,7 +105,7 @@ function DisasterEventsForAdmin() {
           <div className="flex gap-3">
             <Button
               className="bg-black h-11 text-white hover:bg-white hover:text-black hover:border hover:border-black"
-              onClick={() => navigate("/admin/mapView")}
+              onClick={() => navigate("/events/mapView")}
             >
               <MapPinned />
               Map View

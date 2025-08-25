@@ -66,12 +66,21 @@ const MapView: React.FC<MapViewProps> = ({ filters }) => {
           data = data.filter(e => e.status === filters.status);
         }
 
-        // Filter by start date - THIS WAS MISSING!
+        // Filter by start date
         if (filters.startDate) {
           data = data.filter(e => {
             console.log("Comparing dates:", e.startDate, "===", filters.startDate);
             return e.startDate === filters.startDate;
           });
+        }
+
+        // Filter by search query - THIS WAS MISSING!
+        if (filters.searchQuery) {
+          data = data.filter(e => 
+            e.name.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
+            (e.description && e.description.toLowerCase().includes(filters.searchQuery.toLowerCase())) ||
+            e.disasterTypeName.toLowerCase().includes(filters.searchQuery.toLowerCase())
+          );
         }
 
         console.log("Filtered events:", data);

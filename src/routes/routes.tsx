@@ -37,6 +37,7 @@ import AwarenessPage from "@/pages/awareness/awareness-page";
 import DonationPage from "@/pages/donation/Donation";
 import FinancialReportsPage from "@/pages/finanacial-reports/financial-reports-page";
 import MapView from "@/components/disaster/DisasterEventMap";
+import MapPublicLayout from "@/Map/MapPublicLayout";
 
 import Login from "../pages/auth/Login";
 import SignUp from "../pages/auth/SignUpPage";
@@ -124,6 +125,7 @@ const router = createBrowserRouter([
         ],
       },
       { path: "teams/relief", element: <ReliefTeamListPage /> },
+      { path: "events/mapView", element: <MapPublicLayout />, },
       { path: "donations", element: <DonationPage /> },
       { path: "donations/new", element: <DonationFormPage /> },
       { path: "volunteers/apply", element: <VolunteerForm /> },
