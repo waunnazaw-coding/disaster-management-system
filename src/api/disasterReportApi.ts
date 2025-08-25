@@ -46,3 +46,23 @@ export async function approveDisapproveReport(id: number, approve: boolean) {
   const response = await api.post(endpoint); // Use POST, not PUT
   return response.data;
 }
+
+export async function unrejectReport(id: number) {
+  try {
+    const response = await api.post(`/DisasterReport/unreject/${id}`);
+    return response.data;
+  } catch (error: any) {
+    console.error("Unreject report failed:", error);
+    return { isSuccess: false, message: error.message || "Action failed" };
+  }
+}
+
+export async function markReportChecked(id: number) {
+  const response = await api.post(`/DisasterReport/checked/${id}`);
+  return response.data;
+}
+
+export async function markReportFake(id: number) {
+  const response = await api.post(`/DisasterReport/fake/${id}`);
+  return response.data;
+}
