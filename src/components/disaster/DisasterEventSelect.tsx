@@ -26,8 +26,21 @@ export default function DisasterEventSelect({
         onChange(selectedId);
       }}
       className="border rounded p-2 w-full"
+      style={{
+        background: 'white'
+      }}
     >
-      <option value="">None</option>
+      <option
+        value=""
+        style={{
+          padding: '8px 12px',
+          backgroundColor: '#f8f9fa',
+          color: '#6c757d',
+          fontStyle: 'italic'
+        }}
+      >
+        None
+      </option>
       {disasterEvents.map((ev) => {
         const name = ev.name || "Unnamed";
         const location = ev.locationName || "N/A";
@@ -37,8 +50,19 @@ export default function DisasterEventSelect({
           description.length > 10 ? `${description.slice(0, 10)}...` : description;
 
         return (
-          <option key={ev.id} value={ev.id}>
-            {`Name: ${name}, Location: ${location}, Severity: ${severity}, Description: ${shortDescription}`}
+          <option
+            key={ev.id}
+            value={ev.id}
+            style={{
+              padding: '10px 12px',
+              backgroundColor: 'white',
+              borderBottom: '1px solid #e9ecef',
+              color: '#212529',
+              fontSize: '14px',
+              lineHeight: '1.4'
+            }}
+          >
+            {`📍 ${name} | 🌍 ${location} | ⚠️ ${severity} | 📝 ${shortDescription}`}
           </option>
         );
       })}

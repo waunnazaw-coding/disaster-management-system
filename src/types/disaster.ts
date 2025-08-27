@@ -23,6 +23,35 @@ export interface Location {
   country?: string
   region?: string
 }
+export interface ImpactCreateDto {
+  disasterEventId?: number | null;
+  disasterReportId?: number | null;
+  type: string;
+  value: string;
+  objectName?: string;
+}
+
+export interface ReportImpactCreateDto {
+  LocationName: string;
+  Address?: string;
+  Region?: string;
+  Country?: string;
+  GeoJson: string | null;
+  AddressDetail?: string;
+  Type: string;
+  Title?: string;
+  Description?: string;
+  Severity?: string;
+  Source?: string;
+  UserId?: string;
+
+  ReportPhotos: File[];
+  NewPhotoDescription: string[];
+  DisasterEventId?: number;
+
+  Impacts: ImpactCreateDto[];
+}
+
 
 export interface DisasterEvent {
   lastUpdate: string | undefined
