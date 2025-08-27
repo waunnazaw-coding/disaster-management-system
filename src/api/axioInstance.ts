@@ -18,14 +18,24 @@ const api = axios.create({
   },
 });
 
+// ... existing code
+
 api.interceptors.request.use((config) => {
   const token = getAccessToken();
   if (token) {
     config.headers = config.headers ?? {};
     config.headers.Authorization = `Bearer ${token}`;
   }
+  
+  // Don't set Content-Type for FormData (browser will set it automatically with boundary)
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  }
+  
   return config;
 });
+
+// ... rest of the code
 
 // Refresh token logic
 async function refreshAccessToken() {

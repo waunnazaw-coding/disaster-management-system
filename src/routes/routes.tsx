@@ -29,8 +29,6 @@ import { AdminInviteForm } from "@/components/admin-layout/AdminInviteForm";
 import { AcceptAdminInviteForm } from "@/components/admin-layout/AcceptAdminForm";
 import EmergencyContact from "@/components/emergency/EmergencyContact";
 import RequestDetailsPage from "@/pages/user/RequestDetailsPage";
-import ActivitiesPage from "@/pages/public/ActivitiesPage";
-import ActivityDetailPage from "@/pages/public/ActivityDetailPage";
 import ActivityPage from "@/pages/admin/AdminActivityPage";
 import ReliefActivityPage from "@/pages/relief/ReliefActivityPage";
 import AwarenessPage from "@/pages/awareness/awareness-page";
@@ -38,6 +36,11 @@ import DonationPage from "@/pages/donation/Donation";
 import FinancialReportsPage from "@/pages/finanacial-reports/financial-reports-page";
 import MapView from "@/components/disaster/DisasterEventMap";
 import MapPublicLayout from "@/Map/MapPublicLayout";
+import { PartnersPage } from "@/pages/admin/partnersPage";
+import ContactUs from "@/pages/ContactUs";
+import { AdminContactManagement } from "@/components/admin-layout/AdminContactManagement";
+import ActivitiesPage from "@/pages/public/ActivitiesPage";
+import { ActivityDetailPage } from "@/pages/public/ActivityDetailPage";
 
 import Login from "../pages/auth/Login";
 import SignUp from "../pages/auth/SignUpPage";
@@ -218,6 +221,7 @@ const router = createBrowserRouter([
       { path: "emergency-contacts", element: <EmergencyContact /> },
 
       { path: "about", element: <AboutUsPage /> },
+      {path: "contact", element: <ContactUs />},
       // New activity routes
       { path: "activities", element: <ActivitiesPage /> },
       { path: "activities/:id", element: <ActivityDetailPage /> },
@@ -245,6 +249,10 @@ const router = createBrowserRouter([
           { path: "admin/assign-request/:id", element: <AssignRequestsToReliefPage /> },
           { path: "admin/activity", element: <ActivityPage /> },
           { path: "admin/financial-reports", element: <FinancialReportsPage /> },
+           { path: "admin/financial-reports", element: <FinancialReportsPage /> },
+             // ... other routes
+        { path: "admin/partners", element: <PartnersPage /> },
+        {path:"admin/contacts", element: <AdminContactManagement />}
         ],
       },
     ],

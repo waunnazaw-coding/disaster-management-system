@@ -217,7 +217,7 @@ export default function DonationsTab({ refreshTrigger }: DonationsTabProps) {
             <div className="text-center py-8 text-gray-500">
               <Gift className="h-12 w-12 mx-auto mb-4 text-gray-300" />
               <p className="mb-4">No donations made yet</p>
-              <Button onClick={() => (window.location.href = "/donations/new")}>Make Your First Donation</Button>
+              <Button onClick={() => (window.location.href = "/donations")}>Make Your First Donation</Button>
             </div>
           ) : (
             <>

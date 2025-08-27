@@ -64,39 +64,39 @@ export const columns: ColumnDef<User>[] = [
     cell: ({ row }) =>
       new Date(row.getValue("createdAt")).toLocaleDateString(),
   },
-  {
-    accessorKey: "Actions",
-    header: "Actions",
-    id: "actions",
-    cell: ({ row }) => {
-      const user = row.original
-      const [blockModalOpen, setBlockModalOpen] = useState(false)
+  // {
+  //   accessorKey: "Actions",
+  //   header: "Actions",
+  //   id: "actions",
+  //   cell: ({ row }) => {
+  //     const user = row.original
+  //     const [blockModalOpen, setBlockModalOpen] = useState(false)
 
-      return (
-        <>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setBlockModalOpen(true)}>
-                {user.status === "Active" ? "Block User" : "Unblock User"}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+  //     return (
+  //       <>
+  //         <DropdownMenu>
+  //           <DropdownMenuTrigger asChild>
+  //             <Button variant="ghost" className="h-8 w-8 p-0">
+  //               <MoreHorizontal className="h-4 w-4" />
+  //             </Button>
+  //           </DropdownMenuTrigger>
+  //           <DropdownMenuContent align="end">
+  //             <DropdownMenuItem onClick={() => setBlockModalOpen(true)}>
+  //               {user.status === "Active" ? "Block User" : "Unblock User"}
+  //             </DropdownMenuItem>
+  //           </DropdownMenuContent>
+  //         </DropdownMenu>
 
-          <BlockUserModal
-            userId={user.id}
-            userName={user.name}
-            currentStatus={user.status}
-            open={blockModalOpen}
-            onOpenChange={setBlockModalOpen}
-            onSuccess={() => row.toggleSelected(false)}
-          />
-        </>
-      )
-    },
-  },
+  //         <BlockUserModal
+  //           userId={user.id}
+  //           userName={user.name}
+  //           currentStatus={user.status}
+  //           open={blockModalOpen}
+  //           onOpenChange={setBlockModalOpen}
+  //           onSuccess={() => row.toggleSelected(false)}
+  //         />
+  //       </>
+  //     )
+  //   },
+  // },
 ]
