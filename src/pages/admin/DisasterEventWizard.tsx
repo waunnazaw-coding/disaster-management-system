@@ -24,10 +24,10 @@ export default function DisasterEventWizard() {
                 </div>
               </div>
               <h1 className="text-3xl font-bold mb-3">
-                Disaster Reporting System
+                Disaster Event Maintaining System
               </h1>
               <p className="text-blue-100 text-lg max-w-2xl mx-auto">
-                Help us track and respond to disasters effectively. Choose the type of report you'd like to submit.
+               Choose the type of Event you'd like to create.
               </p>
             </div>
 
@@ -54,7 +54,7 @@ export default function DisasterEventWizard() {
                   </div>
                   
                   <p className="text-gray-600 mb-6 leading-relaxed">
-                    Report a new disaster event happening in your area. This includes natural disasters, emergencies, or any catastrophic events requiring immediate attention.
+                    Create a New disaster event happening in areas. This includes natural disasters, emergencies, or any catastrophic events requiring immediate attention.
                   </p>
                   
                   <div className="space-y-2 mb-6">
@@ -79,7 +79,7 @@ export default function DisasterEventWizard() {
                     }}
                     className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-medium transition-colors duration-200"
                   >
-                    Report New Disaster
+                    Create New Disaster
                   </Button>
                 </div>
 
@@ -128,7 +128,7 @@ export default function DisasterEventWizard() {
                     variant="outline"
                     className="w-full border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white py-3 rounded-lg font-medium transition-all duration-200"
                   >
-                    Report Impact Details
+                    Create Impact Details of Disaster
                   </Button>
                 </div>
 
@@ -137,7 +137,7 @@ export default function DisasterEventWizard() {
               {/* Footer Info */}
               <div className="mt-12 text-center">
                 <p className="text-gray-500 text-sm">
-                  Your reports help emergency responders and authorities coordinate effective disaster response and recovery efforts.
+                  Your efforts help emergency responders and authorities coordinate effective disaster response and recovery efforts.
                 </p>
               </div>
             </div>
