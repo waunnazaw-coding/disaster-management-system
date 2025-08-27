@@ -316,14 +316,6 @@ function DisasterEventsForAdmin() {
                   <div className="flex space-x-2 pt-2">
                     <Button
                       size="sm"
-                      className="flex-1 bg-blue-700 text-white"
-                      onClick={() => navigate(`/disasters/${event.id}`)}
-                    >
-                      <Heart className="h-4 w-4 mr-2" />
-                      Request Help
-                    </Button>
-                    <Button
-                      size="sm"
                       variant="outline"
                       className="flex-1 border-blue-300 text-blue-700"
                       onClick={() => navigate(`/disasters/${event.id}`)}
