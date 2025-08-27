@@ -3,6 +3,8 @@ export enum Roles {
   Admin = "Admin",
   SysAdmin = "SysAdmin",
   ReliefTeam = "ReliefTeam",
+  DisasterManagementAdmin = "DisasterManagementAdmin",
+  FinancialAdmin = "FinancialAdmin"
 }
 
 

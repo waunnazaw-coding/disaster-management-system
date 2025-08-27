@@ -12,6 +12,8 @@ export const useAuthRedirect = () => {
     if (isAuthenticated && user?.role) {
       switch (user.role) {
         case Roles.Admin:
+        case Roles.DisasterManagementAdmin:
+        case Roles.FinancialAdmin:
         case Roles.SysAdmin:
           navigate("/admin/dashboard", { replace: true });
           break;

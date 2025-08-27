@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect } from "react"
-import { useAdminStore } from "../../store/adminStore"
-import { cn } from "../../lib/utils"
+import React, { useEffect } from "react";
+import { useAdminStore } from "../../store/adminStore";
+import { useAuthStore } from "@/store/authStore";
+import { cn } from "../../lib/utils";
 import {
   LayoutDashboard,
   AlertTriangle,
@@ -13,14 +14,13 @@ import {
   ChevronLeft,
   ChevronRight,
   Shield,
-  Home,
   ClipboardList,
   ActivityIcon,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
 
-const navigation = [
+const allNavigation = [
   { id: "dashboard", name: "Overview", icon: LayoutDashboard, path: "dashboard" },
   { id: "events", name: "Disaster Events", icon: Calendar, path: "events" },
   { id: "gdacs-events", name: "Global Disaster Management Dashboard", icon: Calendar, path: "gdacs-events" },
@@ -32,8 +32,24 @@ const navigation = [
   { id: "users", name: "Users", icon: Users, path: "users" },
   { id: "teams", name: "Relief Teams", icon: Users, path: "relief-team-lists" },
   { id: "admin-invite", name: "Admin Invite", icon: Users, path: "admin-invite" },
+  { id: "admin-invite", name: "Admin Invite", icon: Users, path: "admin-invite" },
   { id: "financial", name: "Financial Reports", icon: Users, path: "financial-reports" },
 ];
+
+const roleNavigationMap: Record<string, string[]> = {
+  SysAdmin: allNavigation.map(item => item.id),
+  Admin: [
+    "dashboard", "events", "reports", "requests", "activity", "assignments", 
+    "donations", "users", "teams", "admin-invite", "financial"
+  ],
+  DisasterManagementAdmin: [
+    "dashboard", "events", "gdacs-events", "reports", "requests", 
+    "assignments", "teams"
+  ],
+  FinancialAdmin: [
+    "dashboard", "donations", "financial", "activity"
+  ],
+};
 
 interface AdminSidebarProps {
   isMobile: boolean;
@@ -46,30 +62,26 @@ export function AdminSidebar({
   sidebarOpen,
   setSidebarOpen,
 }: AdminSidebarProps) {
-  // Use selectors to subscribe only to needed parts of the store
-  const dashboardStats = useAdminStore(state => state.dashboardStats)
-  const sidebarCollapsed = useAdminStore(state => state.sidebarCollapsed)
-  const toggleSidebar = useAdminStore(state => state.toggleSidebar)
-  const activeTab = useAdminStore(state => state.activeTab)
-  const setActiveTab = useAdminStore(state => state.setActiveTab)
-  const initializeData = useAdminStore(state => state.initializeData)
+  // Get user role from auth store
+  const user = useAuthStore(state => state.user);
+  const userRole = user?.role ?? "Admin"; // default to Admin if no user
 
-  const navigate = useNavigate()
+  const dashboardStats = useAdminStore(state => state.dashboardStats);
+  const sidebarCollapsed = useAdminStore(state => state.sidebarCollapsed);
+  const toggleSidebar = useAdminStore(state => state.toggleSidebar);
+  const activeTab = useAdminStore(state => state.activeTab);
+  const setActiveTab = useAdminStore(state => state.setActiveTab);
+  const initializeData = useAdminStore(state => state.initializeData);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
-    initializeData() // load stats on mount
-  }, [initializeData])
+    initializeData(); // load stats on mount
+  }, [initializeData]);
 
   const handleNavigation = (path: string, tabId: string) => {
     setActiveTab(tabId);
     navigate(`/admin/${path}`);
-    if (isMobile) {
-      setSidebarOpen(false);
-    }
-  };
-
-  const handleHomeClick = () => {
-    navigate("/");
     if (isMobile) {
       setSidebarOpen(false);
     }
@@ -87,6 +99,10 @@ export function AdminSidebar({
         return 0;
     }
   };
+
+  // Filter navigation items based on user role
+  const allowedNavIds = roleNavigationMap[userRole] ?? roleNavigationMap["Admin"];
+  const navigation = allNavigation.filter(item => allowedNavIds.includes(item.id));
 
   return (
     <div
@@ -125,24 +141,8 @@ export function AdminSidebar({
       </div>
 
       <nav className="mt-4 px-2">
-        {/* Back to Home Button */}
-        {/* <div
-          onClick={handleHomeClick}
-          className={cn(
-            "flex items-center px-3 py-3 mb-2 rounded-lg cursor-pointer",
-            "text-sm font-medium transition-all",
-            "text-slate-600 hover:bg-gray-50"
-          )}
-        >
-          <Home className="w-5 h-5 text-slate-500" />
-          {(!sidebarCollapsed || isMobile) && (
-            <span className="ml-3">Back to Home</span>
-          )}
-        </div> */}
-
-        {/* Navigation Items */}
         {navigation.map((item) => {
-          const active = item.id === useAdminStore.getState().activeTab;
+          const active = item.id === activeTab;
           const badgeCount = getBadgeCount(item.id);
 
           return (
@@ -176,7 +176,6 @@ export function AdminSidebar({
             </div>
           );
         })}
-        
       </nav>
     </div>
   );

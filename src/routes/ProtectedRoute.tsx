@@ -5,7 +5,7 @@ import { useAuthStore } from "../store/authStore";
 interface Props {
   allowedRoles: string[];
   redirectPath?: string;
-  children?: React.ReactNode; // ✅ Add this!
+  children?: React.ReactNode; 
 }
 
 const ProtectedRoute: React.FC<Props> = ({

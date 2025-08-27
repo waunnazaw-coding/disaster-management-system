@@ -2,7 +2,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'User' | 'Admin' | 'SysAdmin' | 'ReliefTeam' | 'Org';
+  role: 'User' | 'Admin' | 'SysAdmin' | 'ReliefTeam' | 'DisasterManagementAdmin' | 'FinancialAdmin';
   status: 'Active' | 'Blacklisted';
   authProvider?: string | null;
   createdAt: string;

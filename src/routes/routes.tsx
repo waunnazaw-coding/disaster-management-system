@@ -170,7 +170,7 @@ const router = createBrowserRouter([
 
   // Admin protected routes
   {
-    element: <ProtectedRoute allowedRoles={["Admin", "SysAdmin"]} />,
+    element: <ProtectedRoute allowedRoles={["Admin", "SysAdmin" , "DisasterManagementAdmin" , "FinancialAdmin"]} />,
     children: [
       {
         element: withSuspense(<AdminLayout />),
@@ -226,7 +226,7 @@ const router = createBrowserRouter([
 
   // Admin protected routes
   {
-    element: <ProtectedRoute allowedRoles={["Admin", "SysAdmin"]} />,
+    element: <ProtectedRoute allowedRoles={["Admin", "SysAdmin" , "DisasterManagementAdmin" , "FinancialAdmin"]} />,
     children: [
       {
         element: (
