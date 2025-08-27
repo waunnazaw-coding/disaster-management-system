@@ -162,23 +162,23 @@ export default function ProfileCard({ onEditProfile }: ProfileCardProps) {
                 {getInitials(user.name)}
               </div>
             )}
-            <Button
+            {/* <Button
               size="sm"
               variant="secondary"
               className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full p-0 shadow-md"
               onClick={onEditProfile}
             >
               <Camera className="h-4 w-4" />
-            </Button>
+            </Button> */}
           </div>
 
           <div className="flex-1">
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-2xl font-bold text-gray-900">{user.name}</h1>
-              <Button onClick={onEditProfile} variant="outline" size="sm">
+              {/* <Button onClick={onEditProfile} variant="outline" size="sm">
                 <Edit className="h-4 w-4 mr-2" />
                 Edit Profile
-              </Button>
+              </Button> */}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -187,12 +187,12 @@ export default function ProfileCard({ onEditProfile }: ProfileCardProps) {
                 <p className="font-medium text-gray-900">{user.email}</p>
               </div>
 
-              <div>
+              {/* <div>
                 <p className="text-sm text-gray-500">Phone</p>
                 <p className="font-medium text-gray-900">
                   {user.phone || "Not provided"}
                 </p>
-              </div>
+              </div> */}
 
               <div>
                 <p className="text-sm text-gray-500">Role</p>

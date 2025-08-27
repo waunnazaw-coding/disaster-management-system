@@ -1,7 +1,5 @@
-// src/api/disasterEvents.ts
-
 import { DisasterEvent } from "@/types/DisasterEvent";
-import api from "./axioInstance"; // ✅ your existing axios instance
+import api from "./axioInstance";
 
 /**
  * Get all disaster events.
@@ -9,6 +7,6 @@ import api from "./axioInstance"; // ✅ your existing axios instance
 export const getAllDisasterEvents = async (): Promise<DisasterEvent[]> => {
   const response = await api.get("/DisasterEvent/all");
 
-   console.log(response.data.data);
-  return response.data.data;
+  console.log(response.data); // full response
+  return response.data.data; // ✅ return only the array
 };

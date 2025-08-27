@@ -87,7 +87,7 @@ export default function UserRequestsPage() {
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button> */}
-          <Button onClick={() => navigate('/disasters')}>
+          <Button onClick={() => navigate('/requests/assistant')}>
             <Plus className="h-4 w-4 mr-2" />
             New Request
           </Button>

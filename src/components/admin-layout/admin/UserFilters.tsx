@@ -96,7 +96,7 @@ export function UserFilters() {
         </SelectContent>
       </Select>
       
-      <Select 
+      {/* <Select 
         value={filters.status || 'all'} 
         onValueChange={handleStatusChange}
       >
@@ -108,7 +108,7 @@ export function UserFilters() {
           <SelectItem value="Active">Active</SelectItem>
           <SelectItem value="Blacklisted">Blocked</SelectItem>
         </SelectContent>
-      </Select>
+      </Select> */}
       
       {hasFilters && (
         <Button variant="ghost" onClick={clearFilters}>

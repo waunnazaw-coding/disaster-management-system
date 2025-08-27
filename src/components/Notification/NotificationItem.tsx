@@ -52,7 +52,7 @@ interface NotificationItemProps {
 export const NotificationItem = ({ notification }: NotificationItemProps) => {
   const { markAsRead } = useNotificationStore();
   const navigate = useNavigate();
-  const { userRole } = useAuthStore();
+  const { user } = useAuthStore();
 
   const handleClick = async () => {
     try {
@@ -67,15 +67,15 @@ export const NotificationItem = ({ notification }: NotificationItemProps) => {
       if (notification.type && notification.relatedEntityId) {
         switch (notification.type) {
           case 'Donation':
-            if (userRole === 'Admin' || userRole === 'SysAdmin') {
+            if (user?.role === 'Admin' || user?.role === 'SysAdmin') {
               path = `/admin/donations`;
             } else {
-              path = '/donations/new';
+              path = '/profile';
             }
             break;
             
           case 'Report':
-            if (userRole === 'Admin' || userRole === 'SysAdmin') {
+            if (user?.role === 'Admin' || user?.role === 'SysAdmin') {
               path = `/admin/requests/${notification.relatedEntityId}`;
             } else {
               path = '/disasters/report';
@@ -83,18 +83,18 @@ export const NotificationItem = ({ notification }: NotificationItemProps) => {
             break;
             
           case 'Request':
-            if (userRole === 'Admin' || userRole === 'SysAdmin') {
+            if (user?.role === 'Admin' || user?.role === 'SysAdmin') {
               path = `/admin/requests/`;
-            } else if (userRole === 'User') {
+            } else if (user?.role === 'User') {
               path = `/profile`;
             } else {
               path = '/requests/assistant';
             }
             break;
           case 'TeamAssignment':
-            if (userRole === 'Admin' || userRole === 'SysAdmin') {
+            if (user?.role === 'Admin' || user?.role === 'SysAdmin') {
               path = `/admin/assignments`;
-            } else if (userRole === 'User') {
+            } else if (user?.role === 'User') {
               path = `/profile`;
             } else {
               path = '/relief/assignments';

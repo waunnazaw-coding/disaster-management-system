@@ -6,7 +6,6 @@ import {
   Phone,
   User,
   Calendar,
-  Package,
   Building2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -19,7 +18,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import type { DonationDto } from "@/api/donationService"
 import { toast } from "sonner"
@@ -51,11 +49,11 @@ export default function DonationDetailsDialog({
       case "Verified":
         return <Check className={`${iconClass} text-blue-600`} />
       case "Pending":
-        return <Package className={`${iconClass} text-yellow-600`} />
+        return <Check className={`${iconClass} text-yellow-600`} />
       case "Cancelled":
         return <X className={`${iconClass} text-red-600`} />
       default:
-        return <Package className={`${iconClass} text-gray-500`} />
+        return <Check className={`${iconClass} text-gray-500`} />
     }
   }
 
@@ -89,9 +87,6 @@ export default function DonationDetailsDialog({
   const formatAmount = (donation: DonationDto) => {
     if (donation.amount && donation.currency) {
       return `${donation.currency} ${donation.amount.toLocaleString()}`
-    }
-    if (donation.quantity && donation.unit) {
-      return `${donation.quantity} ${donation.unit}`
     }
     return "N/A"
   }
@@ -128,10 +123,9 @@ export default function DonationDetailsDialog({
           <section className="space-y-4 bg-white p-4 rounded-lg border">
             <h2 className="text-lg font-semibold">Overview</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <InfoItem label="Name" value={donation.name || donation.type} />
-              <InfoItem label="Type" value={donation.type} />
+              <InfoItem label="Name" value={donation.name} />
               <InfoItem
-                label="Amount / Quantity"
+                label="Amount"
                 value={formatAmount(donation)}
                 highlight
               />
@@ -148,26 +142,17 @@ export default function DonationDetailsDialog({
             )}
           </section>
 
-          {/* Payment or Item */}
+          {/* Payment Details */}
           <section className="space-y-4 bg-white p-4 rounded-lg border">
-            <h2 className="text-lg font-semibold">
-              {donation.type === "Money" ? "Payment Details" : "Item Details"}
-            </h2>
-            {donation.type === "Money" ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InfoItem
-                  label="Amount"
-                  value={`${donation.currency} ${donation.amount?.toLocaleString() || "N/A"}`}
-                  highlight
-                />
-                <InfoItem label="Payment Method" value={donation.paymentMethod || "N/A"} />
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InfoItem label="Quantity" value={donation.quantity || "N/A"} highlight />
-                <InfoItem label="Unit" value={donation.unit || "N/A"} />
-              </div>
-            )}
+            <h2 className="text-lg font-semibold">Payment Details</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <InfoItem
+                label="Amount"
+                value={`${donation.currency} ${donation.amount?.toLocaleString() || "N/A"}`}
+                highlight
+              />
+              <InfoItem label="Payment Method" value={donation.paymentMethod || "N/A"} />
+            </div>
           </section>
 
           {/* Donor */}
@@ -240,7 +225,7 @@ export default function DonationDetailsDialog({
                   onClick={() => {
                     onOpenChange(false)
                     onReject?.(donation)
-                   toast.info("Donation rejection initiated")
+                    toast.info("Donation rejection initiated")
                   }}
                   className="text-red-600 border-red-200 hover:bg-red-50"
                 >
@@ -251,7 +236,7 @@ export default function DonationDetailsDialog({
                   onClick={() => {
                     onOpenChange(false)
                     onVerify?.(donation)
-                     toast.info("Donation verification initiated")
+                    toast.info("Donation verification initiated")
                   }}
                   className="bg-green-600 hover:bg-green-700"
                 >

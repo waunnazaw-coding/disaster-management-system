@@ -100,7 +100,7 @@ export const NotificationDropdown = () => {
                 </div>
               )}
             </div>
-            <div className="px-4 py-2 border-t text-center">
+            {/* <div className="px-4 py-2 border-t text-center">
               <Link 
                 to="/notifications" 
                 className="text-sm text-blue-600 hover:text-blue-800"
@@ -108,7 +108,7 @@ export const NotificationDropdown = () => {
               >
                 View all notifications
               </Link>
-            </div>
+            </div> */}
           </div>
         </div>
       )}
