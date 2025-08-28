@@ -194,19 +194,19 @@ export default function ProfileCard({ onEditProfile }: ProfileCardProps) {
                 </p>
               </div> */}
 
-              <div>
+              {/* <div>
                 <p className="text-sm text-gray-500">Role</p>
                 <Badge className={getRoleColor(user.role)}>
                   {user.role}
                 </Badge>
-              </div>
+              </div> */}
 
-              <div>
+              {/* <div>
                 <p className="text-sm text-gray-500">Status</p>
                 <Badge className={getStatusColor(user.status)}>
                   {user.status}
                 </Badge>
-              </div>
+              </div> */}
             </div>
 
             <div className="mt-4">

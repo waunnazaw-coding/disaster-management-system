@@ -4,6 +4,7 @@ import { Outlet } from "react-router-dom"
 import {Footer} from "./Footer"
 import {Navbar} from "./Navbar"
 import { Toaster } from "sonner"
+import DonationToast from "../donations/DonationToast"
 
 export default function PublicLayout() {
     return (
@@ -12,6 +13,7 @@ export default function PublicLayout() {
             <main className="flex-1">
               <Toaster position="top-right" richColors />  {/* Sonner Toaster */}
                 <Outlet />
+                <DonationToast />
             </main>
             <Footer />
         </div>

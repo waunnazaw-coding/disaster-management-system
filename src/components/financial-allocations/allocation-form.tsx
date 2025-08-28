@@ -31,7 +31,7 @@ export function AllocationForm({
 }: AllocationFormProps) {
   const [formData, setFormData] = useState<FinancialAllocationInput>({
     allocationTypeName: initialData?.allocationTypeName || "",
-    amount: initialData?.amount || 0,
+     amount: initialData?.amount ?? ("" as unknown as number), // 👈 start as empty string if new
     allocationDate: initialData?.allocationDate || new Date().toISOString().split("T")[0],
     notes: initialData?.notes ?? "",
     detailName: initialData?.detailName || "",

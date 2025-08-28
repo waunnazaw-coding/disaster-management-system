@@ -44,6 +44,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { markNotificationAsRead } from '@/api/notification';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
+import { useEffect } from 'react';
 
 interface NotificationItemProps {
   notification: NotificationDto;
@@ -53,6 +54,12 @@ export const NotificationItem = ({ notification }: NotificationItemProps) => {
   const { markAsRead } = useNotificationStore();
   const navigate = useNavigate();
   const { user } = useAuthStore();
+
+  // Log user role for debugging
+  useEffect(() => {
+    console.log("User role in NotificationItem:", user?.role);
+  }, [user]);
+
 
   const handleClick = async () => {
     try {
@@ -67,7 +74,7 @@ export const NotificationItem = ({ notification }: NotificationItemProps) => {
       if (notification.type && notification.relatedEntityId) {
         switch (notification.type) {
           case 'Donation':
-            if (user?.role === 'Admin' || user?.role === 'SysAdmin') {
+            if (user?.role === 'FinancialAdmin' || user?.role === 'SysAdmin') {
               path = `/admin/donations`;
             } else {
               path = '/profile';
@@ -83,7 +90,7 @@ export const NotificationItem = ({ notification }: NotificationItemProps) => {
             break;
             
           case 'Request':
-            if (user?.role === 'Admin' || user?.role === 'SysAdmin') {
+            if (user?.role === 'DisasterManagementAdmin' || user?.role === 'SysAdmin') {
               path = `/admin/requests/`;
             } else if (user?.role === 'User') {
               path = `/profile`;

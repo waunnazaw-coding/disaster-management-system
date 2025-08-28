@@ -34,6 +34,22 @@ export const getUsers = async (
   }
 };
 
+export const deleteUser = async (userId: string): Promise<ApiResponse<boolean>> => {
+  try {
+    const response = await api.delete(`/users/${userId}`);
+    return response.data;
+  } catch (error) {
+    return {
+      isSuccess: false,
+      isError: true,
+      isValidationError: false,
+      isNotFoundError: false,
+      message: 'Failed to delete user',
+    };
+  }
+};
+
+
 export const getUserStats = async (): Promise<ApiResponse<UserStats>> => {
   try {
     const response = await api.get('/users/stats');

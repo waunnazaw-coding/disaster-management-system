@@ -39,6 +39,8 @@ export interface UserStats {
   admins: number;
   sysAdmins: number;
   reliefTeams: number;
+  disAdmins: number;
+finalcialadmin: number;
   organizations: number;
   regularUsers: number;
 }

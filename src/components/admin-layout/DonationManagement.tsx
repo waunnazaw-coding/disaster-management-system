@@ -777,18 +777,29 @@ export default function DonationManagement() {
     }
 
     // Filter by search term
-    if (search) {
-      const searchLower = search.toLowerCase()
-      filtered = filtered.filter(
-        (donation) =>
-          donation.name?.toLowerCase().includes(searchLower) ||
-          donation.donorName?.toLowerCase().includes(searchLower) ||
-          donation.description?.toLowerCase().includes(searchLower) ||
-          donation.type.toLowerCase().includes(searchLower) ||
-          donation.donorPhoneNumber?.toLowerCase().includes(searchLower) ||
-          donation.id.toString().includes(searchLower),
-      )
-    }
+  // In the applyFilters function, replace the search filtering section with:
+
+// Filter by search term
+if (search) {
+  const searchLower = search.toLowerCase()
+  filtered = filtered.filter((donation) => {
+    // Safely handle null/undefined values
+    const name = donation.name || ''
+    const donorName = donation.donorName || ''
+    const description = donation.description || ''
+    const type = donation.type || ''
+    const donorPhoneNumber = donation.donorPhoneNumber || ''
+    
+    return (
+      name.toLowerCase().includes(searchLower) ||
+      donorName.toLowerCase().includes(searchLower) ||
+      description.toLowerCase().includes(searchLower) ||
+      type.toLowerCase().includes(searchLower) ||
+      donorPhoneNumber.toLowerCase().includes(searchLower) ||
+      donation.id.toString().includes(searchLower)
+    )
+  })
+}
 
     // Filter by status
     if (status !== "all") {
@@ -1016,10 +1027,10 @@ export default function DonationManagement() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Donation Management</h1>
-        <Button variant="outline" onClick={fetchDonations}>
+        {/* <Button variant="outline" onClick={fetchDonations}>
           <RefreshCw className="h-4 w-4 mr-2" />
           Refresh
-        </Button>
+        </Button> */}
       </div>
 
       {/* Statistics Cards */}

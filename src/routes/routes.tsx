@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import PublicLayout from "@/components/user-layout/PublicLayout";
 import AdminLayout from "../components/admin-layout/Adminlayout";
@@ -56,6 +56,7 @@ import AboutUsPage from "@/pages/AboutUs";
 import AdminDashboard from "../pages/admin/Dashboard";
 import DisasterDashboard from "@/pages/disaster/disaster-map";
 import ImpactSurveyPage from "@/pages/disaster/impact-survey";
+import AdminDashboardRedirect from "@/components/admin-layout/AdminDashboardRedirect";
 
 // Loading fallback UI (for Suspense boundaries)
 const LoadingFallback = () => (
@@ -178,7 +179,11 @@ const router = createBrowserRouter([
       {
         element: withSuspense(<AdminLayout />),
         children: [
-          { path: "admin/dashboard", element: <AdminDashboard /> },
+            { 
+            path: "admin/dashboard", 
+            element: <AdminDashboardRedirect /> 
+          },
+          // { path: "admin/dashboard", element: <AdminDashboard /> },
           { path: "admin/events", element: <DisasterEventsForAdmin /> },
           { path: "admin/gdacs-events", element: <DisasterDashboard /> },
           { path: "admin/events/new", element: <DisasterEventWizard /> },
@@ -239,7 +244,12 @@ const router = createBrowserRouter([
           </Suspense>
         ),
         children: [
-          { path: "admin/dashboard", element: <AdminDashboard /> },
+          // { path: "admin/dashboard", element: <AdminDashboard /> },
+
+           { 
+            path: "admin/dashboard", 
+            element: <AdminDashboardRedirect /> 
+          },
           { path: "admin/relief-team-lists", element: <ReliefTeamListPage /> },
           { path: "admin/admin-invite", element: <AdminInviteForm /> },
           { path: "admin/donations", element: <DonationManagement /> },

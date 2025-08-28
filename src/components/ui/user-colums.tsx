@@ -11,6 +11,7 @@ import {
 import { MoreHorizontal } from "lucide-react"
 import { useState } from "react"
 import { BlockUserModal } from "@/components/admin-layout/admin/BlockUserModal"
+import { DeleteUserModal } from "../admin-layout/admin/DeleteUserModal"
 
 export const columns: ColumnDef<User>[] = [
   {
@@ -37,7 +38,7 @@ export const columns: ColumnDef<User>[] = [
         Admin: "destructive",
         SysAdmin: "destructive",
         ReliefTeam: "secondary",
-        Org: "default",
+        // Org: "default",
         User: "outline",
       }
 
@@ -99,4 +100,38 @@ export const columns: ColumnDef<User>[] = [
   //     )
   //   },
   // },
+
+  {
+  id: "actions",
+  header: "Actions",
+  cell: ({ row }) => {
+    const user = row.original;
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
+    return (
+      <>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setDeleteModalOpen(true)}>
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DeleteUserModal
+          userId={user.id}
+          userName={user.name}
+          open={deleteModalOpen}
+          onOpenChange={setDeleteModalOpen}
+        />
+      </>
+    );
+  },
+},
+
 ]

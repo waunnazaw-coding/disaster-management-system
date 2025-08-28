@@ -1,6 +1,6 @@
 // src/store/userStore.ts
 import { create } from 'zustand';
-import { getUsers, blockUser, unblockUser, getUserStats } from '../api/userService';
+import { getUsers, blockUser, unblockUser, getUserStats, deleteUser } from '../api/userService';
 import { User, UserFilters, PaginatedUsers, UserStats } from '../types/user';
 
 interface UserStoreState {
@@ -29,6 +29,7 @@ interface UserStoreActions {
   toggleBlockUser: (userId: string, currentStatus: 'Active' | 'Blacklisted') => Promise<void>;
   setFilters: (filters: UserFilters) => void;
   clearFilters: () => void;
+   deleteUser: (userId: string) => Promise<void>;  // 👈 add here
 }
 
 const useUserStore = create<UserStoreState & UserStoreActions>((set, get) => ({
@@ -145,6 +146,22 @@ fetchStats: async () => {
       throw error;
     }
   },
+
+  deleteUser: async (userId) => {
+  try {
+    const response = await deleteUser(userId);
+    if (response.isSuccess) {
+      // refresh list & stats
+      await get().fetchUsers();
+      await get().fetchStats();
+    } else {
+      throw new Error(response.message);
+    }
+  } catch (error) {
+    console.error('Failed to delete user:', error);
+    throw error;
+  }
+},
 }));
 
 export default useUserStore;

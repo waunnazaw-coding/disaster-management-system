@@ -70,9 +70,9 @@ export function UserStatsCards({ stats, loading }: UserStatsCardsProps) {
           <Shield className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.admins + stats.sysAdmins}</div>
+          <div className="text-2xl font-bold">{stats.admins + stats.sysAdmins + stats.disAdmins + stats.finalcialadmin}</div>
           <p className="text-xs text-muted-foreground">
-            {stats.admins} Admins, {stats.sysAdmins} SysAdmins
+            {stats.admins} Admins, {stats.sysAdmins} SysAdmins, {stats.disAdmins} DMAs, {stats.finalcialadmin} Financial Admins
           </p>
         </CardContent>
       </Card>

@@ -250,7 +250,7 @@ interface AdminState {
 
 export const useAdminStore = create<AdminState>((set) => ({
   currentUser: null,
-  activeTab: "dashboard",
+  activeTab: "",
   sidebarCollapsed: false,
   dashboardStats: {
     activeEvents: 0,

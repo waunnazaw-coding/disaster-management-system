@@ -51,15 +51,14 @@ export function AllocationsTable({ allocations, onEdit, onDelete }: AllocationsT
       setSortDirection("asc")
     }
   }
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount)
-  }
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('my-MM', {
+    style: 'currency',
+    currency: 'MMK',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount)
+}
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)

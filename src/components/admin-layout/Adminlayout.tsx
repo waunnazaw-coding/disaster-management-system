@@ -37,7 +37,7 @@ function AdminLayout({ children }: { children?: React.ReactNode }) {
       "": "dashboard",
     };
 
-    const newActiveTab = tabMap[currentPath] || "dashboard";
+    const newActiveTab = tabMap[currentPath] || "events";
 
     if (activeTab !== newActiveTab) {
       setActiveTab(newActiveTab);

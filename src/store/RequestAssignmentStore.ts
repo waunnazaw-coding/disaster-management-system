@@ -10,6 +10,7 @@ import type {
 import { toast } from "sonner";
 import { useAssistanceRequestsStore } from "./assistanceRequestStore";
 import { useReliefStore } from "./reliefStore";
+import { useRecentTeamsStore } from "./RecentTeamsStore";
 
 interface AssignmentState {
   assignments: RequestAssignment[];
@@ -95,6 +96,7 @@ export const useAssignmentStore = create<AssignmentState>()(
             .updateRequestAssignment(assignment);
 
           toast.success("Request assigned successfully");
+          const team=useRecentTeamsStore.getState().addRecentTeam({id:assignment.reliefTeamId,name:assignment.reliefTeamName});
           return assignment;
         } catch (error) {
           const errorMessage =
