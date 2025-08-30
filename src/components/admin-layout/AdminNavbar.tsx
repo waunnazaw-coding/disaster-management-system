@@ -55,11 +55,11 @@ export function AdminNavbar({ isMobile, onToggleSidebar, sidebarOpen }: AdminNav
     dashboardStats.pendingReports + dashboardStats.pendingRequests + dashboardStats.pendingDonations
 
   if (!currentUser) {
-    return <div className="h-16 bg-slate-800"></div>
+    return <div className="h-16 border-slate-700 bg-slate-900"></div>
   }
 
   return (
-    <header className="bg-slate-800 text-white shadow-sm">
+    <header className="bg-slate-900 text-white shadow-sm">
       <div className="flex items-center justify-between px-4 py-3 sm:px-6">
         <div className="flex items-center space-x-4">
           <Button

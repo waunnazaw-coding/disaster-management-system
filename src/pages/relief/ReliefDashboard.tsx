@@ -809,7 +809,7 @@ const ReliefDashboard = () => {
             Welcome back, {currentUser?.name || 'Team Member'}!
           </h2>
           <p className="text-gray-600 mt-2">
-            {reliefTeamId ? `Team ID: ${reliefTeamId} • ` : ''}
+            {/* {reliefTeamId ? `Team ID: ${reliefTeamId} • ` : ''} */}
             Here's what's happening with your relief efforts today.
           </p>
         </div>

@@ -691,6 +691,7 @@ import { useAdminStore } from "@/store/adminStore"
 import DonationFilters from "@/components/donations/DonationFilters"
 import DonationStats from "@/components/donations/DonationStats"
 import DonationDetailsDialog from "@/components/donations/dialogs/DonationDetailsDialog"
+import MoneyDonationChart from "../donations/DonationChart"
 
 // Pagination configuration
 const ITEMS_PER_PAGE_OPTIONS = [10, 25, 50, 100]
@@ -1042,6 +1043,9 @@ if (search) {
         cancelledCount={cancelledCount}
       />
 
+        <MoneyDonationChart/>
+      
+
       {/* Main Table */}
       <Card>
         <CardHeader>
@@ -1055,7 +1059,7 @@ if (search) {
           </CardDescription>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="all">All</TabsTrigger>
               <TabsTrigger value="pending" className="text-yellow-600">
                 Pending ({pendingCount})
@@ -1063,15 +1067,14 @@ if (search) {
               <TabsTrigger value="verified" className="text-blue-600">
                 Verified ({verifiedCount})
               </TabsTrigger>
-              <TabsTrigger value="distributed" className="text-green-600">
+              {/* <TabsTrigger value="distributed" className="text-green-600">
                 Distributed ({distributedCount})
-              </TabsTrigger>
+              </TabsTrigger> */}
               <TabsTrigger value="cancelled" className="text-red-600">
                 Cancelled ({cancelledCount})
               </TabsTrigger>
             </TabsList>
           </Tabs>
-
           <DonationFilters
             searchTerm={searchTerm}
             statusFilter={statusFilter}
@@ -1082,8 +1085,9 @@ if (search) {
             onTypeFilterChange={setTypeFilter}
             onItemsPerPageChange={setItemsPerPage}
           />
+         
         </CardHeader>
-
+      
         <CardContent>
           {currentItems.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
@@ -1097,7 +1101,7 @@ if (search) {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-16">#</TableHead>
+                      <TableHead className="w-16">No</TableHead>
                       <TableHead>Donor</TableHead>
                       <TableHead>Name & Type</TableHead>
                       <TableHead>Amount/Quantity</TableHead>

@@ -340,7 +340,7 @@ const handleAssignClick = (request: AssistanceRequest) => {
         <Table>
           <TableHeader className="bg-gray-50">
             <TableRow>
-              <TableHead className="w-[100px]">
+              {/* <TableHead className="w-[100px]">
                 <button
                   type="button"
                   onClick={() => handleSort("id")}
@@ -348,7 +348,7 @@ const handleAssignClick = (request: AssistanceRequest) => {
                 >
                   ID <SortIndicator field="id" />
                 </button>
-              </TableHead>
+              </TableHead> */}
               <TableHead className="w-[100px]">
                 <button
                   type="button"
@@ -424,7 +424,7 @@ const handleAssignClick = (request: AssistanceRequest) => {
                     className="cursor-pointer hover:bg-gray-50"
                     onClick={() => toggleRequestExpansion(request.id)}
                   >
-                    <TableCell className="font-medium">#{request.id}</TableCell>
+                    {/* <TableCell className="font-medium">#{request.id}</TableCell> */}
                      <TableCell className="font-medium">{request.disasterEventName}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-3">

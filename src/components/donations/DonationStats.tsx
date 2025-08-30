@@ -2,6 +2,7 @@
 
 import { Gift, Check, X, RefreshCw } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
+import MoneyDonationChart from "./DonationChart"
 
 interface DonationStatsProps {
   totalCount: number
@@ -19,7 +20,7 @@ export default function DonationStats({
   cancelledCount,
 }: DonationStatsProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
       <Card>
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
@@ -53,7 +54,7 @@ export default function DonationStats({
           </div>
         </CardContent>
       </Card>
-      <Card className="bg-green-50">
+      {/* <Card className="bg-green-50">
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>
@@ -63,7 +64,7 @@ export default function DonationStats({
             <Check className="h-8 w-8 text-green-400" />
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
       <Card className="bg-red-50">
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
@@ -75,6 +76,7 @@ export default function DonationStats({
           </div>
         </CardContent>
       </Card>
+      {/* <MoneyDonationChart /> */}
     </div>
   )
 }

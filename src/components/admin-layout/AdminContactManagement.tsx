@@ -379,11 +379,11 @@ export const AdminContactManagement: React.FC = () => {
                         >
                           Copy email
                         </DropdownMenuItem>
-                        <DropdownMenuItem
+                        {/* <DropdownMenuItem
                           onClick={() => window.open(`mailto:${contact.email}`)}
                         >
                           Send email
-                        </DropdownMenuItem>
+                        </DropdownMenuItem> */}
                         <DropdownMenuItem
                           className="text-red-600"
                           onClick={() => handleDelete(contact.id)}

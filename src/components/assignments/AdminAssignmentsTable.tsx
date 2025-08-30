@@ -98,7 +98,7 @@ export const AdminAssignmentsTable = ({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead onClick={() => handleSort('id')} className="cursor-pointer">
+                  {/* <TableHead onClick={() => handleSort('id')} className="cursor-pointer">
                     <div className="flex items-center">
                       ID 
                       {sortConfig.key === 'id' && (
@@ -107,7 +107,7 @@ export const AdminAssignmentsTable = ({
                           <ChevronDown className="ml-1 h-4 w-4" />
                       )}
                     </div>
-                  </TableHead>
+                  </TableHead> */}
                   <TableHead>Request</TableHead>
                   <TableHead>Disaster</TableHead>
                   <TableHead>Team</TableHead>
@@ -154,7 +154,7 @@ export const AdminAssignmentsTable = ({
                     )}
                     onClick={() => setSelectedAssignment(assignment)}
                   >
-                    <TableCell>#{assignment.id}</TableCell>
+                    {/* <TableCell>#{assignment.id}</TableCell> */}
                     <TableCell>
                       <div className="font-medium">{assignment.requestDetails.supportType}</div>
                       <div className="text-sm text-gray-500">

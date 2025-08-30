@@ -41,6 +41,7 @@ import {
   type CreateDonationDto,
 } from "../../api/donationService";
 import FinancialTransparency from "./FinancialTransparency";
+import { useAuthStore } from "@/store/authStore";
 
 function formatRelativeTime(date?: string): string {
   if (!date) return "";
@@ -256,38 +257,46 @@ export default function DonationPage() {
     setValue("selectedAmount", val, { shouldValidate: true });
   };
 
-  const onSubmit = async (data: DonationFormData) => {
-    try {
-      setLoading(true);
-      const donationData: CreateDonationDto = {
-        name: data.donorName,
-        donorPhoneNumber: data.donorPhone,
-        sourceType: data.sourceType,
-        description: data.description,
-        category: donationCategories[data.selectedCategory!]?.title,
-        amount: data.selectedAmount!,
-        currency: "MMK",
-        paymentMethod: data.selectedPaymentMethod,
-      };
-      await donationService.createDonation(donationData);
-      toast.success(
-        "Donation submitted successfully! Thank you for your generosity."
-      );
-      navigate("/profile?tab=donations");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to submit donation");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { isAuthenticated } = useAuthStore();
 
+const onSubmit = async (data: DonationFormData) => {
+  // Check if user is logged in using your auth store
+  if (!isAuthenticated) {
+    toast.error("Please log in first to make a donation");
+    //navigate('/login');
+    return;
+  }
+
+  try {
+    setLoading(true);
+    const donationData: CreateDonationDto = {
+      name: data.donorName,
+      donorPhoneNumber: data.donorPhone,
+      sourceType: data.sourceType,
+      description: data.description,
+      category: donationCategories[data.selectedCategory!]?.title,
+      amount: data.selectedAmount!,
+      currency: "MMK",
+      paymentMethod: data.selectedPaymentMethod,
+    };
+    await donationService.createDonation(donationData);
+    toast.success(
+      "Donation submitted successfully! Thank you for your generosity."
+    );
+    navigate("/profile?tab=donations");
+  } catch (err: any) {
+    toast.error(err.message || "Failed to submit donation");
+  } finally {
+    setLoading(false);
+  }
+};
   //for donation statistics
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [totalPeople, setTotalPeople] = useState<number>(0);
   const [recentDonations, setRecentDonations] = useState<DonationDto[]>([]);
   useEffect(() => {
     donationService
-      .getTotalAmountLastYear()
+      .getTotalAmountNowYear()
       .then((amount) => setTotalAmount(amount))
       .then(() => console.log(totalAmount))
       .catch((err) => {

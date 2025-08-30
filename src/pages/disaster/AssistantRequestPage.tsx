@@ -26,6 +26,8 @@ import {
   Zap,
   AlertOctagon,
 } from "lucide-react"
+import { useAuthStore } from "@/store/authStore"
+import { useNavigate } from "react-router-dom"
 
 const AssistanceRequestPage = () => {
   const { disasterEvents } = useDisasterEvents()
@@ -53,37 +55,51 @@ const AssistanceRequestPage = () => {
     }))
   }
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+// Inside your component:
+const { isAuthenticated } = useAuthStore();
+const navigate = useNavigate();
 
-    try {
-      await createRequest(formData)
-      toast.success("Request Created", {
-        description: "Your assistance request has been submitted successfully",
-      })
-      // Reset form
-      setFormData({
-        disasterEventId: undefined,
-        supportType: "",
-        quantity: undefined,
-        unit: "",
-        description: "",
-        priority: "Medium",
-        contactName: "",
-        email: "",
-        contactPhone: "",
-        detailedAddress: "",
-      })
-    } catch (error) {
-      toast.error("Submission Failed", {
-        description: "There was an error submitting your request",
-      })
-    } finally {
-      setIsSubmitting(false)
-    }
+const handleSubmit = async (e: FormEvent) => {
+  e.preventDefault()
+  
+  // Check if user is logged in using your auth store
+  if (!isAuthenticated) {
+    toast.error("Authentication Required", {
+      description: "Please log in to submit a request for assistance",
+    });
+    // Optionally redirect to login:
+   // navigate('/login');
+    return;
   }
+  
+  setIsSubmitting(true)
 
+  try {
+    await createRequest(formData)
+    toast.success("Request Created", {
+      description: "Your assistance request has been submitted successfully",
+    })
+    // Reset form
+    setFormData({
+      disasterEventId: undefined,
+      supportType: "",
+      quantity: undefined,
+      unit: "",
+      description: "",
+      priority: "Medium",
+      contactName: "",
+      email: "",
+      contactPhone: "",
+      detailedAddress: "",
+    })
+  } catch (error) {
+    toast.error("Submission Failed", {
+      description: "There was an error submitting your request",
+    })
+  } finally {
+    setIsSubmitting(false)
+  }
+}
   const priorityOptions = [
     {
       value: "Low",

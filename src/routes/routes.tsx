@@ -276,19 +276,21 @@ const router = createBrowserRouter([
   },
 
   // ReliefTeam protected routes
-  {
-    element: <ProtectedRoute allowedRoles={["ReliefTeam"]} />,
-    children: [
-      {
-        element: withSuspense(<ReliefLayout />),
-        children: [
-          { path: "relief/dashboard", element: <ReliefDashboard /> },
-          { path: "relief/assignments", element: <ReliefAssignmentsPage /> },
-          { path: "relief/activities", element: <ReliefActivityPage /> },
-        ],
-      },
-    ],
-  },
+// ReliefTeam protected routes
+{
+  element: <ProtectedRoute allowedRoles={["ReliefTeam"]} />,
+  children: [
+    {
+      element: withSuspense(<ReliefLayout />),
+      children: [
+        { index: true, element: <Navigate to="assignments" replace /> }, // Redirect to assignments
+        { path: "relief/dashboard", element: <ReliefDashboard /> },
+        { path: "relief/assignments", element: <ReliefAssignmentsPage /> },
+        { path: "relief/activities", element: <ReliefActivityPage /> },
+      ],
+    },
+  ],
+},
 
   // Catch-all 404 fallback route
   {

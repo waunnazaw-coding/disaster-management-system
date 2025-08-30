@@ -66,7 +66,7 @@ export const donationService = {
       console.log("API response:", response.data)
 
       if (!response.data.isSuccess) {
-        throw new Error(response.data.message || "Failed to create donation")
+        throw new Error( "Failed to create donation")
       }
 
       if (!response.data.data) {
@@ -121,6 +121,12 @@ export const donationService = {
     return response.data.totalAmountLastYear ?? 0;
   },
 
+
+  // Get total amount for current year
+  async getTotalAmountNowYear(): Promise<number> {
+    const response = await api.get<{ totalAmountNowYear: number }>("/donation/total-amount-now-year");
+    return response.data.totalAmountNowYear ?? 0;
+  },
 
   // Get all donations (Admin only)
   async getAllDonations(): Promise<DonationDto[]> {
@@ -253,6 +259,60 @@ async getRecentDonations(): Promise<DonationDto[]> {
   } catch (error: any) {
     console.error("Error fetching recent donations:", error);
     throw new Error(error.response?.data?.message || error.message || "Failed to fetch donations");
+  }
+},
+
+async getMonthlyDonations(year: number): Promise<{ month: string; amount: number }[]> {
+  try {
+    const response = await api.get<ApiResult<Record<string, number>>>(`/donation/monthly/${year}`);
+    
+    if (!response.data.isSuccess) {
+      throw new Error(response.data.message || 'Failed to fetch monthly donations');
+    }
+    
+    const data = response.data.data || {};
+    return Object.entries(data).map(([month, amount]) => ({ month, amount }));
+  } catch (error: any) {
+    console.error('Error fetching monthly donations:', error);
+    throw new Error(error.response?.data?.message || error.message || 'Failed to fetch monthly donations');
+  }
+},
+
+async getYearlyDonations(startYear: number, endYear: number): Promise<{ year: number; amount: number }[]> {
+  try {
+    const response = await api.get<ApiResult<Record<number, number>>>(`/donation/yearly/${startYear}/${endYear}`);
+    
+    if (!response.data.isSuccess) {
+      throw new Error(response.data.message || 'Failed to fetch yearly donations');
+    }
+    
+    const data = response.data.data || {};
+    return Object.entries(data).map(([year, amount]) => ({ 
+      year: parseInt(year), 
+      amount 
+    }));
+  } catch (error: any) {
+    console.error('Error fetching yearly donations:', error);
+    throw new Error(error.response?.data?.message || error.message || 'Failed to fetch yearly donations');
+  }
+},
+
+async getDonationsByCategory(): Promise<{ category: string; amount: number }[]> {
+  try {
+    const response = await api.get<ApiResult<Record<string, number>>>(`/donation/by-category`);
+    
+    if (!response.data.isSuccess) {
+      throw new Error(response.data.message || 'Failed to fetch category donations');
+    }
+    
+    const data = response.data.data || {};
+    return Object.entries(data).map(([category, amount]) => ({ 
+      category, 
+      amount 
+    }));
+  } catch (error: any) {
+    console.error('Error fetching category donations:', error);
+    throw new Error(error.response?.data?.message || error.message || 'Failed to fetch category donations');
   }
 }
 

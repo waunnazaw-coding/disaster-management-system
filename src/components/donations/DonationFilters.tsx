@@ -63,7 +63,7 @@ export default function DonationFilters({
             <SelectItem value="all">All Status</SelectItem>
             <SelectItem value="Pending">Pending</SelectItem>
             <SelectItem value="Verified">Verified</SelectItem>
-            <SelectItem value="Distributed">Distributed</SelectItem>
+            {/* <SelectItem value="Distributed">Distributed</SelectItem> */}
             <SelectItem value="Cancelled">Cancelled</SelectItem>
           </SelectContent>
         </Select>
