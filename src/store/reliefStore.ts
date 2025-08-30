@@ -82,6 +82,8 @@ import { authService } from "@/api/auth";
 import { getReliefTeamByUser } from "@/api/reliefTeam";
 import { getAssignmentsByTeam } from "@/api/requestAssignments";
 import { RequestAssignment } from "@/types/requestAssignments";
+import { s } from "node_modules/framer-motion/dist/types.d-Cjd591yU";
+import { number } from "zod";
 
 interface User {
   id: string;
@@ -89,7 +91,7 @@ interface User {
   email: string;
   role: "Admin" | "ReliefTeam";
   avatar?: string;
-  reliefTeamId?: number;
+  reliefTeamId: number;
 }
 
 interface ReliefStoreState {
@@ -98,7 +100,7 @@ interface ReliefStoreState {
   activeTab: string;
   assignments: RequestAssignment[];
   loading: boolean;
-  reliefTeamId: number | null;
+  reliefTeamId: number;
 
   // actions
   initializeData: () => Promise<void>;
@@ -115,14 +117,16 @@ export const useReliefStore = create(
     activeTab: "dashboard",
     assignments: [],
     loading: false,
-    reliefTeamId: null,
+    reliefTeamId: 0,
 
     initializeData: async () => {
-      try {
+      try {   
         set({ loading: true });
         
         // 1. Get user profile
         const userResponse = await authService.getCurrentUser();
+
+        console.log(userResponse)
         if (!userResponse.isSuccess || !userResponse.data) {
           throw new Error(userResponse.message || "Failed to load user data");
         }
@@ -130,14 +134,14 @@ export const useReliefStore = create(
         // 2. Get relief team ID for this user
         const teamResponse = await getReliefTeamByUser(userResponse.data.id);
         console.log("teamResponse:", teamResponse);
-        
+
         set({
           currentUser: {
             ...userResponse.data,
             role: "ReliefTeam",
-            reliefTeamId: teamResponse.id
+            reliefTeamId: teamResponse ?? 0
           },
-          reliefTeamId: teamResponse.id,
+          reliefTeamId: teamResponse ?? 0,
           loading: false
         });
 
@@ -156,7 +160,9 @@ export const useReliefStore = create(
       try {
         const state = useReliefStore.getState();
         if (!state.reliefTeamId) return;
-        
+
+        console.log("Relief Team ID:", state.reliefTeamId);
+
         const assignments = await getAssignmentsByTeam(state.reliefTeamId);
         set({ assignments, loading: false });
       } catch (error) {

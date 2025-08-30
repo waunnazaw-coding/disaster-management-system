@@ -36,10 +36,10 @@ export const useAssignmentStore = create<AssignmentState>()(
       fetchAssignmentsbyReliefTeam: async () => {
         set({ loading: true, error: null });
         try {
-          const user = useReliefStore.getState().currentUser;
+          const user = useReliefStore.getState().reliefTeamId;
           if (!user) return;
 
-          const assignments = await api.getAssignmentsByUser(user.id);
+          const assignments = await api.getAssignmentsByTeam(user);
           set({ assignments, loading: false });
         } catch (error) {
           const errorMessage =

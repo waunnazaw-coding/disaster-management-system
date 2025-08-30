@@ -27,13 +27,14 @@ export const deleteReliefTeam = async (id: number): Promise<void> => {
 
 
 
-export const getReliefTeamByUser = async (userId: string): Promise<{ id: number }> => {
+export const getReliefTeamByUser = async (userId: string): Promise<number | null> => {
   const response = await api.get(`/ReliefTeam/by-user/${userId}`);
-  if (!response.data.isSuccess || !response.data.data) {
+
+  if (!response.data.isSuccess || response.data.data == null) {
     throw new Error(response.data.message || "No relief team found for this user");
   }
-  console.log(response.data.data);
-  return response.data.data;
+
+  return response.data.data; // This is the team ID (number|null)
 };
 
 
