@@ -1160,6 +1160,431 @@
 
 
 
+// import type React from "react"
+// import { useEffect, useState } from "react"
+// import { useNavigate } from "react-router-dom"
+// import { useActivityStore } from "@/store/activityStore"
+// import ActivityCard from "@/components/activity/ActivityCard"
+// import { Input } from "@/components/ui/input"
+// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+// import { ACTIVITY_TYPES } from "@/types/activity"
+// import { Button } from "@/components/ui/button"
+// import { Loader2, Search, Filter, ChevronDown, X, MapPin, Users, Calendar } from "lucide-react"
+// import { Card, CardContent } from "@/components/ui/card"
+// import { Badge } from "@/components/ui/badge"
+// import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
+// const ITEMS_PER_PAGE = 6
+
+// const ActivitiesPage: React.FC = () => {
+//   const { activities, loading, reliefTeams, fetchActivities, fetchReliefTeams } = useActivityStore()
+
+//   const [searchTerm, setSearchTerm] = useState("")
+//   const [filterType, setFilterType] = useState<string>("all")
+//   const [reliefTeamFilter, setReliefTeamFilter] = useState<string>("all")
+//   const [statusFilter, setStatusFilter] = useState<string>("all")
+//   const [currentPage, setCurrentPage] = useState(1)
+//   const [isLoadingMore, setIsLoadingMore] = useState(false)
+//   const navigate = useNavigate()
+
+//   useEffect(() => {
+//     fetchActivities()
+//     fetchReliefTeams()
+//   }, [fetchActivities, fetchReliefTeams])
+
+//   // Get current date for status filtering
+//   const currentDate = new Date()
+
+//   const filteredActivities = activities.filter((activity) => {
+//     const q = searchTerm.trim().toLowerCase()
+//     const matchesSearch =
+//       !q ||
+//       activity.title.toLowerCase().includes(q) ||
+//       activity.description.toLowerCase().includes(q) ||
+//       activity.reliefTeamName?.toLowerCase().includes(q)
+
+//     const matchesType = filterType === "all" ? true : activity.activityType === filterType
+//     const matchesTeam = reliefTeamFilter === "all" ? true : activity.reliefTeamId === Number.parseInt(reliefTeamFilter)
+    
+//     // Status filtering
+//     let matchesStatus = true
+//     // if (statusFilter !== "all") {
+//     //   const startDate = new Date(activity.startDate)
+//     //   const endDate = new Date(activity.endDate)
+      
+//     //   if (statusFilter === "ongoing") {
+//     //     matchesStatus = startDate <= currentDate && endDate >= currentDate
+//     //   } else if (statusFilter === "upcoming") {
+//     //     matchesStatus = startDate > currentDate
+//     //   } else if (statusFilter === "completed") {
+//     //     matchesStatus = endDate < currentDate
+//     //   }
+//     // }
+
+//     return matchesSearch && matchesType && matchesTeam && matchesStatus
+//   })
+
+//   const totalItems = filteredActivities.length
+//   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE)
+//   const displayedActivities = filteredActivities.slice(0, currentPage * ITEMS_PER_PAGE)
+//   const hasMore = currentPage < totalPages
+
+//   const handleLoadMore = () => {
+//     setIsLoadingMore(true)
+//     setTimeout(() => {
+//       setCurrentPage((prev) => prev + 1)
+//       setIsLoadingMore(false)
+//     }, 500)
+//   }
+
+//   const handleFilterChange = () => {
+//     setCurrentPage(1)
+//   }
+
+//   const clearFilters = () => {
+//     setSearchTerm("")
+//     setFilterType("all")
+//     setReliefTeamFilter("all")
+//     setStatusFilter("all")
+//     setCurrentPage(1)
+//   }
+
+//   const removeFilter = (type: string, value?: string) => {
+//     if (type === "search") {
+//       setSearchTerm("")
+//     } else if (type === "activityType") {
+//       setFilterType("all")
+//     } else if (type === "team" && value) {
+//       setReliefTeamFilter("all")
+//     } else if (type === "status") {
+//       setStatusFilter("all")
+//     }
+//   }
+
+//   return (
+//     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-red-50/20 to-red-100/30">
+//       {/* Hero Section with Image */}
+//       <div className="relative h-96 overflow-hidden">
+//         <div 
+//           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+//           style={{
+//             backgroundImage: "url('https://images.unsplash.com/photo-1593113630400-ea4288922497?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')"
+//           }}
+//         >
+//           <div className="absolute inset-0 "></div>
+//         </div>
+        
+//         <div className="relative container mx-auto px-4 h-full flex flex-col justify-center items-center">
+//           <div className="max-w-3xl">
+//             <Badge className="mb-4 bg-white/20 text-red-600 backdrop-blur-sm border-0 px-3 py-1 hover:bg-white/30">
+//               Making a Difference Together
+//             </Badge>
+//             <h1 className="text-5xl font-bold text-red-600 mb-4">Relief Activities</h1>
+//             <p className="text-xl text-orange-700 mb-8 max-w-2xl">
+//               Discover how our dedicated teams provide essential support and make a real impact in communities affected by disasters worldwide.
+//             </p>
+            
+//             <div className="flex flex-wrap gap-6 text-white">
+//               <div className="flex items-center gap-2">
+//                 <div className="p-2 bg-white/20 rounded-full">
+//                   <Users className="h-5 w-5" />
+//                 </div>
+//                 <div>
+//                   <div className="font-bold text-2xl">{reliefTeams.length}</div>
+//                   <div className="text-sm">Relief Teams</div>
+//                 </div>
+//               </div>
+              
+//               <div className="flex items-center gap-2">
+//                 <div className="p-2 bg-white/20 rounded-full">
+//                   <Calendar className="h-5 w-5" />
+//                 </div>
+//                 <div>
+//                   <div className="font-bold text-2xl">{activities.length}</div>
+//                   <div className="text-sm">Total Activities</div>
+//                 </div>
+//               </div>
+              
+//               <div className="flex items-center gap-2">
+//                 <div className="p-2 bg-white/20 rounded-full">
+//                   <MapPin className="h-5 w-5" />
+//                 </div>
+//                 <div>
+//                   <div className="font-bold text-2xl">{ACTIVITY_TYPES.length}</div>
+//                   <div className="text-sm">Activity Types</div>
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+
+//        <div className="max-w-6xl mx-auto px-4 py-12 -mt-16 relative z-10">
+//         {/* Main Content Card */}
+//         <Card className="rounded-2xl shadow-xl border-0 overflow-hidden">
+//           <CardContent className="p-6 md:p-8">
+//             {/* Filters Section */}
+//             <div className="mb-10">
+//               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+//                 <div>
+//                   <h2 className="text-2xl font-bold text-gray-800">Find Activities</h2>
+//                   <p className="text-gray-600 mt-1">
+//                     Refine your search using the filters below
+//                   </p>
+//                 </div>
+//                 <div className="bg-red-50 text-red-700 px-4 py-2 rounded-full text-sm">
+//                   <span className="font-bold">{totalItems}</span> {totalItems === 1 ? 'activity' : 'activities'} found
+//                 </div>
+//               </div>
+
+//               {/* UPDATED FILTER CONTAINER - FIXED HEIGHTS AND SPACING */}
+//               <div className="flex flex-col md:flex-row gap-3 items-stretch">
+//                 {/* Search Input */}
+//                 <div className="flex-1 relative">
+//                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+//                     <Search className="h-5 w-5 text-gray-400" />
+//                   </div>
+//                   <Input
+//                     placeholder="Search activities..."
+//                     value={searchTerm}
+//                     onChange={(e) => {
+//                       setSearchTerm(e.target.value)
+//                       handleFilterChange()
+//                     }}
+//                     className="h-12 pl-10 rounded-xl border-gray-300 focus:border-red-400"
+//                   />
+//                 </div>
+
+//                 {/* Activity Type Filter */}
+//                 <div className="flex-1">
+//                   <Select
+//                     value={filterType}
+//                     onValueChange={(value) => {
+//                       setFilterType(value)
+//                       handleFilterChange()
+//                     }}
+//                   >
+//                     <SelectTrigger className="h-12 rounded-xl border-gray-300 focus:border-red-400 w-full">
+//                       <div className="flex items-center">
+//                         <Filter className="h-5 w-5 text-gray-400 mr-2 flex-shrink-0" />
+//                         <SelectValue placeholder="Activity Type" />
+//                       </div>
+//                     </SelectTrigger>
+//                     <SelectContent className="rounded-xl">
+//                       <SelectItem value="all">All Activity Types</SelectItem>
+//                       {ACTIVITY_TYPES.map((type) => (
+//                         <SelectItem key={type} value={type}>
+//                           {type}
+//                         </SelectItem>
+//                       ))}
+//                     </SelectContent>
+//                   </Select>
+//                 </div>
+
+//                 {/* Relief Team Filter */}
+//                 <div className="flex-1">
+//                   <Select
+//                     value={reliefTeamFilter}
+//                     onValueChange={(value) => {
+//                       setReliefTeamFilter(value)
+//                       handleFilterChange()
+//                     }}
+//                   >
+//                     <SelectTrigger className="h-12 rounded-xl border-gray-300 focus:border-red-400 w-full">
+//                       <div className="flex items-center">
+//                         <Users className="h-5 w-5 text-gray-400 mr-2 flex-shrink-0" />
+//                         <SelectValue placeholder="Relief Team" />
+//                       </div>
+//                     </SelectTrigger>
+//                     <SelectContent className="rounded-xl">
+//                       <SelectItem value="all">All Relief Teams</SelectItem>
+//                       {reliefTeams.map((team) => (
+//                         <SelectItem key={team.id} value={team.id.toString()}>
+//                           {team.name}
+//                         </SelectItem>
+//                       ))}
+//                     </SelectContent>
+//                   </Select>
+//                 </div>
+
+//                 {/* Clear Filters Button */}
+//                 <div className="flex-1">
+//                   <Button
+//                     variant="outline"
+//                     onClick={clearFilters}
+//                     className="h-12 rounded-xl border-gray-300 hover:border-red-300 hover:bg-red-50 transition-colors w-full"
+//                     disabled={searchTerm === "" && filterType === "all" && reliefTeamFilter === "all" && statusFilter === "all"}
+//                   >
+//                     Clear Filters
+//                   </Button>
+//                 </div>
+//               </div>
+
+//               {/* Active Filters */}
+//               {(searchTerm || filterType !== "all" || reliefTeamFilter !== "all" || statusFilter !== "all") && (
+//                 <div className="mt-6 pt-6 border-t border-gray-100">
+//                   <div className="flex flex-wrap items-center gap-2">
+//                     <span className="text-sm text-gray-500 font-medium">Active filters:</span>
+                    
+//                     {searchTerm && (
+//                       <Badge 
+//                         variant="secondary" 
+//                         className="bg-red-50 text-red-700 hover:bg-red-100 px-3 py-1 rounded-full flex items-center gap-1"
+//                       >
+//                         Search: "{searchTerm}"
+//                         <X 
+//                           className="h-3 w-3 cursor-pointer" 
+//                           onClick={() => removeFilter("search")}
+//                         />
+//                       </Badge>
+//                     )}
+                    
+//                     {filterType !== "all" && (
+//                       <Badge 
+//                         variant="secondary" 
+//                         className="bg-blue-50 text-blue-700 hover:bg-blue-100 px-3 py-1 rounded-full flex items-center gap-1"
+//                       >
+//                         Type: {filterType}
+//                         <X 
+//                           className="h-3 w-3 cursor-pointer" 
+//                           onClick={() => removeFilter("activityType")}
+//                         />
+//                       </Badge>
+//                     )}
+                    
+//                     {reliefTeamFilter !== "all" && (
+//                       <Badge 
+//                         variant="secondary" 
+//                         className="bg-green-50 text-green-700 hover:bg-green-100 px-3 py-1 rounded-full flex items-center gap-1"
+//                       >
+//                         Team: {reliefTeams.find((t) => t.id.toString() === reliefTeamFilter)?.name || "Selected Team"}
+//                         <X 
+//                           className="h-3 w-3 cursor-pointer" 
+//                           onClick={() => removeFilter("team")}
+//                         />
+//                       </Badge>
+//                     )}
+                    
+//                     {statusFilter !== "all" && (
+//                       <Badge 
+//                         variant="secondary" 
+//                         className="bg-purple-50 text-purple-700 hover:bg-purple-100 px-3 py-1 rounded-full flex items-center gap-1"
+//                       >
+//                         Status: {statusFilter}
+//                         <X 
+//                           className="h-3 w-3 cursor-pointer" 
+//                           onClick={() => removeFilter("status")}
+//                         />
+//                       </Badge>
+//                     )}
+//                   </div>
+//                 </div>
+//               )}
+//             </div>
+
+//             {/* Activities Grid */}
+//             {loading ? (
+//               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+//                 {[...Array(6)].map((_, i) => (
+//                   <Card key={i} className="overflow-hidden border border-gray-200 shadow-sm animate-pulse">
+//                     <div className="h-48 bg-gray-200"></div>
+//                     <CardContent className="p-5">
+//                       <div className="h-6 bg-gray-200 rounded mb-3"></div>
+//                       <div className="h-4 bg-gray-200 rounded mb-2"></div>
+//                       <div className="h-4 bg-gray-200 rounded w-2/3 mb-4"></div>
+//                       <div className="flex justify-between items-center">
+//                         <div className="h-10 w-24 bg-gray-200 rounded-lg"></div>
+//                         <div className="h-8 w-8 bg-gray-200 rounded-full"></div>
+//                       </div>
+//                     </CardContent>
+//                   </Card>
+//                 ))}
+//               </div>
+//             ) : filteredActivities.length === 0 ? (
+//               <div className="text-center py-16">
+//                 <div className="mx-auto max-w-md">
+//                   <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+//                     <Search className="h-12 w-12 text-gray-400" />
+//                   </div>
+//                   <h3 className="text-2xl font-semibold text-gray-800 mb-3">No activities found</h3>
+//                   <p className="text-gray-600 mb-8 leading-relaxed">
+//                     We couldn't find any activities matching your search criteria. Try adjusting your filters or search terms.
+//                   </p>
+//                   <Button
+//                     onClick={clearFilters}
+//                     className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-medium"
+//                   >
+//                     View All Activities
+//                   </Button>
+//                 </div>
+//               </div>
+//             ) : (
+//               <>
+//                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+//                   {displayedActivities.map((activity, index) => (
+//                     <div
+//                       key={activity.id}
+//                       className="animate-in fade-in slide-in-from-bottom-4 duration-500"
+//                       style={{ animationDelay: `${(index % ITEMS_PER_PAGE) * 100}ms` }}
+//                     >
+//                       <ActivityCard activity={activity} onView={() => navigate(`/activities/${activity.id}`)} />
+//                     </div>
+//                   ))}
+//                 </div>
+
+//                 {hasMore && (
+//                   <div className="text-center mt-12">
+//                     <div className="mb-6">
+//                       <div className="text-sm text-gray-500 mb-2">
+//                         Showing {displayedActivities.length} of {totalItems} activities
+//                       </div>
+//                       <div className="w-full bg-gray-200 rounded-full h-2 max-w-xs mx-auto">
+//                         <div
+//                           className="bg-gradient-to-r from-red-500 to-red-600 h-2 rounded-full transition-all duration-300"
+//                           style={{ width: `${(displayedActivities.length / totalItems) * 100}%` }}
+//                         ></div>
+//                       </div>
+//                     </div>
+//                     <Button
+//                       onClick={handleLoadMore}
+//                       disabled={isLoadingMore}
+//                       className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-xl font-medium shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-50"
+//                     >
+//                       {isLoadingMore ? (
+//                         <>
+//                           <Loader2 className="h-5 w-5 animate-spin mr-2" />
+//                           Loading more...
+//                         </>
+//                       ) : (
+//                         <>
+//                           Load More Activities
+//                           <ChevronDown className="h-5 w-5 ml-2" />
+//                         </>
+//                       )}
+//                     </Button>
+//                   </div>
+//                 )}
+
+//                 {!hasMore && totalItems > ITEMS_PER_PAGE && (
+//                   <div className="text-center py-12">
+//                     <div className="inline-flex items-center px-6 py-3 bg-gray-100 rounded-full text-gray-600">
+//                       <span className="text-sm font-medium">You've seen all {totalItems} activities</span>
+//                     </div>
+//                   </div>
+//                 )}
+//               </>
+//             )}
+//           </CardContent>
+//         </Card>
+//       </div>
+//     </div>
+//   )
+// }
+
+// export default ActivitiesPage
+
+
+
 import type React from "react"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
@@ -1172,7 +1597,6 @@ import { Button } from "@/components/ui/button"
 import { Loader2, Search, Filter, ChevronDown, X, MapPin, Users, Calendar } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const ITEMS_PER_PAGE = 6
 
@@ -1208,19 +1632,6 @@ const ActivitiesPage: React.FC = () => {
     
     // Status filtering
     let matchesStatus = true
-    // if (statusFilter !== "all") {
-    //   const startDate = new Date(activity.startDate)
-    //   const endDate = new Date(activity.endDate)
-      
-    //   if (statusFilter === "ongoing") {
-    //     matchesStatus = startDate <= currentDate && endDate >= currentDate
-    //   } else if (statusFilter === "upcoming") {
-    //     matchesStatus = startDate > currentDate
-    //   } else if (statusFilter === "completed") {
-    //     matchesStatus = endDate < currentDate
-    //   }
-    // }
-
     return matchesSearch && matchesType && matchesTeam && matchesStatus
   })
 
@@ -1262,7 +1673,7 @@ const ActivitiesPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-red-50/20 to-red-100/30">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50/20 to-amber-100/30">
       {/* Hero Section with Image */}
       <div className="relative h-96 overflow-hidden">
         <div 
@@ -1271,20 +1682,20 @@ const ActivitiesPage: React.FC = () => {
             backgroundImage: "url('https://images.unsplash.com/photo-1593113630400-ea4288922497?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')"
           }}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-red-900/80 to-red-800/60"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-amber-900/80 to-amber-800/60"></div>
         </div>
         
-        <div className="relative container mx-auto px-4 h-full flex flex-col justify-center items-center">
+        <div className="relative container mx-auto px-4 h-full flex flex-col justify-center items-center text-center">
           <div className="max-w-3xl">
-            <Badge className="mb-4 bg-white/20 text-white backdrop-blur-sm border-0 px-3 py-1 hover:bg-white/30">
+            <Badge className="mb-4 bg-white/20 text-amber-100 backdrop-blur-sm border-0 px-3 py-1 hover:bg-white/30">
               Making a Difference Together
             </Badge>
             <h1 className="text-5xl font-bold text-white mb-4">Relief Activities</h1>
-            <p className="text-xl text-red-100 mb-8 max-w-2xl">
+            <p className="text-xl text-amber-100 mb-8 max-w-2xl">
               Discover how our dedicated teams provide essential support and make a real impact in communities affected by disasters worldwide.
             </p>
             
-            <div className="flex flex-wrap gap-6 text-white">
+            <div className="flex flex-wrap gap-6 text-white justify-center">
               <div className="flex items-center gap-2">
                 <div className="p-2 bg-white/20 rounded-full">
                   <Users className="h-5 w-5" />
@@ -1319,7 +1730,7 @@ const ActivitiesPage: React.FC = () => {
         </div>
       </div>
 
-       <div className="max-w-6xl mx-auto px-4 py-12 -mt-16 relative z-10">
+      <div className="max-w-6xl mx-auto px-4 py-12 -mt-16 relative z-10">
         {/* Main Content Card */}
         <Card className="rounded-2xl shadow-xl border-0 overflow-hidden">
           <CardContent className="p-6 md:p-8">
@@ -1332,12 +1743,11 @@ const ActivitiesPage: React.FC = () => {
                     Refine your search using the filters below
                   </p>
                 </div>
-                <div className="bg-red-50 text-red-700 px-4 py-2 rounded-full text-sm">
+                <div className="bg-amber-50 text-amber-700 px-4 py-2 rounded-full text-sm">
                   <span className="font-bold">{totalItems}</span> {totalItems === 1 ? 'activity' : 'activities'} found
                 </div>
               </div>
 
-              {/* UPDATED FILTER CONTAINER - FIXED HEIGHTS AND SPACING */}
               <div className="flex flex-col md:flex-row gap-3 items-stretch">
                 {/* Search Input */}
                 <div className="flex-1 relative">
@@ -1351,7 +1761,7 @@ const ActivitiesPage: React.FC = () => {
                       setSearchTerm(e.target.value)
                       handleFilterChange()
                     }}
-                    className="h-12 pl-10 rounded-xl border-gray-300 focus:border-red-400"
+                    className="h-12 pl-10 rounded-xl border-gray-300 focus:border-amber-400"
                   />
                 </div>
 
@@ -1364,7 +1774,7 @@ const ActivitiesPage: React.FC = () => {
                       handleFilterChange()
                     }}
                   >
-                    <SelectTrigger className="h-12 rounded-xl border-gray-300 focus:border-red-400 w-full">
+                    <SelectTrigger className="h-12 rounded-xl border-gray-300 focus:border-amber-400 w-full">
                       <div className="flex items-center">
                         <Filter className="h-5 w-5 text-gray-400 mr-2 flex-shrink-0" />
                         <SelectValue placeholder="Activity Type" />
@@ -1390,7 +1800,7 @@ const ActivitiesPage: React.FC = () => {
                       handleFilterChange()
                     }}
                   >
-                    <SelectTrigger className="h-12 rounded-xl border-gray-300 focus:border-red-400 w-full">
+                    <SelectTrigger className="h-12 rounded-xl border-gray-300 focus:border-amber-400 w-full">
                       <div className="flex items-center">
                         <Users className="h-5 w-5 text-gray-400 mr-2 flex-shrink-0" />
                         <SelectValue placeholder="Relief Team" />
@@ -1412,7 +1822,7 @@ const ActivitiesPage: React.FC = () => {
                   <Button
                     variant="outline"
                     onClick={clearFilters}
-                    className="h-12 rounded-xl border-gray-300 hover:border-red-300 hover:bg-red-50 transition-colors w-full"
+                    className="h-12 rounded-xl border-gray-300 hover:border-amber-300 hover:bg-amber-50 transition-colors w-full"
                     disabled={searchTerm === "" && filterType === "all" && reliefTeamFilter === "all" && statusFilter === "all"}
                   >
                     Clear Filters
@@ -1429,7 +1839,7 @@ const ActivitiesPage: React.FC = () => {
                     {searchTerm && (
                       <Badge 
                         variant="secondary" 
-                        className="bg-red-50 text-red-700 hover:bg-red-100 px-3 py-1 rounded-full flex items-center gap-1"
+                        className="bg-amber-50 text-amber-700 hover:bg-amber-100 px-3 py-1 rounded-full flex items-center gap-1"
                       >
                         Search: "{searchTerm}"
                         <X 
@@ -1512,7 +1922,7 @@ const ActivitiesPage: React.FC = () => {
                   </p>
                   <Button
                     onClick={clearFilters}
-                    className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-medium"
+                    className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-xl font-medium"
                   >
                     View All Activities
                   </Button>
@@ -1540,7 +1950,7 @@ const ActivitiesPage: React.FC = () => {
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2 max-w-xs mx-auto">
                         <div
-                          className="bg-gradient-to-r from-red-500 to-red-600 h-2 rounded-full transition-all duration-300"
+                          className="bg-gradient-to-r from-amber-500 to-amber-600 h-2 rounded-full transition-all duration-300"
                           style={{ width: `${(displayedActivities.length / totalItems) * 100}%` }}
                         ></div>
                       </div>
@@ -1548,7 +1958,7 @@ const ActivitiesPage: React.FC = () => {
                     <Button
                       onClick={handleLoadMore}
                       disabled={isLoadingMore}
-                      className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-xl font-medium shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-50"
+                      className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 rounded-xl font-medium shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-50"
                     >
                       {isLoadingMore ? (
                         <>
