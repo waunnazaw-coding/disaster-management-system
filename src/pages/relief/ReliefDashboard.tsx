@@ -51,7 +51,8 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 const ReliefDashboard = () => {
   const {
     reliefTeamId,
-    initializeData: initializeReliefData
+    initializeData: initializeReliefData,
+    fetchTeamAssignments
   } = useReliefStore();
 
   const { currentUser } = useReliefStore();
@@ -59,7 +60,7 @@ const ReliefDashboard = () => {
   const {
     assignments,
     loading: assignmentsLoading,
-    fetchTeamAssignments
+
   } = useAssignmentStore();
 
   const [stats, setStats] = useState<DashboardStats>({
