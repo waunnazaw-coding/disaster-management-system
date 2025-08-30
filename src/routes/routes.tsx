@@ -185,9 +185,9 @@ const router = createBrowserRouter([
       {
         element: withSuspense(<AdminLayout />),
         children: [
-            { 
-            path: "admin/dashboard", 
-            element: <AdminDashboardRedirect /> 
+          {
+            path: "admin/dashboard",
+            element: <AdminDashboardRedirect />
           },
           // { path: "admin/dashboard", element: <AdminDashboard /> },
           { path: "admin/events", element: <DisasterEventsForAdmin /> },
@@ -252,12 +252,12 @@ const router = createBrowserRouter([
         children: [
           // { path: "admin/dashboard", element: <AdminDashboard /> },
 
-           { 
-            path: "admin/dashboard", 
-            element: <AdminDashboardRedirect /> 
+          {
+            path: "admin/dashboard",
+            element: <AdminDashboardRedirect />
           },
           { path: "admin/relief-team-lists", element: <ReliefTeamListPage /> },
-          { path: "admin/admin-invite", element: <AdminInviteForm /> },
+          { path: "admin/disaster-management-admin-invite", element: <AdminInviteForm /> },
           { path: "admin/financial-admin-invite", element: <FinancialAdminInviteForm /> },
           { path: "admin/donations", element: <DonationManagement /> },
           { path: "admin/users", element: <UserManagementPage /> },
