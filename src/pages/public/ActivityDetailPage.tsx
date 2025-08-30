@@ -577,7 +577,7 @@ const ActivityDetailPage: React.FC = () => {
         await navigator.clipboard.writeText(url)
         alert("Link copied to clipboard")
       }
-    } catch {}
+    } catch { }
   }
 
   const activityTypeColors: Record<string, string> = {
@@ -590,7 +590,7 @@ const ActivityDetailPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-red-50/20 to-red-100/30">
       {/* Back Button */}
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto lg:px-40 py-6">
         <Button
           variant="ghost"
           className="text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-xl px-4 py-2 font-medium"
@@ -628,9 +628,9 @@ const ActivityDetailPage: React.FC = () => {
                     </span>
                   </div>
                 </div>
-                
+
                 <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">{currentActivity.title}</h1>
-                
+
                 {currentActivity.reliefTeamName && (
                   <div className="flex items-center text-white/90">
                     <Users className="h-5 w-5 mr-2" />
@@ -663,7 +663,7 @@ const ActivityDetailPage: React.FC = () => {
                         <span className="text-sm">Click to view full size</span>
                       </div>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {currentActivity.media.map((m, idx) => (
                         <div
@@ -720,7 +720,7 @@ const ActivityDetailPage: React.FC = () => {
               <Card className="rounded-2xl shadow-md border-0">
                 <CardContent className="p-6">
                   <h3 className="text-xl font-bold text-gray-800 mb-4">Activity Details</h3>
-                  
+
                   <div className="space-y-5">
                     <div className="flex items-start">
                       <div className="bg-red-100 p-2 rounded-lg mr-4">
@@ -733,7 +733,7 @@ const ActivityDetailPage: React.FC = () => {
                         </p>
                       </div>
                     </div>
-                    
+
                     {currentActivity.reliefTeamName && (
                       <div className="flex items-start">
                         <div className="bg-red-100 p-2 rounded-lg mr-4">
@@ -745,7 +745,7 @@ const ActivityDetailPage: React.FC = () => {
                         </div>
                       </div>
                     )}
-                    
+
                     {currentActivity.postedByUserName && (
                       <div className="flex items-start">
                         <div className="bg-red-100 p-2 rounded-lg mr-4">
@@ -757,7 +757,7 @@ const ActivityDetailPage: React.FC = () => {
                         </div>
                       </div>
                     )}
-                    
+
                     {currentActivity.detailedAddress && (
                       <div className="flex items-start">
                         <div className="bg-red-100 p-2 rounded-lg mr-4">
@@ -769,7 +769,7 @@ const ActivityDetailPage: React.FC = () => {
                         </div>
                       </div>
                     )}
-                    
+
                     {typeof currentActivity.peopleHelped === "number" && (
                       <div className="flex items-start">
                         <div className="bg-red-100 p-2 rounded-lg mr-4">
@@ -781,7 +781,7 @@ const ActivityDetailPage: React.FC = () => {
                         </div>
                       </div>
                     )}
-                    
+
                     {typeof currentActivity.expenseAmount === "number" && (
                       <div className="flex items-start">
                         <div className="bg-red-100 p-2 rounded-lg mr-4">
@@ -800,9 +800,9 @@ const ActivityDetailPage: React.FC = () => {
               {/* Action Card */}
               <Card className="rounded-2xl shadow-md border-0">
                 <CardContent className="p-6">
-                  <Button 
+                  <Button
                     onClick={onShare}
-                    variant="outline" 
+                    variant="outline"
                     className="w-full mb-4 border-red-200 text-red-700 hover:bg-red-50"
                   >
                     <Share2 className="h-5 w-5 mr-2" />
@@ -889,4 +889,4 @@ const ActivityDetailPage: React.FC = () => {
   )
 }
 
-export {  ActivityDetailPage }
+export { ActivityDetailPage }

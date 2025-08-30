@@ -1,8 +1,8 @@
-import  { useState, useEffect, useRef } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom' 
+import { useState, useEffect, useRef } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Shield, Phone, Clock, Menu, X } from 'lucide-react'
-import { Button } from '@/components/ui/button' 
-import { cn } from '@/lib/utils' 
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/authStore'
 import { NotificationDropdown } from "../Notification/NotificationDropdown";
 import { useSignalR } from "@/hooks/useSignalR";
@@ -81,7 +81,7 @@ export function Navbar() {
       connection.off("ReceiveNotification", handler);
     };
   }, [connection, addNotification, incrementUnreadCount]);
-  
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
@@ -93,8 +93,8 @@ export function Navbar() {
   }, [])
 
   useEffect(() => {
-  console.log('Auth changed', { isAuthenticated, user })
-}, [isAuthenticated, user])
+    console.log('Auth changed', { isAuthenticated, user })
+  }, [isAuthenticated, user])
 
 
   return (
@@ -140,20 +140,20 @@ export function Navbar() {
               })}
             </div>
 
-             {/* Notification dropdown for authenticated users */}
+            {/* Notification dropdown for authenticated users */}
             {/* {isAuthenticated && (
               <div>
                 <NotificationDropdown />
               </div>
             )} */}
-            
+
             {/* Right side */}
             <div className="flex items-center gap-3">
               {isAuthenticated && (
-              <div>
-                <NotificationDropdown />
-              </div>
-            )}
+                <div>
+                  <NotificationDropdown />
+                </div>
+              )}
               {/* User Menu or Authentication Buttons */}
               {isAuthenticated ? (
                 <div className="relative" ref={userMenuRef}>
@@ -201,25 +201,25 @@ export function Navbar() {
                         >
                           Settings
                         </Link>
-                         <Link
-                            to={getDashboardPath()}
-                            className="block px-4 py-2 text-sm text-blue-900 hover:bg-blue-100"
-                            onClick={() => setUserMenuOpen(false)}
-                          >
-                            {getDashboardLabel()}
-                          </Link>
-                          <Link
-                            to="/notifications"
-                            className="block px-4 py-2 text-sm text-blue-900 hover:bg-blue-100"
-                            onClick={() => setUserMenuOpen(false)}
-                          >
-                            Notifications
-                          </Link>
+                        <Link
+                          to={getDashboardPath()}
+                          className="block px-4 py-2 text-sm text-blue-900 hover:bg-blue-100"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          {getDashboardLabel()}
+                        </Link>
+                        <Link
+                          to="/notifications"
+                          className="block px-4 py-2 text-sm text-blue-900 hover:bg-blue-100"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          Notifications
+                        </Link>
                       </div>
                       <div className="py-2 border-t border-gray-100">
                         <button
                           className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                         onClick={async () => {
+                          onClick={async () => {
                             await logout();  // await completion to ensure state is updated
                             navigate('/login');
                           }}

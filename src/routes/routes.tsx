@@ -26,7 +26,7 @@ import { ReliefAssignmentsPage } from "@/pages/relief/ReliefAssignmentsPage";
 import { AssignRequestsToReliefPage } from "@/pages/admin/AssignRequestsToReliefPage";
 import { ResetPasswordForm } from "@/components/auth/ResetPassword";
 import { AdminInviteForm } from "@/components/admin-layout/AdminInviteForm";
-import { AcceptAdminInviteForm } from "@/components/admin-layout/AcceptAdminForm";
+import { AcceptFinancialAdminInviteForm } from "@/components/admin-layout/AcceptFinancialAdminForm";
 import EmergencyContact from "@/components/emergency/EmergencyContact";
 import RequestDetailsPage from "@/pages/user/RequestDetailsPage";
 import ActivityPage from "@/pages/admin/AdminActivityPage";
@@ -57,6 +57,8 @@ import AdminDashboard from "../pages/admin/Dashboard";
 import DisasterDashboard from "@/pages/disaster/disaster-map";
 import ImpactSurveyPage from "@/pages/disaster/impact-survey";
 import AdminDashboardRedirect from "@/components/admin-layout/AdminDashboardRedirect";
+import { FinancialAdminInviteForm } from "@/components/admin-layout/admin/FinancialAdminInvite";
+import { AcceptDisasterAdminInviteForm } from "@/components/admin-layout/AcceptDisasterAdminForm";
 
 // Loading fallback UI (for Suspense boundaries)
 const LoadingFallback = () => (
@@ -84,8 +86,12 @@ const router = createBrowserRouter([
     element: withSuspense(<ResetPasswordForm />),
   },
   {
-    path: "/accept-invite",
-    element: <AcceptAdminInviteForm />,
+    path: "/accept-financial-admin-invite",
+    element: <AcceptFinancialAdminInviteForm />,
+  },
+  {
+    path: "/accept-disaster-admin-invite",
+    element: <AcceptDisasterAdminInviteForm />,
   },
   {
     path: "/unauthorized",
@@ -174,7 +180,7 @@ const router = createBrowserRouter([
 
   // Admin protected routes
   {
-    element: <ProtectedRoute allowedRoles={["Admin", "SysAdmin" , "DisasterManagementAdmin" , "FinancialAdmin"]} />,
+    element: <ProtectedRoute allowedRoles={["Admin", "SysAdmin", "DisasterManagementAdmin", "FinancialAdmin"]} />,
     children: [
       {
         element: withSuspense(<AdminLayout />),
@@ -226,7 +232,7 @@ const router = createBrowserRouter([
       { path: "emergency-contacts", element: <EmergencyContact /> },
 
       { path: "about", element: <AboutUsPage /> },
-      {path: "contact", element: <ContactUs />},
+      { path: "contact", element: <ContactUs /> },
       // New activity routes
       { path: "activities", element: <ActivitiesPage /> },
       { path: "activities/:id", element: <ActivityDetailPage /> },
@@ -235,7 +241,7 @@ const router = createBrowserRouter([
 
   // Admin protected routes
   {
-    element: <ProtectedRoute allowedRoles={["Admin", "SysAdmin" , "DisasterManagementAdmin" , "FinancialAdmin"]} />,
+    element: <ProtectedRoute allowedRoles={["SysAdmin", "DisasterManagementAdmin", "FinancialAdmin"]} />,
     children: [
       {
         element: (
@@ -252,6 +258,7 @@ const router = createBrowserRouter([
           },
           { path: "admin/relief-team-lists", element: <ReliefTeamListPage /> },
           { path: "admin/admin-invite", element: <AdminInviteForm /> },
+          { path: "admin/financial-admin-invite", element: <FinancialAdminInviteForm /> },
           { path: "admin/donations", element: <DonationManagement /> },
           { path: "admin/users", element: <UserManagementPage /> },
           { path: "admin/requests", element: <AdminRequestsPage /> },
@@ -259,10 +266,10 @@ const router = createBrowserRouter([
           { path: "admin/assign-request/:id", element: <AssignRequestsToReliefPage /> },
           { path: "admin/activity", element: <ActivityPage /> },
           { path: "admin/financial-reports", element: <FinancialReportsPage /> },
-           { path: "admin/financial-reports", element: <FinancialReportsPage /> },
-             // ... other routes
-        { path: "admin/partners", element: <PartnersPage /> },
-        {path:"admin/contacts", element: <AdminContactManagement />}
+          { path: "admin/financial-reports", element: <FinancialReportsPage /> },
+          // ... other routes
+          { path: "admin/partners", element: <PartnersPage /> },
+          { path: "admin/contacts", element: <AdminContactManagement /> }
         ],
       },
     ],

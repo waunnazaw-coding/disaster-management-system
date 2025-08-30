@@ -21,7 +21,7 @@ import { useAuthStore } from "@/store/authStore";
 import { useNavigate } from "react-router";
 
 export function ReliefTeamNavbarExtras() {
-   const { logout, currentUser, initializeData } = useReliefStore();
+  const { logout, currentUser, initializeData } = useReliefStore();
   const handleLogout = useAuthStore((state) => state.logout)
   const user = useAuthStore((state) => state.user)
   const navigate = useNavigate();
@@ -90,10 +90,10 @@ export function ReliefTeamNavbarExtras() {
           <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={() => {
-              handleLogout(); 
+              handleLogout();
               navigate('/login'); // Redirect to login after logout
             }
-            }                                                      
+            }
             className="text-red-600 focus:bg-red-50"
           >
             <LogOut className="mr-2 h-4 w-4" />

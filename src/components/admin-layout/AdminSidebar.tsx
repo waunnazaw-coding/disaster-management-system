@@ -398,12 +398,12 @@ const allNavigation = [
   { id: "gdacs-events", name: "Global Disaster Dashboard", icon: Calendar, path: "gdacs-events" },
   { id: "reports", name: "Reports", icon: AlertTriangle, path: "reports" },
   { id: "requests", name: "Requests", icon: HelpCircle, path: "requests" },
-  { id: "activity", name: "Activity", icon: ActivityIcon, path: "activity" }, 
+  { id: "activity", name: "Activity", icon: ActivityIcon, path: "activity" },
   { id: "assignments", name: "Assignments", icon: ClipboardList, path: "assignments" },
   { id: "donations", name: "Donations", icon: Heart, path: "donations" },
   { id: "users", name: "Users", icon: Users, path: "users" },
   { id: "teams", name: "Relief Teams", icon: Users, path: "relief-team-lists" },
-  { id: "admin-invite", name: "Admin Invite", icon: Users, path: "admin-invite" },
+  { id: "financial-admin-invite", name: "Financial Admin Invite", icon: Users, path: "financial-admin-invite" },
   { id: "financial", name: "Financial Reports", icon: Users, path: "financial-reports" },
   { id: "messages", name: "Messages", icon: MessageCircle, path: "contacts" },
   { id: "partner", name: "Partners", icon: Users, path: "partners" }
@@ -412,11 +412,12 @@ const allNavigation = [
 const roleNavigationMap: Record<string, string[]> = {
   SysAdmin: allNavigation.map(item => item.id),
   Admin: [
-    "events", "reports", "requests", "activity", "assignments", 
+    "events", "reports", "requests", "activity", "assignments",
     "donations", "users", "teams", "admin-invite", "financial", "messages", "partner"
   ],
   DisasterManagementAdmin: [
-    "events", "reports", "requests", "assignments", "teams"
+    "dashboard", "events", "gdacs-events", "reports", "requests",
+    "assignments", "teams"
   ],
   FinancialAdmin: [
     "donations", "financial", "activity"

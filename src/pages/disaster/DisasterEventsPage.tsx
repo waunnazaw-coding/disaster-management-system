@@ -91,7 +91,7 @@ function DisasterEventsForAdmin() {
   }[status] || "bg-gray-100 text-gray-800 border-gray-200");
 
   return (
-    <section className="py-8 px-4 sm:px-6 lg:px-8 bg-red-100">
+    <section className="py-8 px-4 sm:px-6 lg:px-8 bg-white-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex justify-between items-center h-20 flex-wrap gap-4">

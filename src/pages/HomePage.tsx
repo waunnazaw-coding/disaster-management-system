@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect} from "react"
-import { Link } from "react-router-dom"
+import { useEffect } from "react"
+import { Link, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -20,6 +20,7 @@ import herosection2 from "@/images/hero-section2.avif"
 
 export default function HomePage() {
   const { activities, loading } = useActivityStore()
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (activities.length === 0) {
@@ -62,121 +63,121 @@ export default function HomePage() {
     <div className="min-h-screen text-gray-900">
       {/* Hero Carousel */}
       <section className="relative w-full">
-      <Carousel className="w-full">
-        <CarouselContent>
-          {slides.map((slide, index) => (
-            <CarouselItem key={index}>
-              <div className="relative h-[73vh] flex items-center overflow-hidden">
-                {/* Background Image with Motion */}
-                <motion.img
-                  src={slide.image}
-                  alt={slide.title}
-                  className="absolute inset-0 w-full h-full object-cover"
-                  initial={{ scale: 1.2, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 1.2, ease: "easeOut" }}
-                />
+        <Carousel className="w-full">
+          <CarouselContent>
+            {slides.map((slide, index) => (
+              <CarouselItem key={index}>
+                <div className="relative h-[73vh] flex items-center overflow-hidden">
+                  {/* Background Image with Motion */}
+                  <motion.img
+                    src={slide.image}
+                    alt={slide.title}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    initial={{ scale: 1.2, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 1.2, ease: "easeOut" }}
+                  />
 
-                {/* Dark Overlay */}
-                <div className="absolute inset-0 bg-black/60" />
+                  {/* Dark Overlay */}
+                  <div className="absolute inset-0 bg-black/60" />
 
-                {/* Text Content */}
-                <motion.div
-                  className="relative z-10 max-w-4xl px-6 lg:px-40 text-left text-white"
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.3 }}
-                >
-                  <motion.h1
-                    className="text-3xl md:text-5xl font-extrabold leading-snug mb-4"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.5 }}
-                  >
-                    {slide.title}
-                  </motion.h1>
-
-                  <motion.p
-                    className="mb-6 text-base md:text-lg text-gray-200 leading-relaxed"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.7 }}
-                  >
-                    {slide.description}
-                  </motion.p>
-
-                  {/* Buttons */}
+                  {/* Text Content */}
                   <motion.div
-                    className="flex flex-wrap gap-3 mt-4"
-                    initial={{ opacity: 0, y: 20 }}
+                    className="relative z-10 max-w-4xl px-6 lg:px-40 text-left text-white"
+                    initial={{ opacity: 0, y: 40 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.9 }}
+                    transition={{ duration: 0.8, delay: 0.3 }}
                   >
-                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                      <Button className="bg-red-600 hover:bg-red-700 text-white text-base px-6 py-3 rounded-lg shadow-lg">
-                        <Link to="requests/assistant">Emergency Help</Link>
-                      </Button>
-                    </motion.div>
+                    <motion.h1
+                      className="text-3xl md:text-5xl font-extrabold leading-snug mb-4"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.8, delay: 0.5 }}
+                    >
+                      {slide.title}
+                    </motion.h1>
 
-                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                      <Button className="bg-yellow-500 hover:bg-yellow-600 text-white text-base px-6 py-3 rounded-lg shadow-lg">
-                        <Link to="donations">Donate Now</Link>
-                      </Button>
+                    <motion.p
+                      className="mb-6 text-base md:text-lg text-gray-200 leading-relaxed"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.8, delay: 0.7 }}
+                    >
+                      {slide.description}
+                    </motion.p>
+
+                    {/* Buttons */}
+                    <motion.div
+                      className="flex flex-wrap gap-3 mt-4"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.8, delay: 0.9 }}
+                    >
+                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Button className="bg-red-600 hover:bg-red-700 text-white text-base px-6 py-3 rounded-lg shadow-lg">
+                          <Link to="requests/assistant">Emergency Help</Link>
+                        </Button>
+                      </motion.div>
+
+                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Button className="bg-yellow-500 hover:bg-yellow-600 text-white text-base px-6 py-3 rounded-lg shadow-lg">
+                          <Link to="donations">Donate Now</Link>
+                        </Button>
+                      </motion.div>
                     </motion.div>
                   </motion.div>
-                </motion.div>
-              </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
 
-        {/* Navigation Arrows */}
-        <CarouselPrevious className="left-4" />
-        <CarouselNext className="right-4" />
-      </Carousel>
-    </section>
+          {/* Navigation Arrows */}
+          <CarouselPrevious className="left-4" />
+          <CarouselNext className="right-4" />
+        </Carousel>
+      </section>
 
       {/* Recent Activities */}
-  <section className="max-w-6xl mx-auto px-4 py-12 bg-white">
-    <div className="text-center mb-10">
-    <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Recent Activities</h2>
-    <p className="text-gray-600 text-base md:text-lg max-w-2xl mx-auto">
-      Stay updated on our latest efforts, community initiatives, and events making a difference across Myanmar.
-    </p>
-  </div>
+      <section className="max-w-6xl mx-auto px-4 py-12">
+        <div className="text-center mb-10">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Recent Activities</h2>
+          <p className="text-gray-600 text-base md:text-lg max-w-2xl mx-auto">
+            Stay updated on our latest efforts, community initiatives, and events making a difference across Myanmar.
+          </p>
+        </div>
 
-  {loading ? (
-    <div className="flex justify-center py-6">
-      <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-    </div>
-  ) : recentActivities.length > 0 ? (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {recentActivities.map((activity) => (
-        <ActivityCard
-          key={activity.id}
-          activity={activity}
-          onView={() => window.location.href = `/activities/${activity.id}`}
-          isAdmin={false}
-        />
-      ))}
-    </div>
-  ) : (
-    <div className="text-center py-8">
-      <p className="text-gray-600 text-base md:text-lg">
-        No recent activities yet. <span className="font-semibold">Be the first to contribute or join an upcoming event!</span>
-      </p>
-    </div>
-  )}
+        {loading ? (
+          <div className="flex justify-center py-6">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          </div>
+        ) : recentActivities.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {recentActivities.map((activity) => (
+              <ActivityCard
+                key={activity.id}
+                activity={activity}
+                onView={() => navigate(`/activities/${activity.id}`)}
+                isAdmin={false}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-gray-600 text-base md:text-lg">
+              No recent activities yet. <span className="font-semibold">Be the first to contribute or join an upcoming event!</span>
+            </p>
+          </div>
+        )}
 
-  <div className="text-center mt-8">
-    <Button
-      asChild
-      className="bg-red-600 hover:bg-red-700 text-white font-medium text-base px-6 py-3 rounded-lg shadow-md"
-    >
-      <Link to="/activities">Explore All Activities</Link>
-    </Button>
-  </div>
-</section>
+        <div className="text-center mt-8">
+          <Button
+            asChild
+            className="bg-red-600 hover:bg-red-700 text-white font-medium text-base px-6 py-3 rounded-lg shadow-md"
+          >
+            <Link to="/activities">Explore All Activities</Link>
+          </Button>
+        </div>
+      </section>
 
 
       {/* Donation CTA */}

@@ -27,12 +27,12 @@ export const AdminInviteForm = () => {
   const onSubmit = async (data: InviteFormData) => {
     try {
       setIsSubmitting(true);
-      const response = await authService.sendAdminInvite(data);
-      
+      const response = await authService.sendDisasterManagementAdminInvite(data);
+
       toast.success("Admin invite sent successfully!", {
         description: `Invitation sent to ${response.email}`,
       });
-      
+
       reset();
     } catch (error: any) {
       toast.error("Failed to send invite", {
@@ -46,7 +46,7 @@ export const AdminInviteForm = () => {
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle>Send Admin Invite</CardTitle>
+        <CardTitle>Send Disaster Management Admin Invite</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

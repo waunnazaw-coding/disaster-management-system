@@ -146,8 +146,8 @@ export const useReliefStore = create(
       } catch (error) {
         console.error("Initialization error:", error);
         set({ loading: false });
-        localStorage.removeItem("authToken");
-        window.location.href = "/login";
+        // localStorage.removeItem("authToken");
+        // window.location.href = "/login";
       }
     },
 

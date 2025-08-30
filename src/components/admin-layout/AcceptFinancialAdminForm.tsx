@@ -32,7 +32,7 @@ const acceptSchema = z
 
 type AcceptFormData = z.infer<typeof acceptSchema>
 
-export const AcceptAdminInviteForm = () => {
+export const AcceptFinancialAdminInviteForm = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -72,7 +72,7 @@ export const AcceptAdminInviteForm = () => {
       setIsSubmitting(true)
       console.log("Accepting admin invite with data:", data)
 
-      await authService.acceptAdminInvite({
+      await authService.acceptFinancialAdminInvite({
         token: data.token,
         newPassword: data.newPassword,
         email: data.email,
@@ -130,24 +130,24 @@ export const AcceptAdminInviteForm = () => {
           </div>
 
           {/* Features */}
-           <div className="grid grid-cols-2 gap-2 mt-4">
-                      <div className="flex items-center gap-2 p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                        <AlertTriangle className="h-4 w-4 text-orange-600" />
-                        <span className="text-xs text-orange-800 dark:text-orange-300"> Emergency Response</span>
-                      </div>
-                      <div className="flex items-center gap-2 p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                        <Shield className="h-4 w-4 text-orange-600" />
-                        <span className="text-xs text-orange-800 dark:text-orange-300">Disaster Preparedness</span>
-                      </div>
-                      <div className="flex items-center gap-2 p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                        <MapPin className="h-4 w-4 text-orange-600" />
-                        <span className="text-xs text-orange-800 dark:text-orange-300">Resource Map</span>
-                      </div>
-                      <div className="flex items-center gap-2 p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                        <Heart className="h-4 w-4 text-orange-600" />
-                        <span className="text-xs text-orange-800 dark:text-orange-300">Relief Operations</span>
-                      </div>
-                    </div>           
+          <div className="grid grid-cols-2 gap-2 mt-4">
+            <div className="flex items-center gap-2 p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+              <AlertTriangle className="h-4 w-4 text-orange-600" />
+              <span className="text-xs text-orange-800 dark:text-orange-300"> Emergency Response</span>
+            </div>
+            <div className="flex items-center gap-2 p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+              <Shield className="h-4 w-4 text-orange-600" />
+              <span className="text-xs text-orange-800 dark:text-orange-300">Disaster Preparedness</span>
+            </div>
+            <div className="flex items-center gap-2 p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+              <MapPin className="h-4 w-4 text-orange-600" />
+              <span className="text-xs text-orange-800 dark:text-orange-300">Resource Map</span>
+            </div>
+            <div className="flex items-center gap-2 p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+              <Heart className="h-4 w-4 text-orange-600" />
+              <span className="text-xs text-orange-800 dark:text-orange-300">Relief Operations</span>
+            </div>
+          </div>
         </CardHeader>
 
         <CardContent>

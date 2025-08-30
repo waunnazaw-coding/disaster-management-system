@@ -119,6 +119,7 @@ export const authService = {
   try {
     const response = await api.patch<{ message: string }>("/auth/reset-password", data);
     if (response.status === 200) {
+      console.log(response.data)
       return response.data;  
     } else {
       throw new Error(response.data.message || "Reset password failed");
@@ -138,10 +139,36 @@ export const authService = {
     return response.data.data;
   },
 
-  async acceptAdminInvite(data: AcceptAdminInviteDto): Promise<AuthResponse> {
-    const response = await api.patch<ApiResult<AuthResponse>>("/auth/accept-admin-invite", data);
+  async sendDisasterManagementAdminInvite(data: AdminInviteRequestDto): Promise<AdminInviteResponseDto> {
+    const response = await api.post<ApiResult<AdminInviteResponseDto>>("/auth/disaster-management-admin", data);
+    if (!response.data.isSuccess || !response.data.data) {
+      throw new Error(response.data.message || "Failed to send admin invite");
+    }
+    return response.data.data;
+  },
+
+  async sendFinancialAdminInvite(data: AdminInviteRequestDto): Promise<AdminInviteResponseDto> {
+    const response = await api.post<ApiResult<AdminInviteResponseDto>>("/auth/financial-admin", data);
+    if (!response.data.isSuccess || !response.data.data) {
+      throw new Error(response.data.message || "Failed to send admin invite");
+    }
+    return response.data.data;
+  },
+
+  async acceptFinancialAdminInvite(data: AcceptAdminInviteDto): Promise<AuthResponse> {
+    const response = await api.patch<ApiResult<AuthResponse>>("/auth/accept-financial-admin-invite", data);
     if (!response.data.isSuccess || !response.data.data) {
       throw new Error(response.data.message || "Failed to accept admin invite");
+    }
+    const { accessToken, refreshToken, accessTokenExpiration } = response.data.data;
+    storeTokens(accessToken, refreshToken, accessTokenExpiration);
+    return response.data.data;
+  },
+
+  async acceptDisasterAdminInvite(data: AcceptAdminInviteDto): Promise<AuthResponse> {
+    const response = await api.patch<ApiResult<AuthResponse>>("/auth/accept-disaster-admin-invite", data);
+    if (!response.data.isSuccess || !response.data.data) {
+      throw new Error(response.data.message || "Failed to accept disaster admin invite");
     }
     const { accessToken, refreshToken, accessTokenExpiration } = response.data.data;
     storeTokens(accessToken, refreshToken, accessTokenExpiration);
@@ -161,6 +188,7 @@ export const authService = {
   async getCurrentUser(): Promise<ApiResult<UserResponseDto>> {
     try {
       const response = await api.get<ApiResult<UserResponseDto>>("/auth/profile");
+      console.log(response.data.data);
       return response.data;
     } catch (error) {
       console.error("Failed to fetch user profile:", error);

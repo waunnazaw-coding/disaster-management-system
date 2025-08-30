@@ -11,7 +11,7 @@ export const useAuthRedirect = () => {
   useEffect(() => {
     if (isAuthenticated && user?.role) {
       switch (user.role) {
-        case Roles.Admin:
+        // case Roles.Admin:
         case Roles.DisasterManagementAdmin:
         case Roles.FinancialAdmin:
         case Roles.SysAdmin:
