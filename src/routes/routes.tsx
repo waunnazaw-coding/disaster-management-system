@@ -34,7 +34,7 @@ import ReliefActivityPage from "@/pages/relief/ReliefActivityPage";
 import AwarenessPage from "@/pages/awareness/awareness-page";
 import DonationPage from "@/pages/donation/Donation";
 import FinancialReportsPage from "@/pages/finanacial-reports/financial-reports-page";
-import MapView from "@/components/disaster/DisasterEventMap";
+import MapView from "@/Map/DisasterEventMap";
 import MapPublicLayout from "@/Map/MapPublicLayout";
 import { PartnersPage } from "@/pages/admin/partnersPage";
 import ContactUs from "@/pages/ContactUs";

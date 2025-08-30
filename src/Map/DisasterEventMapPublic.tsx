@@ -30,7 +30,7 @@ const DEFAULT_CENTER = fromLonLat([96.1, 16]);
 const DEFAULT_ZOOM = 5.3;
 const FOCUSED_ZOOM = 12;
 
-const MapView: React.FC<MapViewProps> = ({ filters }) => {
+const MapViewPublic: React.FC<MapViewProps> = ({ filters }) => {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const [mapInstance, setMapInstance] = useState<Map | null>(null);
   const [events, setEvents] = useState<DisasterEvent[]>([]);
@@ -231,7 +231,7 @@ const MapView: React.FC<MapViewProps> = ({ filters }) => {
     if (readMoreBtn) {
       readMoreBtn.addEventListener("click", () => {
         const id = readMoreBtn.dataset.id;
-        if (id) navigate(`/admin/events/${id}`);
+        if (id) navigate(`/disasters/${id}`);
       });
     }
 
@@ -347,4 +347,5 @@ const MapView: React.FC<MapViewProps> = ({ filters }) => {
   return <div className="relative w-full h-full"><div ref={mapRef} className="w-full h-full" /></div>;
 };
 
-export default MapView;
+
+export default MapViewPublic;

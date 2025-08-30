@@ -415,7 +415,7 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
                         formData.existingPhotos!.map((photo, index) => (
                             <div
                                 key={photo.id}
-                                className="relative group p-2 border rounded-md w-48 shadow-sm flex flex-col gap-2"
+                                className="relative group p-2 border rounded-md w-full shadow-sm flex flex-col gap-2"
                             >
                                 <img
                                     src={
@@ -424,7 +424,7 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
                                             : photo.filePath
                                     }
                                     alt="Existing"
-                                    className="h-28 w-full object-cover rounded"
+                                    className="h-full w-full object-cover rounded"
                                 />
 
                                 <input
@@ -520,7 +520,7 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
                         return (
                             <div
                                 key={index}
-                                className="relative w-48 p-3 border rounded-md shadow-sm flex flex-col gap-2"
+                                className="relative w-full p-3 border rounded-md shadow-sm flex flex-col gap-2"
                             >
                                 <button
                                     type="button"
@@ -579,7 +579,7 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
                                     <img
                                         src={previewUrl as string}
                                         alt={`New Upload ${index + 1}`}
-                                        className="h-28 w-full object-cover rounded"
+                                        className="h-full w-full object-cover rounded"
                                     />
                                 )}
 

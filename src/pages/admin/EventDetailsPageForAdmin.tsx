@@ -21,8 +21,8 @@ import {
 } from "lucide-react";
 import api from "../../api/axioInstance";
 import { Button } from "../../components/ui/button";
-import DisasterMap from "@/components/locaiton/Map/DisasterMap";
 import { Skull, Hospital, Home, Landmark, Store, Wheat, School, Info, Shield, SquarePen } from "lucide-react";
+import DisasterMapForViewDetails from "@/components/locaiton/Map/DisasterMapForViewDetail";
 
 interface EventDetails {
   id: number;
@@ -235,10 +235,10 @@ const EventDetailsPageForAdmin: React.FC = () => {
           <div className="lg:col-span-2 space-y-6">
             
             {/* Event Header Card */}
-            <Card className="shadow-2xl rounded-3xl border-0 bg-white overflow-hidden">
+            <Card className=" overflow-hidden">
               {/* Map Section */}
-              <div className="relative h-80">
-                <DisasterMap
+              <div className="relative h-full">
+                <DisasterMapForViewDetails
                   geojsonData={event.locationGeoJson ? JSON.parse(event.locationGeoJson) : null}
                   viewOnly
                 />
@@ -259,7 +259,7 @@ const EventDetailsPageForAdmin: React.FC = () => {
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <div className="absolute bottom-1 left-6 p-3 shadow-xl">
+                      <div className="absolute top-[280px] left-6 p-3 shadow-xl">
                         <AlertTriangle className={`h-8 w-8 ${getSeverityColor(event.severity)}`} />
                       </div>
                     </TooltipTrigger>
@@ -271,7 +271,7 @@ const EventDetailsPageForAdmin: React.FC = () => {
               </div>
 
               {/* Event Details */}
-              <CardContent className="p-8">
+              <CardContent className="px-8">
                 <div className="mb-6">
                   <h1 className="text-4xl font-bold text-gray-900 mb-4">
                     {event.name}
@@ -369,7 +369,7 @@ const EventDetailsPageForAdmin: React.FC = () => {
                 </div>
                 
                 {event.reportPhotos && event.reportPhotos.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="w-full flex flex-col gap-6">
                     {event.reportPhotos.map((photo) => (
                       <div key={photo.id} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
                         <img
@@ -379,7 +379,7 @@ const EventDetailsPageForAdmin: React.FC = () => {
                         />
                         {photo.description && (
                           <div className="p-4 bg-gray-50">
-                            <p className="text-gray-700 text-sm font-medium">
+                            <p className="text-gray-700 indent-10 text-sm font-medium">
                               {photo.description}
                             </p>
                           </div>

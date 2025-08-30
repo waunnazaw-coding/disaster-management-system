@@ -17,8 +17,8 @@ import {
 } from "lucide-react";
 import api from "../../api/axioInstance";
 import { Button } from "../../components/ui/button";
-import DisasterMap from "@/components/locaiton/Map/DisasterMap";
 import { Skull, Hospital, Home, Landmark, Store, Wheat, School, Info, Shield, SquarePen } from "lucide-react";
+import DisasterMapForViewDetails from "@/components/locaiton/Map/DisasterMapForViewDetail";
 
 interface EventDetails {
   id: number;
@@ -220,7 +220,7 @@ const EventDetailsPageForAdmin: React.FC = () => {
         <Card className="shadow-2xl rounded-3xl border-0 bg-white overflow-hidden">
           {/* Map section */}
           <div className="relative h-90 overflow-hidden">
-            <DisasterMap
+            <DisasterMapForViewDetails
               geojsonData={event.locationGeoJson ? JSON.parse(event.locationGeoJson) : null}
               viewOnly
             />
@@ -342,17 +342,17 @@ const EventDetailsPageForAdmin: React.FC = () => {
                 Report Photos
               </h3>
               {event.reportPhotos && event.reportPhotos.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="w-full flex flex-col h-full gap-6">
                   {event.reportPhotos.map((photo) => (
                     <div key={photo.id} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
                       <img
                         src={photo.filePath}
                         alt={photo.description || "Report Photo"}
-                        className="w-full h-56 object-cover"
+                        className="w-full h-100 object-contain"
                       />
                       {photo.description && (
                         <div className="p-4 bg-gray-50">
-                          <p className="text-gray-700 text-sm font-medium">
+                          <p className="text-gray-700 indent-10 text-sm font-medium">
                             {photo.description}
                           </p>
                         </div>
