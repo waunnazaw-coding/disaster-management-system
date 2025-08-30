@@ -6,7 +6,7 @@ import XYZ from "ol/source/XYZ";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import GeoJSON from "ol/format/GeoJSON";
-import Draw from "ol/interaction/Draw";
+import Draw, { DrawEvent } from "ol/interaction/Draw";
 import Modify from "ol/interaction/Modify";
 import Select from "ol/interaction/Select";
 import { click } from "ol/events/condition";
@@ -14,7 +14,7 @@ import { defaults as defaultControls } from "ol/control";
 import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
 import PolygonGeom from "ol/geom/Polygon";
-import { Style, Circle as CircleStyle, Fill, Stroke } from "ol/style";
+import { Style, Circle as CircleStyle, Fill, Stroke, Icon } from "ol/style";
 import Geocoder from "ol-geocoder";
 import "ol-geocoder/dist/ol-geocoder.min.css";
 import MapToolbar from "./MapToolbar";
@@ -57,6 +57,26 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
 
   const [selectedStyle, setSelectedStyle] = useState<keyof typeof MAP_STYLES>("hybrid");
   const [drawType, setDrawType] = useState<"Point" | "Polygon" | null>(null);
+
+  const mapPinStyle = new Style({
+    image: new Icon({
+      anchor: [0.5, 1], // bottom-center
+      anchorXUnits: 'fraction',
+      anchorYUnits: 'fraction',
+      src: "data:image/svg+xml;utf8," + encodeURIComponent(`
+     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+      <!-- Red pin body -->
+      <path fill="red" d="M12 0 C6 0 2 6 2 12 C2 20 12 36 12 36 C12 36 22 20 22 12 C22 6 18 0 12 0 Z"/>
+      <!-- White center hole -->
+      <circle cx="12" cy="12" r="4" fill="white"/>
+    </svg>
+
+    `),
+      scale: 0.3, // adjust as needed
+    }),
+  });
+
+
 
   /** Updates GeoJSON data and notifies parent */
   const updateGeojson = () => {
@@ -163,13 +183,7 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
       if (cluster.features.length > 1) {
         const marker = new Feature(new Point(cluster.coord));
         marker.setStyle(
-          new Style({
-            image: new CircleStyle({
-              radius: 10,
-              fill: new Fill({ color: "rgba(0, 150, 255, 0.7)" }),
-              stroke: new Stroke({ color: "blue", width: 2 }),
-            }),
-          })
+          mapPinStyle
         );
         (marker as any).clusterFeatures = cluster.features;
         markerSource.addFeature(marker);
@@ -233,7 +247,19 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
       source: new XYZ({ url: MAP_STYLES[selectedStyle], tileSize: 512, maxZoom: 20 }),
     });
 
-    const vectorLayer = new VectorLayer({ source: vectorSource });
+    const vectorLayer = new VectorLayer({
+      source: vectorSource,
+      style: (feature) => {
+        const geomType = feature.getGeometry()?.getType();
+        if (geomType === "Point") return mapPinStyle;
+        // Add polygon style if needed
+        return new Style({
+          stroke: new Stroke({ color: "blue", width: 2 }),
+          fill: new Fill({ color: "rgba(0,0,255,0.1)" }),
+        });
+      },
+    });
+
 
     const zoomControl = new Zoom({
       className: "custom-zoom",
@@ -379,7 +405,12 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
 
     if (!viewOnly && drawType) {
       const draw = new Draw({ source: vectorSourceRef.current, type: drawType });
-      draw.on("drawend", () => {
+      draw.on("drawend", (evt: DrawEvent) => {
+
+        if (drawType === "Point") {
+          evt.feature.setStyle(mapPinStyle); // <-- Apply pin style
+        }
+
         updateGeojson();
         updateClusterMarkers();
       });

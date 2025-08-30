@@ -69,15 +69,15 @@ export default function ImpactFormForUsers({ onCancel, onSuccess }: ImpactFormPr
     const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     const ignoreNextSearch = useRef(false);
-    const searchAbortController = useRef<AbortController | null>(null);
     const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
     // Optionally preload disasterEvents or leave empty
     useEffect(() => {
         async function fetchDisasterEvents() {
             try {
-                const data = await getAllActiveDisasterEvents();
-                setDisasterEvents(data);
+                getAllActiveDisasterEvents()
+                    .then((data) => setDisasterEvents(data))
+                    .catch(() => toast.error("Failed to load disaster events"));
             } catch (error) {
                 toast.error("Failed to load disaster events");
                 console.error(error);
@@ -92,50 +92,16 @@ export default function ImpactFormForUsers({ onCancel, onSuccess }: ImpactFormPr
             ignoreNextSearch.current = false;
             return;
         }
-
-        // Cancel previous search request
-        if (searchAbortController.current) {
-            searchAbortController.current.abort();
-        }
-
-        if (debouncedSearchTerm.trim().length > 2) {
+        if (debouncedSearchTerm.length > 2) {
             setSearchLoading(true);
-            
-            // Create new abort controller for this request
-            searchAbortController.current = new AbortController();
-            
-            api.get(`/DisasterEvent/search?name=${encodeURIComponent(debouncedSearchTerm.trim())}`, {
-                signal: searchAbortController.current.signal
-            })
-            .then((res) => {
-                if (res.data && Array.isArray(res.data)) {
-                    setSearchResults(res.data);
-                } else {
-                    setSearchResults([]);
-                }
-            })
-            .catch((error) => {
-                // Don't show error if request was aborted
-                if (error.name !== 'AbortError') {
-                    console.error('Search error:', error);
-                    toast.error("Failed to search disaster events");
-                    setSearchResults([]);
-                }
-            })
-            .finally(() => {
-                setSearchLoading(false);
-            });
+            api
+                .get(`/DisasterEvent/search?name=${encodeURIComponent(debouncedSearchTerm)}`)
+                .then((res) => setSearchResults(res.data))
+                .catch(() => toast.error("Failed to search disaster events"))
+                .finally(() => setSearchLoading(false));
         } else {
             setSearchResults([]);
-            setSearchLoading(false);
         }
-
-        // Cleanup function
-        return () => {
-            if (searchAbortController.current) {
-                searchAbortController.current.abort();
-            }
-        };
     }, [debouncedSearchTerm]);
 
     const onImpactChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -170,14 +136,9 @@ export default function ImpactFormForUsers({ onCancel, onSuccess }: ImpactFormPr
     };
 
     const onSearchTermChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newSearchTerm = e.target.value;
-        setSearchTerm(newSearchTerm);
-        
-        // Only reset selection if we're actually changing the search term
-        if (!hasSelectedEvent || newSearchTerm !== searchTerm) {
-            setImpactData((prev) => ({ ...prev, DisasterEventId: null }));
-            setHasSelectedEvent(false);
-        }
+        setSearchTerm(e.target.value);
+        setImpactData((prev) => ({ ...prev, DisasterEventId: null }));
+        setHasSelectedEvent(false);
     };
 
     const selectDisasterEvent = (id: number, name: string) => {
@@ -189,22 +150,12 @@ export default function ImpactFormForUsers({ onCancel, onSuccess }: ImpactFormPr
         setSearchActive(false);
     };
 
-    const clearSearch = () => {
-        setSearchActive(false);
-        setSearchTerm("");
-        setSearchResults([]);
-        setHasSelectedEvent(false);
-        if (searchAbortController.current) {
-            searchAbortController.current.abort();
-        }
-    };
-
     async function submitImpact() {
         if (reporting) return; // Prevent extra clicks
         setReporting(true);
+
         setHasTriedSubmit(true);
 
-        // Validation
         if (!impactData.DisasterEventId) {
             toast.error("Please select a Disaster Event");
             setReporting(false);
@@ -230,7 +181,6 @@ export default function ImpactFormForUsers({ onCancel, onSuccess }: ImpactFormPr
             }
         });
         setImpactData((prev) => ({ ...prev, Objects: updatedObjects }));
-        
         if (hasError) {
             setReporting(false);
             return;
@@ -240,8 +190,8 @@ export default function ImpactFormForUsers({ onCancel, onSuccess }: ImpactFormPr
             const payload = impactData.Objects.map((obj) => ({
                 DisasterEventId: impactData.DisasterEventId,
                 Type: impactData.Type,
-                Value: obj.value.trim(),
-                ObjectName: obj.objectName.trim(),
+                Value: obj.value,
+                ObjectName: obj.objectName,
                 Status: impactData.Status || "Pending",
             }));
 
@@ -253,8 +203,8 @@ export default function ImpactFormForUsers({ onCancel, onSuccess }: ImpactFormPr
                 toast.error(response.data.message || "Failed to report impact");
             }
         } catch (error) {
-            console.error('Submit error:', error);
             toast.error("Error submitting impact form");
+            console.error(error);
         } finally {
             setReporting(false);
         }
@@ -338,76 +288,50 @@ export default function ImpactFormForUsers({ onCancel, onSuccess }: ImpactFormPr
 
             {searchActive && (
                 <div className="mb-4 relative">
-                    <Label htmlFor="search" className="text-sm text-gray-600 font-medium mb-2 block">
+                    <Label htmlFor="search" className="text-sm text-gray-500">
                         Search Disaster Event
                     </Label>
-                    <div className="flex gap-2">
-                        <div className="flex-1 relative">
-                            <div className="relative">
-                                <Input
-                                    id="search"
-                                    placeholder="Type to search disaster events..."
-                                    value={searchTerm}
-                                    onChange={onSearchTermChange}
-                                    autoComplete="off"
-                                    className="h-12 pl-10 pr-4 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 text-gray-700 placeholder-gray-400"
-                                />
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                            </div>
+                    <div className="flex justify-between">
+                        <Input
+                            id="search"
+                            placeholder="Search by event name..."
+                            value={searchTerm}
+                            onChange={onSearchTermChange}
+                            autoComplete="off"
+                            className="h-11"
+                        />
 
-                            {searchLoading && (
-                                <div className="absolute top-full left-0 w-full mt-1 z-20">
-                                    <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3">
-                                        <div className="flex items-center space-x-2">
-                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
-                                            <p className="text-sm text-gray-500">Searching events...</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
+                        {searchLoading && (
+                            <p className="text-sm text-gray-400 mt-1">Loading...</p>
+                        )}
 
-                            {searchResults.length > 0 && !searchLoading && (
-                                <ul className="absolute bg-white border-2 border-gray-200 rounded-lg shadow-xl max-h-48 overflow-auto w-full mt-1 z-20">
-                                    <li className="px-3 py-2 bg-gray-50 border-b text-xs font-semibold text-gray-600 uppercase tracking-wide">
-                                        Available Events
+                        {searchResults.length > 0 && (
+                            <ul className="absolute bg-gray-100 border rounded shadow-md max-h-40 overflow-auto w-full mt-12 z-10">
+                                {searchResults.map((event) => (
+                                    <li
+                                        key={event.id}
+                                        className={`p-2 cursor-pointer hover:bg-blue-100 ${impactData.DisasterEventId === event.id ? "bg-blue-200" : ""
+                                            }`}
+                                        onClick={() => selectDisasterEvent(event.id, event.name ?? "")}
+                                    >
+                                        {event.name}
                                     </li>
-                                    {searchResults.map((event, index) => (
-                                        <li
-                                            key={event.id}
-                                            className={`px-4 py-3 cursor-pointer transition-all duration-150 border-b border-gray-100 last:border-b-0 ${
-                                                impactData.DisasterEventId === event.id 
-                                                    ? "bg-blue-50 text-blue-700 border-l-4 border-l-blue-500" 
-                                                    : "hover:bg-blue-50 hover:text-blue-600 text-gray-700"
-                                            } ${index === searchResults.length - 1 ? 'rounded-b-lg' : ''}`}
-                                            onClick={() => selectDisasterEvent(event.id, event.name ?? "")}
-                                        >
-                                            <div className="font-medium">{event.name}</div>
-                                            {event.description && (
-                                                <div className="text-xs text-gray-500 mt-1 truncate">
-                                                    {event.description}
-                                                </div>
-                                            )}
-                                        </li>
-                                    ))}
-                                </ul>
+                                ))}
+                            </ul>
+                        )}
+                        {!hasSelectedEvent &&
+                            searchResults.length === 0 &&
+                            !searchLoading &&
+                            searchTerm.length > 2 && (
+                                <p className="text-sm text-gray-500 mt-1">No results found</p>
                             )}
-                            
-                            {!searchLoading && 
-                             searchResults.length === 0 && 
-                             debouncedSearchTerm.trim().length > 2 && 
-                             !hasSelectedEvent && (
-                                <div className="absolute top-full left-0 w-full">
-                                    <p className="text-sm text-gray-500 mt-1">No results found</p>
-                                </div>
-                            )}
-                        </div>
 
                         <Button
                             variant="outline"
-                            className="h-12 px-4 text-gray-500 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all duration-200 rounded-lg border-2"
-                            onClick={clearSearch}
+                            className="ml-0.5 text-gray-500 hover:bg-blue-600 h-11"
+                            onClick={() => setSearchActive(false)}
                         >
-                            <X className="w-4 h-4" />
+                            <X />
                         </Button>
                     </div>
                 </div>

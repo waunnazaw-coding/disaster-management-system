@@ -213,14 +213,14 @@ const EventDetailsPageForAdmin: React.FC = () => {
         <div className="flex items-center justify-between mb-8">
           <Button
             variant="outline"
-            className="flex items-center space-x-2 bg-white hover:bg-gray-50 border-2 border-gray-200 shadow-md hover:shadow-lg transition-all duration-200"
-            onClick={() => navigate("/disasters")}
+            className="flex items-center h-12 space-x-2 bg-white hover:bg-black hover:text-white border-2 border-gray-200 shadow-md hover:shadow-lg transition-all duration-200"
+            onClick={() => navigate("/admin/events")}
           >
             <ArrowLeft className="h-4 w-4" />
             <span className="font-medium">Back to Events</span>
           </Button>
           <Button
-            className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+            className="flex items-center h-12 space-x-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
             onClick={() => navigate(`/admin/events/update/${event.id}`)}
           >
             <SquarePen className="h-4 w-4" />

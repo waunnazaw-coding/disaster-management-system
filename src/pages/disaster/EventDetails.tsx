@@ -209,7 +209,7 @@ const EventDetailsPageForAdmin: React.FC = () => {
           <Button
             variant="outline"
             className="flex items-center space-x-2 bg-white hover:bg-gray-50 border-2 border-gray-200 shadow-md hover:shadow-lg transition-all duration-200"
-            onClick={() => navigate("/admin/events")}
+            onClick={() => navigate("/disasters")}
           >
             <ArrowLeft className="h-4 w-4" />
             <span className="font-medium">Back to Events</span>

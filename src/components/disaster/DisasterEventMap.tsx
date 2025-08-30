@@ -14,14 +14,6 @@ import { fromLonLat } from "ol/proj";
 import { Style, Stroke, Fill } from "ol/style";
 import { Filters } from "@/Map/MapLayout";
 import { getAllForMapViewEvent, DisasterEvent } from "@/api/disasterEventApi";
-import { Badge } from "../../components/ui/badge";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Shield } from "lucide-react";
 import { getFeaturesCentroid } from "@/utils/geoUtils";
 import { useNavigate } from "react-router-dom";
 
@@ -46,6 +38,7 @@ const MapView: React.FC<MapViewProps> = ({ filters }) => {
   const overlaysRef = useRef<Overlay[]>([]);
   const vectorLayerRef = useRef<VectorLayer<VectorSource> | null>(null);
   const navigate = useNavigate();
+  
 
   useEffect(() => {
     const fetchEvents = async () => {

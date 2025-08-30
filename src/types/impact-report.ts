@@ -1,7 +1,7 @@
 export interface ImpactCreateDto {
   Type: string;
-    Value?: string | null;
-  objectName?: string | null;
+  Value?: string | null;
+  ObjectName?: string | null;
 }
 
 export interface ReportImpactCreateDto {
@@ -18,7 +18,7 @@ export interface ReportImpactCreateDto {
   severity?: string | null;
   source?: string | null;
   status?: string | null;
-
+  startDate?: string | null; // ISO date string
   reportPhotos: File[];    // IFormFile[] -> File[]
   newPhotoDescription: string[];
   impactsJson: string

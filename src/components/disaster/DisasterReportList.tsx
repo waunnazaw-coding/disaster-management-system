@@ -40,30 +40,30 @@ const severityConfig = {
 };
 
 const statusConfig = {
-  Pending: { 
-    bg: "bg-amber-100 text-amber-800 border-amber-200", 
+  Pending: {
+    bg: "bg-amber-100 text-amber-800 border-amber-200",
     icon: Clock,
     description: "Awaiting Review"
   },
-  Checked: { 
-    bg: "bg-blue-100 text-blue-800 border-blue-200", 
+  Checked: {
+    bg: "bg-blue-100 text-blue-800 border-blue-200",
     icon: CheckCircle,
-    description: "Under Review"
+    description: "Checked"
   },
-  Verified: { 
-    bg: "bg-emerald-100 text-emerald-800 border-emerald-200", 
+  Verified: {
+    bg: "bg-emerald-100 text-emerald-800 border-emerald-200",
     icon: CheckCircle,
     description: "Confirmed"
   },
-  Fake: { 
-    bg: "bg-gray-100 text-gray-800 border-gray-200", 
+  Fake: {
+    bg: "bg-gray-100 text-gray-800 border-gray-200",
     icon: Flag,
     description: "Flagged as False"
   },
-  Rejected: { 
-    bg: "bg-red-100 text-red-800 border-red-200", 
+  Rejected: {
+    bg: "bg-red-100 text-red-800 border-red-200",
     icon: XCircle,
-    description: "Declined"
+    description: "Rejected"
   },
 };
 
@@ -183,12 +183,12 @@ export default function DisasterReportList() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-[87vh] w-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       {/* Enhanced Header */}
       <div className="bg-white/95 backdrop-blur-lg border-b border-gray-200 shadow-lg sticky top-0 z-20">
         <div className="px-6 py-5">
           <div className="flex justify-between">
-            <div className="flex space-x-6"> 
+            <div className="flex space-x-6">
               <div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-700 to-indigo-600 bg-clip-text text-transparent">
                   Emergency Reports Dashboard
@@ -219,7 +219,7 @@ export default function DisasterReportList() {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="bg-blue-50 px-4 py-2 rounded-xl border border-blue-200">
                 <span className="text-sm font-semibold text-blue-700">
                   {filteredEvents.length} Report{filteredEvents.length !== 1 ? 's' : ''}
@@ -231,7 +231,7 @@ export default function DisasterReportList() {
       </div>
 
       {/* Content Area */}
-      <div className="max-w-4xl mx-auto px-6 py-8">
+      <div className="mx-auto px-6 py-8 w-full">
         {filteredEvents.length === 0 ? (
           <div className="text-center py-20">
             <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-12 max-w-lg mx-auto border border-gray-200">
@@ -246,7 +246,7 @@ export default function DisasterReportList() {
             </div>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
             {filteredEvents.map((ev) => {
               const severityInfo = severityConfig[ev.severity as keyof typeof severityConfig] || severityConfig.default;
               const statusInfo = statusConfig[ev.status as keyof typeof statusConfig] || statusConfig.Pending;
@@ -274,7 +274,7 @@ export default function DisasterReportList() {
                           <h2 className="text-lg font-bold text-gray-900 leading-tight group-hover:text-blue-700 transition-colors break-words min-w-0">
                             {ev.title}
                           </h2>
-                          
+
                           <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-bold rounded-lg bg-blue-50 text-blue-700 border border-blue-200 flex-shrink-0">
                             <AlertTriangle size={12} />
                             <span className="truncate max-w-24">{ev.type || "Unknown Type"}</span>
@@ -297,14 +297,14 @@ export default function DisasterReportList() {
                               SOURCE
                             </span>
                           </div>
-                          
+
                           <div className="flex items-center space-x-1 text-gray-600">
                             <CalendarDays className="h-4 w-4 text-indigo-500 flex-shrink-0" />
                             <span className="font-medium whitespace-nowrap">
                               {ev.createdAt ? new Date(ev.createdAt).toLocaleDateString() : "Unknown Date"}
                             </span>
                           </div>
-                          
+
                           <div className="flex items-center space-x-1 text-gray-600 min-w-0">
                             <MapPin className="h-4 w-4 text-orange-500 flex-shrink-0" />
                             <span className="font-medium truncate max-w-40">{ev.location?.name || "Unknown Location"}</span>
@@ -318,7 +318,7 @@ export default function DisasterReportList() {
                           <StatusIcon className="w-4 h-4 mr-1 flex-shrink-0" />
                           {ev.status}
                         </span>
-                        
+
                         <div className="text-xs text-gray-500 whitespace-nowrap">
                           #{ev.id}
                         </div>
@@ -429,6 +429,7 @@ export default function DisasterReportList() {
           </div>
         )}
       </div>
+
     </div>
   );
 }
