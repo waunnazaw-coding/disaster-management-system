@@ -13,6 +13,7 @@ export const getAssignments = async (): Promise<RequestAssignment[]> => {
 
 export const getAssignmentsByTeam = async (teamId: number): Promise<RequestAssignment[]> => {
   const response = await api.get(`/RequestAssignments/team/${teamId}`);
+  console.log("Assignments : ", response.data.data);
   return response.data.data;
 };
 
