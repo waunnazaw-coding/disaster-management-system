@@ -42,6 +42,7 @@ import {
 } from "../../api/donationService";
 import FinancialTransparency from "./FinancialTransparency";
 import { useAuthStore } from "@/store/authStore";
+import QRCode from "@/images/qrcode.png"
 
 function formatRelativeTime(date?: string): string {
   if (!date) return "";
@@ -151,8 +152,7 @@ const paymentMethods = [
     popular: true,
     accountName: "DisasterGuard MM",
     phoneNumber: "+95 9 123 456 789",
-    qrCodeUrl:
-      "https://images.pexels.com/photos/7130542/pexels-photo-7130542.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop",
+    qrCodeUrl: QRCode,
   },
   {
     id: "wavepay",
@@ -161,8 +161,7 @@ const paymentMethods = [
     description: "Wave Pay Mobile Banking",
     accountName: "DisasterGuard MM",
     phoneNumber: "+95 9 987 654 321",
-    qrCodeUrl:
-      "https://images.pexels.com/photos/7130467/pexels-photo-7130467.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop",
+    qrCodeUrl: QRCode
   },
   {
     id: "ayapay",
@@ -171,8 +170,7 @@ const paymentMethods = [
     description: "Aya Pay Mobile Banking",
     accountName: "DisasterGuard MM",
     phoneNumber: "+95 9 555 444 333",
-    qrCodeUrl:
-      "https://images.pexels.com/photos/7130560/pexels-photo-7130560.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop",
+    qrCodeUrl: QRCode
   },
   {
     id: "uabpay",
@@ -181,8 +179,7 @@ const paymentMethods = [
     description: "UAB Pay Mobile Banking",
     accountName: "DisasterGuard MM",
     phoneNumber: "+95 9 222 333 444",
-    qrCodeUrl:
-      "https://images.pexels.com/photos/7130545/pexels-photo-7130545.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop",
+    qrCodeUrl: QRCode
   },
 ];
 
@@ -259,37 +256,37 @@ export default function DonationPage() {
 
   const { isAuthenticated } = useAuthStore();
 
-const onSubmit = async (data: DonationFormData) => {
-  // Check if user is logged in using your auth store
-  if (!isAuthenticated) {
-    toast.error("Please log in first to make a donation");
-    //navigate('/login');
-    return;
-  }
+  const onSubmit = async (data: DonationFormData) => {
+    // Check if user is logged in using your auth store
+    if (!isAuthenticated) {
+      toast.error("Please log in first to make a donation");
+      //navigate('/login');
+      return;
+    }
 
-  try {
-    setLoading(true);
-    const donationData: CreateDonationDto = {
-      name: data.donorName,
-      donorPhoneNumber: data.donorPhone,
-      sourceType: data.sourceType,
-      description: data.description,
-      category: donationCategories[data.selectedCategory!]?.title,
-      amount: data.selectedAmount!,
-      currency: "MMK",
-      paymentMethod: data.selectedPaymentMethod,
-    };
-    await donationService.createDonation(donationData);
-    toast.success(
-      "Donation submitted successfully! Thank you for your generosity."
-    );
-    navigate("/profile?tab=donations");
-  } catch (err: any) {
-    toast.error(err.message || "Failed to submit donation");
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      setLoading(true);
+      const donationData: CreateDonationDto = {
+        name: data.donorName,
+        donorPhoneNumber: data.donorPhone,
+        sourceType: data.sourceType,
+        description: data.description,
+        category: donationCategories[data.selectedCategory!]?.title,
+        amount: data.selectedAmount!,
+        currency: "MMK",
+        paymentMethod: data.selectedPaymentMethod,
+      };
+      await donationService.createDonation(donationData);
+      toast.success(
+        "Donation submitted successfully! Thank you for your generosity."
+      );
+      navigate("/profile?tab=donations");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to submit donation");
+    } finally {
+      setLoading(false);
+    }
+  };
   //for donation statistics
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [totalPeople, setTotalPeople] = useState<number>(0);
@@ -395,11 +392,10 @@ const onSubmit = async (data: DonationFormData) => {
                         return (
                           <Card
                             key={index}
-                            className={`border-2 cursor-pointer transition-all duration-200 hover:shadow-md ${
-                              selected
-                                ? "border-red-500 bg-red-50 shadow-md"
-                                : "border-gray-200 hover:border-red-300"
-                            }`}
+                            className={`border-2 cursor-pointer transition-all duration-200 hover:shadow-md ${selected
+                              ? "border-red-500 bg-red-50 shadow-md"
+                              : "border-gray-200 hover:border-red-300"
+                              }`}
                             onClick={() => handleCategoryClick(index)}
                           >
                             <CardContent className="p-4">
@@ -448,11 +444,10 @@ const onSubmit = async (data: DonationFormData) => {
                         return (
                           <Card
                             key={index}
-                            className={`border-2 cursor-pointer transition-all duration-200 hover:shadow-md ${
-                              selected
-                                ? "border-red-500 bg-red-50 shadow-md"
-                                : "border-gray-200 hover:border-red-300"
-                            }`}
+                            className={`border-2 cursor-pointer transition-all duration-200 hover:shadow-md ${selected
+                              ? "border-red-500 bg-red-50 shadow-md"
+                              : "border-gray-200 hover:border-red-300"
+                              }`}
                             onClick={() => handleAmountClick(donation.amount)}
                           >
                             <CardContent className="p-4 text-center">
@@ -501,11 +496,10 @@ const onSubmit = async (data: DonationFormData) => {
                         return (
                           <Card
                             key={method.id}
-                            className={`border-2 cursor-pointer transition-all duration-200 hover:shadow-md ${
-                              selected
-                                ? "border-red-500 bg-red-50 shadow-md"
-                                : "border-gray-200 hover:border-red-300"
-                            }`}
+                            className={`border-2 cursor-pointer transition-all duration-200 hover:shadow-md ${selected
+                              ? "border-red-500 bg-red-50 shadow-md"
+                              : "border-gray-200 hover:border-red-300"
+                              }`}
                             onClick={() => handlePaymentMethodClick(method.id)}
                           >
                             <CardContent className="p-4">

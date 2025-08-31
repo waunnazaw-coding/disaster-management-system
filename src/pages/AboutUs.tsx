@@ -16,7 +16,7 @@ import ayethidaraungImage from "./assets/pic3.png";
 import thzImage from "./assets/pic2.png";
 import wnzImage from "./assets/pic4.png";
 import azhImage from "./assets/pic5.png";
-import ourstoryImage from "./assets/disastermanagement.jpg";
+import ourstoryImage from "@/images/activiy.webp"
 
 const teamMembers = [
   {
