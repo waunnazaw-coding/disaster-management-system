@@ -2,8 +2,7 @@
 
 import React, { ReactNode, useState, useEffect } from "react";
 import MapNavbar from "./MapNavbar";
-import MapSidebar from "./MapSidebar";
-import MapView from "@/components/disaster/DisasterEventMap";
+import MapView from "@/Map/DisasterEventMap";
 import { getAllDisasterEvents, DisasterEvent } from "@/api/disasterEventApi";
 
 export interface Filters {

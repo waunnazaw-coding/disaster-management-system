@@ -12,7 +12,7 @@ export default function DisasterEventWizard() {
   const reset = () => setMode("none");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
+    <div className=" bg-gradient-to-br flex items-center justify-center p-4 my-5">
       <div className="w-full max-w-4xl">
         {mode === "none" && (
           <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">

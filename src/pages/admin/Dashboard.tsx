@@ -1,4 +1,25 @@
+import { useEffect, useState } from "react";
+import api from "@/api/axioInstance";
+import { ReportReminder } from "@/api/deletedReportsLogApi";
+
 const AdminDashboard = () => {
+  const [willDeleteReminders, setWillDeleteReminders] = useState<ReportReminder[]>([]);
+  const [recentlyDeleted, setRecentlyDeleted] = useState<ReportReminder[]>([]);
+
+  useEffect(() => {
+    const fetchReminders = async () => {
+      try {
+        const res = await api.get("/DeletedReportLogs/deletion-reminders");
+        setWillDeleteReminders(res.data.willDelete || []);
+        setRecentlyDeleted(res.data.recentlyDeleted || []);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchReminders();
+  }, []);
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header Section */}
@@ -166,6 +187,51 @@ const AdminDashboard = () => {
               </button>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Pending Deletion Reports */}
+      <div className="bg-white shadow rounded-lg mb-8">
+        <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
+          <h3 className="text-lg leading-6 font-medium text-gray-900">Pending Deletion Reports</h3>
+          <p className="mt-1 text-sm text-gray-500">Reports that will be deleted in 3 days</p>
+        </div>
+        <div className="px-4 py-5 sm:p-6">
+          {willDeleteReminders.length === 0 ? (
+            <p className="text-gray-500">No reports pending deletion.</p>
+          ) : (
+            <ul className="space-y-2">
+              {willDeleteReminders.map(r => (
+                <li key={r.id} className="p-2 border rounded-md bg-yellow-50">
+                  <span className="font-medium">{r.reportName}</span> will be deleted on{" "}
+                  {r.willDeleteAt ? new Date(r.willDeleteAt).toLocaleDateString() : "N/A"}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+
+      {/* Recently Deleted Reports */}
+      <div className="bg-white shadow rounded-lg mb-8">
+        <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
+          <h3 className="text-lg leading-6 font-medium text-gray-900">Recently Deleted Reports</h3>
+          <p className="mt-1 text-sm text-gray-500">Reports deleted within the last 3 days</p>
+        </div>
+        <div className="px-4 py-5 sm:p-6">
+          {recentlyDeleted.length === 0 ? (
+            <p className="text-gray-500">No reports deleted recently.</p>
+          ) : (
+            <ul className="space-y-2">
+              {recentlyDeleted.map(r => (
+                <li key={r.id} className="p-2 border rounded-md bg-red-50">
+                  <span className="font-medium">Report name: {r.reportName}, </span>
+                  <span className="font-medium">Status: {r.status}</span> has been deleted on{" "}
+                  {r.deletedAt ? new Date(r.deletedAt).toLocaleDateString() : "N/A"} by the system
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>

@@ -339,7 +339,7 @@ function DisasterEventsForAdmin() {
                     <Button
                       size="sm"
                       variant="outline"
-                      className="flex-1 border-blue-300 text-blue-700 hover:bg-blue-500"
+                      className="flex-1 w-full border-blue-300 text-blue-700 hover:bg-blue-500"
                       onClick={() => navigate(`/admin/events/${event.id}`)}
                     >
                       View Details

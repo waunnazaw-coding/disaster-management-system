@@ -11,9 +11,6 @@ import Modify from "ol/interaction/Modify";
 import Select from "ol/interaction/Select";
 import { click } from "ol/events/condition";
 import { defaults as defaultControls } from "ol/control";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
 import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
 import PolygonGeom from "ol/geom/Polygon";
@@ -23,7 +20,6 @@ import "ol-geocoder/dist/ol-geocoder.min.css";
 import MapToolbar from "./MapToolbar";
 import MapContainer from "./MapContainer";
 import "../../../styles/map.css";
-import { fromLonLat } from "ol/proj";
 import Zoom from "ol/control/Zoom";
 
 interface MapProps {
@@ -44,12 +40,9 @@ const MAP_STYLES = {
 const MIN_VISIBLE_SIZE = 30; // Min pixel size of polygon to remain visible
 const CLUSTER_DISTANCE_THRESHOLD = 40; // Distance (in px) for clustering
 
-const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnly = false }) => {
+const DisasterMapForViewDetails: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnly = false }) => {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const mapInstance = useRef<Map | null>(null);
-  const [lon, setLon] = useState<number | null>(null);
-  const [lat, setLat] = useState<number | null>(null);
-  const [polygonArea, setPolygonArea] = useState<number | null>(null);
 
   const tileLayerRef = useRef<TileLayer<XYZ> | null>(null);
   const vectorSourceRef = useRef<VectorSource | null>(null);
@@ -61,7 +54,6 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
 
   const searchMarkerRef = useRef<Feature<Point> | null>(null);
   const isLoading = useRef(false);
-  const [polygonText, setPolygonText] = useState(""); // empty string
 
   const [selectedStyle, setSelectedStyle] = useState<keyof typeof MAP_STYLES>("hybrid");
   const [drawType, setDrawType] = useState<"Point" | "Polygon" | null>(null);
@@ -89,19 +81,10 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
   /** Updates GeoJSON data and notifies parent */
   const updateGeojson = () => {
     if (!vectorSourceRef.current || !onChangeGeojson || isLoading.current) return;
-
-    const features: Feature[] = [
-      ...vectorSourceRef.current.getFeatures(), // drawn features
-      ...(markerLayerRef.current?.getSource()?.getFeatures() || []), // search/cluster markers
-    ];
-
-    const geojson = new GeoJSON().writeFeaturesObject(features, {
-      featureProjection: "EPSG:3857",
-    });
-
+    const features = vectorSourceRef.current.getFeatures();
+    const geojson = new GeoJSON().writeFeaturesObject(features, { featureProjection: "EPSG:3857" });
     onChangeGeojson(geojson);
   };
-
 
   /** Calculate pixel distance between two coordinates */
   const pixelDistance = (coord1: number[], coord2: number[]) => {
@@ -242,23 +225,11 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
 
   /** Clear all features & markers */
   const clearAll = () => {
-    // Clear vector features (points and polygons)
     vectorSourceRef.current?.clear();
-
-    // Clear markers
     markerLayerRef.current?.getSource()?.clear();
-
-    // Reset search marker reference
     searchMarkerRef.current = null;
-
-    // Reset polygon area and text
-    setPolygonArea(null);
-    setPolygonText("");
-
-    // Notify parent
     updateGeojson();
   };
-
 
   // ------------------------ USE EFFECTS ------------------------
 
@@ -435,20 +406,14 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
     if (!viewOnly && drawType) {
       const draw = new Draw({ source: vectorSourceRef.current, type: drawType });
       draw.on("drawend", (evt: DrawEvent) => {
-        if (drawType === "Polygon") {
-          const polygon = evt.feature.getGeometry() as PolygonGeom;
-          const area = polygon.getArea(); // area in map units (usually meters if using EPSG:3857)
-          setPolygonArea(area);
-        }
 
         if (drawType === "Point") {
-          evt.feature.setStyle(mapPinStyle);
+          evt.feature.setStyle(mapPinStyle); // <-- Apply pin style
         }
 
         updateGeojson();
         updateClusterMarkers();
       });
-
       map.addInteraction(draw);
       drawRef.current = draw;
     }
@@ -465,60 +430,6 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
     return () => view.un("change:resolution", onResolutionChange);
   }, []);
 
-  useEffect(() => {
-    if (!mapInstance.current || lon == null || lat == null) return;
-
-    const transformed = fromLonLat([lon, lat]);
-
-    // Clear ALL old features in vector source
-    vectorSourceRef.current?.clear();
-
-    // Add new marker
-    const marker = new Feature(new Point(transformed));
-    marker.setStyle(mapPinStyle);
-    vectorSourceRef.current?.addFeature(marker);
-
-    // Center map on marker
-    mapInstance.current.getView().animate({ center: transformed, zoom: 12 });
-
-    // Update GeoJSON export
-    updateGeojson();
-  }, [lon, lat]);
-
-  useEffect(() => {
-    if (!polygonText) return; // skip if empty
-
-    const timeout = setTimeout(() => {
-      try {
-        const coords = JSON.parse(polygonText);
-        if (!Array.isArray(coords)) return;
-
-        const polygon = new PolygonGeom([coords.map(([lon, lat]) => fromLonLat([lon, lat]))]);
-
-        // remove previous polygons
-        vectorSourceRef.current?.getFeatures().forEach((feature) => {
-          if (feature.getGeometry()?.getType() === "Polygon") {
-            vectorSourceRef.current?.removeFeature(feature);
-          }
-        });
-
-        const feature = new Feature(polygon);
-        vectorSourceRef.current?.addFeature(feature);
-
-        mapInstance.current?.getView().fit(polygon.getExtent(), {
-          padding: [50, 50, 50, 50],
-          maxZoom: 14,
-        });
-
-        updateGeojson();
-      } catch (err) {
-        // ignore invalid JSON
-      }
-    }, 300);
-
-    return () => clearTimeout(timeout);
-  }, [polygonText]);
-
   return (
     <>
       {!viewOnly && (
@@ -532,61 +443,8 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
         />
       )}
       <MapContainer mapRef={mapRef} />
-
-      <div className="w-full map-controls flex flex-wrap items-center gap-4">
-        <Card className="flex items-center mx-5 mt-5 p-2 w-full">
-          <CardContent className="flex items-center w-full gap-2 p-0">
-            <div className="flex flex-col w-full">
-              <Label htmlFor="lon" className="text-sm">Longitude</Label>
-              <Input
-                id="lon"
-                type="number"
-                placeholder="Longitude"
-                value={lon ?? ""}
-                onChange={(e) => setLon(parseFloat(e.target.value))}
-                className="w-full"
-              />
-            </div>
-
-            <div className="flex flex-col w-full">
-              <Label htmlFor="lat" className="text-sm">Latitude</Label>
-              <Input
-                id="lat"
-                type="number"
-                placeholder="Latitude"
-                value={lat ?? ""}
-                onChange={(e) => setLat(parseFloat(e.target.value))}
-                className="w-full"
-              />
-            </div>
-
-            {polygonArea !== null && (
-              <div className=" w-full text-sm font-medium">
-                Area: {polygonArea.toFixed(2)} m²
-              </div>
-            )}
-          </CardContent>
-          <div className="flex flex-col w-full">
-            <Label htmlFor="polygon-coords" className="text-sm">Polygon Coordinates</Label>
-            <textarea
-              id="polygon-coords"
-              placeholder="Enter coordinates as [[lon,lat],[lon,lat],...]"
-              className="w-full border rounded p-2 text-xs font-mono"
-              rows={3}
-              value={polygonText}
-              onChange={(e) => setPolygonText(e.target.value)}
-            />
-
-            <span className="text-xs text-gray-500 mt-1">
-              Example: [[92.8,20.2],[93.6,20.2],[93.6,19.4],[92.8,19.4],[92.8,20.2]]
-            </span>
-          </div>
-        </Card>
-      </div>
-
-
     </>
   );
 };
 
-export default DisasterMap;
+export default DisasterMapForViewDetails;

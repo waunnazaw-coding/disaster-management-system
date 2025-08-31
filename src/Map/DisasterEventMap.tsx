@@ -14,14 +14,6 @@ import { fromLonLat } from "ol/proj";
 import { Style, Stroke, Fill } from "ol/style";
 import { Filters } from "@/Map/MapLayout";
 import { getAllForMapViewEvent, DisasterEvent } from "@/api/disasterEventApi";
-import { Badge } from "../../components/ui/badge";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Shield } from "lucide-react";
 import { getFeaturesCentroid } from "@/utils/geoUtils";
 import { useNavigate } from "react-router-dom";
 
@@ -46,6 +38,7 @@ const MapView: React.FC<MapViewProps> = ({ filters }) => {
   const overlaysRef = useRef<Overlay[]>([]);
   const vectorLayerRef = useRef<VectorLayer<VectorSource> | null>(null);
   const navigate = useNavigate();
+
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -76,7 +69,7 @@ const MapView: React.FC<MapViewProps> = ({ filters }) => {
 
         // Filter by search query - THIS WAS MISSING!
         if (filters.searchQuery) {
-          data = data.filter(e => 
+          data = data.filter(e =>
             e.name.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
             (e.description && e.description.toLowerCase().includes(filters.searchQuery.toLowerCase())) ||
             e.disasterTypeName.toLowerCase().includes(filters.searchQuery.toLowerCase())
@@ -183,12 +176,13 @@ const MapView: React.FC<MapViewProps> = ({ filters }) => {
         <span class="px-1 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-medium">${event.severity || "-"}</span>
       </div>
     </div>
-    <div class="p-2 space-y-3">
+    <div class="p-2">
       ${event.description ? `
         <p class="text-gray-700 text-sm leading-relaxed indent-5 bg-gray-50 rounded-lg line-clamp-2">
           ${event.description}
-          <button class="read-more-btn text-blue-500 hover:underline ml-1" data-id="${event.id}">Read more...</button>
-        </p>` : ""
+        </p>
+        <button class="read-more-btn text-blue-500 hover:underline text-end w-full mt-[-10px]" data-id="${event.id}">Read more...</button>
+        ` : ""
       }
       <div class="flex items-center justify-between text-xs text-blue-500">
         <div class="flex gap-1">
@@ -353,5 +347,6 @@ const MapView: React.FC<MapViewProps> = ({ filters }) => {
 
   return <div className="relative w-full h-full"><div ref={mapRef} className="w-full h-full" /></div>;
 };
+
 
 export default MapView;
