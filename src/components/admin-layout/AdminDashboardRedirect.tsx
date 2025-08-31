@@ -7,7 +7,7 @@ const AdminDashboardRedirect = () => {
   const userRole = user?.role;
 
   if (userRole === 'DisasterManagementAdmin') {
-    return <Navigate to="/admin/events" replace />;
+    return <Navigate to="/admin/gdacs-events" replace />;
   } else if (userRole === 'FinancialAdmin') {
     return <Navigate to="/admin/donations" replace />;
   } else {

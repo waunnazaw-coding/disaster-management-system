@@ -119,42 +119,77 @@ export const useReliefStore = create(
     loading: false,
     reliefTeamId: 0,
 
-    initializeData: async () => {
-      try {   
-        set({ loading: true });
+    // initializeData: async () => {
+    //   try {   
+    //     set({ loading: true });
         
-        // 1. Get user profile
-        const userResponse = await authService.getCurrentUser();
+    //     // 1. Get user profile
+    //     const userResponse = await authService.getCurrentUser();
 
-        console.log(userResponse)
-        if (!userResponse.isSuccess || !userResponse.data) {
-          throw new Error(userResponse.message || "Failed to load user data");
-        }
+    //     console.log(userResponse)
+    //     if (!userResponse.isSuccess || !userResponse.data) {
+    //       throw new Error(userResponse.message || "Failed to load user data");
+    //     }
 
-        // 2. Get relief team ID for this user
-        const teamResponse = await getReliefTeamByUser(userResponse.data.id);
-        console.log("teamResponse:", teamResponse);
+    //     // 2. Get relief team ID for this user
+    //     const teamResponse = await getReliefTeamByUser(userResponse.data.id);
+    //     console.log("teamResponse:", teamResponse);
 
-        set({
-          currentUser: {
-            ...userResponse.data,
-            role: "ReliefTeam",
-            reliefTeamId: teamResponse ?? 0
-          },
-          reliefTeamId: teamResponse ?? 0,
-          loading: false
-        });
+    //     set({
+    //       currentUser: {
+    //         ...userResponse.data,
+    //         role: "ReliefTeam",
+    //         reliefTeamId: teamResponse ?? 0
+    //       },
+    //       reliefTeamId: teamResponse ?? 0,
+    //       loading: false
+    //     });
 
-        // 3. Fetch assignments for this team
-        await useReliefStore.getState().fetchTeamAssignments();
-      } catch (error) {
-        console.error("Initialization error:", error);
-        set({ loading: false });
-        // localStorage.removeItem("authToken");
-        // window.location.href = "/login";
-      }
-    },
+    //     // 3. Fetch assignments for this team
+    //     await useReliefStore.getState().fetchTeamAssignments();
+    //   } catch (error) {
+    //     console.error("Initialization error:", error);
+    //     set({ loading: false });
+    //     // localStorage.removeItem("authToken");
+    //     // window.location.href = "/login";
+    //   }
+    // },
+// In your relief store
+initializeData: async () => {
+  try {   
+    set({ loading: true });
+    
+    // 1. Get user profile
+    const userResponse = await authService.getCurrentUser();
 
+    if (!userResponse.isSuccess || !userResponse.data) {
+      throw new Error(userResponse.message || "Failed to load user data");
+    }
+
+    // 2. Get relief team ID for this user
+    const teamResponse = await getReliefTeamByUser(userResponse.data.id);
+
+    // 3. Set user and team ID first
+    set({
+      currentUser: {
+        ...userResponse.data,
+        role: "ReliefTeam",
+        reliefTeamId: teamResponse ?? 0
+      },
+      reliefTeamId: teamResponse ?? 0,
+    });
+
+    // 4. Now fetch assignments for this team
+    if (teamResponse) {
+      await useReliefStore.getState().fetchTeamAssignments();
+    }
+    
+    set({ loading: false });
+  } catch (error) {
+    console.error("Initialization error:", error);
+    set({ loading: false });
+  }
+},
     fetchTeamAssignments: async () => {
       set({ loading: true });
       try {

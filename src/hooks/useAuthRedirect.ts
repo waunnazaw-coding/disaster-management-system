@@ -18,7 +18,7 @@ export const useAuthRedirect = () => {
           navigate("/admin/dashboard", { replace: true });
           break;
         case Roles.ReliefTeam:
-          navigate("/relief/assignments", { replace: true });
+          navigate("/relief/dashboard", { replace: true });
           break;
         default:
           navigate("/", { replace: true });

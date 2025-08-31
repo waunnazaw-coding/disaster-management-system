@@ -95,7 +95,7 @@ export const useAssignmentStore = create<AssignmentState>()(
             .getState()
             .updateRequestAssignment(assignment);
 
-          toast.success("Request assigned successfully");
+          // toast.success("Request assigned successfully");
           const team=useRecentTeamsStore.getState().addRecentTeam({id:assignment.reliefTeamId,name:assignment.reliefTeamName});
           return assignment;
         } catch (error) {

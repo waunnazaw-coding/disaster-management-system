@@ -397,11 +397,11 @@ export const AssignRequestsToReliefPage = () => {
         ...data
       });
       
-      toast.success("Assignment Successful", {
-        description: "The request has been assigned to the relief team",
-      });
+      // toast.success("Assignment Successful", {
+      //   description: "The request has been assigned to the relief team",
+      // });
       
-      navigate("/admin/assignments");
+       navigate("/admin/requests");
     } catch (err) {
       toast.error("Assignment Failed", {
         description: err.message || "There was an error assigning the request",
