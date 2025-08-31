@@ -209,32 +209,43 @@ export default function DisasterEventForm({ onCancel, onSuccess }: DisasterEvent
           <Label className="text-sm text-gray-500">Event Name<span className="redstar">*</span></Label>
           <Input name="Name" value={formData.Name} onChange={onChange} placeholder="Event Name" />
 
-          <Label className="text-sm text-gray-500 mt-4">Select Disaster Type<span className="redstar">*</span></Label>
-          {disasterTypes.map((type) => {
-            const isSelected = formData.DisasterTypeId === type.id;
-            const bgImage = disasterTypeImages[type.id];
-            return (
-              <Card
-                key={type.id}
-                onClick={() => setFormData((prev) => ({ ...prev, DisasterTypeId: type.id }))}
-                className={`cursor-pointer mt-2 border ${isSelected ? "border-blue-500 border-2" : "border-gray-300"}`}
-                style={bgImage ? {
-                  backgroundImage: `url(${bgImage})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  color: "white"
-                } : {}}
-              >
-                <CardContent className="bg-black/60 p-4 rounded">
-                  <div className="flex justify-between">
-                    <h2 className="text-xl font-bold">{type.name}</h2>
-                    <p className="text-sm italic">{type.category}</p>
-                  </div>
-                  <p className="text-sm mt-1">{type.description}</p>
-                </CardContent>
-              </Card>
-            );
-          })}
+          <Label className="text-sm text-gray-500 mt-4 mb-3">Select Disaster Type<span className="redstar">*</span></Label>
+          <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-6">
+            {disasterTypes.map((type) => {
+              const isSelected = formData.DisasterTypeId === type.id;
+              const bgImage = disasterTypeImages[type.id];
+
+              return (
+                <Card
+                  key={type.id}
+                  onClick={() =>
+                    setFormData((prev) => ({ ...prev, DisasterTypeId: type.id }))
+                  }
+                  className={`cursor-pointer border ${isSelected ? "border-blue-500 border-2" : "border-gray-300"
+                    }`}
+                  style={
+                    bgImage
+                      ? {
+                        backgroundImage: `url(${bgImage})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        color: "white",
+                      }
+                      : {}
+                  }
+                >
+                  <CardContent className="bg-black/60 p-4 rounded">
+                    <div className="flex justify-between">
+                      <h2 className="text-xl font-bold">{type.name}</h2>
+                      <p className="text-sm italic">{type.category}</p>
+                    </div>
+                    <p className="text-sm mt-1">{type.description}</p>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+
           <div className="flex gap-2 mt-4 justify-between">
             <Button className="bg-red-500" onClick={onCancel}>Cancel</Button>
             <Button onClick={nextStep} disabled={!formData.Name || !formData.DisasterTypeId}>Next <ArrowRight /></Button>

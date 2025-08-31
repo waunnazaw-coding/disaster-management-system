@@ -9,7 +9,14 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useNavigate } from "react-router-dom"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Calendar as CalendarIcon } from "lucide-react"
+import { format } from "date-fns"
+import { cn } from "@/lib/utils"
+import { X } from "lucide-react"
 import {
   Send,
   MapPin,
@@ -39,25 +46,25 @@ const disasterTypes = [
 
 const severityLevels = [
   {
-    value: "Minor",
+    value: "Low",
     color: "bg-green-100 text-green-800 border-green-200",
     description: "Limited impact, minimal damage",
     icon: "🟢",
   },
   {
-    value: "Moderate",
+    value: "Medium",
     color: "bg-yellow-100 text-yellow-800 border-yellow-200",
     description: "Significant impact, moderate damage",
     icon: "🟡",
   },
   {
-    value: "Major",
+    value: "High",
     color: "bg-orange-100 text-orange-800 border-orange-200",
     description: "Severe impact, extensive damage",
     icon: "🟠",
   },
   {
-    value: "Catastrophic",
+    value: "Critical",
     color: "bg-red-100 text-red-800 border-red-200",
     description: "Devastating impact, widespread destruction",
     icon: "🔴",
@@ -88,6 +95,7 @@ export default function ImpactSurveyPage() {
   const [activeTab, setActiveTab] = useState("disaster-info")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const navigate = useNavigate()
 
   const {
     register,
@@ -161,13 +169,11 @@ export default function ImpactSurveyPage() {
       const impacts: ImpactCreateDto[] = []
 
       // Build impacts array from form data
-      if (data.casualties) impacts.push({ Type: "Casualties", Value: data.casualties })
-      if (data.injuries) impacts.push({ Type: "Injuries", Value: data.injuries })
-      if (data.peopleDisplaced) impacts.push({ Type: "People Displaced", Value: data.peopleDisplaced })
-      if (data.peopleAffected) impacts.push({ Type: "People Affected", Value: data.peopleAffected })
-      if (data.housesDestroyed) impacts.push({ Type: "Houses Destroyed", Value: data.housesDestroyed })
-      if (data.housesPartiallyDamaged)
-        impacts.push({ Type: "Houses Partially Damaged", Value: data.housesPartiallyDamaged })
+      if (data.casualties) impacts.push({ Type: "Casualties", Value: data.casualties, ObjectName: "Died" })
+      if (data.injuries) impacts.push({ Type: "Casualties", Value: data.injuries, ObjectName: "Injured" })
+      if (data.peopleDisplaced) impacts.push({ Type: "Displacement", Value: data.peopleDisplaced, ObjectName: "Displaced People Count" })
+      if (data.housesDestroyed) impacts.push({ Type: "Infrastructure Damage", Value: data.housesDestroyed, ObjectName: "Houses" })
+      if (data.housesPartiallyDamaged) impacts.push({ Type: "Infrastructure Damage", Value: data.housesPartiallyDamaged, ObjectName: "Houses Partially Damaged" })
       if (data.infrastructureDamage) impacts.push({ Type: "Infrastructure Damage", Value: data.infrastructureDamage })
       if (data.economicLoss) impacts.push({ Type: "Economic Loss", Value: data.economicLoss })
 
@@ -186,10 +192,12 @@ export default function ImpactSurveyPage() {
         severity: data.severity || null,
         source: data.source || "Citizen",
         status: data.status || "Active",
+        startDate: data.disasterDate || undefined, // <-- Add this line
         reportPhotos: data.reportPhotos || [],
         newPhotoDescription: data.newPhotoDescription || [],
         impactsJson: JSON.stringify(impacts),
       }
+
 
       // Add all fields to FormData
       Object.entries(reportData).forEach(([key, value]) => {
@@ -301,12 +309,19 @@ export default function ImpactSurveyPage() {
                 Your reports help emergency services understand disaster patterns, improve response times, and better
                 prepare communities for future disasters.
               </p>
+
+              <div className="flex justify-end">
+                <Button className="cursor-pointer hover:bg-white hover:text-black " onClick={() => navigate("/disasters/report")}>
+                  Two Way Survey
+                </Button>
+              </div>
+
             </div>
           </div>
         </div>
 
         <Card className="border-0 shadow-xl bg-white/90 backdrop-blur">
-          <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-t-lg">
+          <CardHeader className="">
             <CardTitle className="text-2xl">Impact Survey Form</CardTitle>
             <CardDescription className="text-base">
               Please provide detailed information about the disaster impact. All required fields are marked with *.
@@ -341,12 +356,12 @@ export default function ImpactSurveyPage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
+                      <div className="space-y-2 w-full">
                         <Label htmlFor="type" className="text-sm font-medium">
-                          Disaster Type *
+                          Disaster Type<span className="text-red-500">*</span>
                         </Label>
                         <Select onValueChange={(value) => setValue("type", value)}>
-                          <SelectTrigger className="h-12">
+                          <SelectTrigger className="w-full" style={{ height: "50px" }}>
                             <SelectValue placeholder="Select disaster type" />
                           </SelectTrigger>
                           <SelectContent>
@@ -373,29 +388,65 @@ export default function ImpactSurveyPage() {
 
                       <div className="space-y-2">
                         <Label htmlFor="disasterDate" className="text-sm font-medium">
-                          Date of Disaster *
+                          Date of Disaster<span className="text-red-500">*</span>
                         </Label>
-                        <Input {...register("disasterDate")} type="date" className="h-12" />
-                        {errors.disasterDate && (
-                          <Alert variant="destructive">
-                            <AlertCircle className="h-4 w-4" />
-                            <AlertDescription>{errors.disasterDate.message}</AlertDescription>
-                          </Alert>
-                        )}
+                        <div className="space-y-2">
+                          {/* Date Picker instead of Input */}
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                className={cn(
+                                  "w-full justify-start text-left font-normal h-12",
+                                  !watch("disasterDate") && "text-muted-foreground"
+                                )}
+                              >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {watch("disasterDate")
+                                  ? format(watch("disasterDate"), "PPP")
+                                  : <span>Select a date</span>}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0">
+                              <Calendar
+                                mode="single"
+                                selected={watch("disasterDate") ? new Date(watch("disasterDate")) : undefined}
+                                onSelect={(date) =>
+                                  setValue(
+                                    "disasterDate",
+                                    date ? date.toISOString().split("T")[0] : "", // store as "yyyy-MM-dd"
+                                    { shouldValidate: true }
+                                  )
+                                }
+                                initialFocus
+                              />
+
+                            </PopoverContent>
+                          </Popover>
+
+                          {/* Error Handling */}
+                          {errors.disasterDate && (
+                            <Alert variant="destructive" className="flex items-center gap-2">
+                              <AlertCircle className="h-4 w-4 shrink-0" />
+                              <AlertDescription>
+                                {errors.disasterDate.message}
+                              </AlertDescription>
+                            </Alert>
+                          )}
+                        </div>
                       </div>
                     </div>
 
                     <div className="space-y-4">
-                      <Label className="text-sm font-medium">Severity Level *</Label>
+                      <Label className="text-sm font-medium">Severity Level<span className="text-red-500">*</span></Label>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {severityLevels.map((level) => (
                           <Card
                             key={level.value}
-                            className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-                              watchedSeverity === level.value
-                                ? `ring-2 ring-blue-500 ${level.color} border-blue-300`
-                                : "border-gray-200 hover:border-gray-300"
-                            }`}
+                            className={`cursor-pointer transition-all duration-200 hover:shadow-md ${watchedSeverity === level.value
+                              ? `ring-2 ring-blue-500 ${level.color} border-blue-300`
+                              : "border-gray-200 hover:border-gray-300"
+                              }`}
                             onClick={() => setValue("severity", level.value)}
                           >
                             <CardContent className="p-4">
@@ -425,7 +476,7 @@ export default function ImpactSurveyPage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="title" className="text-sm font-medium">
-                        Report Title *
+                        Report Title<span className="text-red-500">*</span>
                       </Label>
                       <Input
                         {...register("title")}
@@ -442,7 +493,7 @@ export default function ImpactSurveyPage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="description" className="text-sm font-medium">
-                        Detailed Description *
+                        Detailed Description<span className="text-red-500">*</span>
                       </Label>
                       <Textarea
                         {...register("description")}
@@ -458,12 +509,12 @@ export default function ImpactSurveyPage() {
                       )}
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2 w-full">
                       <Label htmlFor="source" className="text-sm font-medium">
-                        Information Source *
+                        Information Source<span className="text-red-500">*</span>
                       </Label>
                       <Select onValueChange={(value) => setValue("source", value)} defaultValue="Citizen">
-                        <SelectTrigger className="h-12">
+                        <SelectTrigger className="h-12 w-full">
                           <SelectValue placeholder="Select information source" />
                         </SelectTrigger>
                         <SelectContent>
@@ -490,7 +541,7 @@ export default function ImpactSurveyPage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="locationName" className="text-sm font-medium">
-                        Location Name *
+                        Location Name<span className="text-red-500">*</span>
                       </Label>
                       <Input {...register("locationName")} placeholder="Village, town, or area name" className="h-12" />
                       {errors.locationName && (
@@ -503,7 +554,7 @@ export default function ImpactSurveyPage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="address" className="text-sm font-medium">
-                        Detailed Address *
+                        Detailed Address<span className="text-red-500">*</span>
                       </Label>
                       <Textarea
                         {...register("address")}
@@ -522,7 +573,7 @@ export default function ImpactSurveyPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <Label htmlFor="region" className="text-sm font-medium">
-                          Region/State *
+                          Region/State<span className="text-red-500">*</span>
                         </Label>
                         <Select onValueChange={(value) => setValue("region", value)}>
                           <SelectTrigger className="h-12">
@@ -578,7 +629,7 @@ export default function ImpactSurveyPage() {
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="injuries" className="text-sm font-medium">
-                          Injuries
+                          Count of Injuries
                         </Label>
                         <Input
                           {...register("injuries")}
@@ -600,18 +651,6 @@ export default function ImpactSurveyPage() {
                           type="number"
                           min="0"
                           placeholder="Number of displaced people"
-                          className="h-12"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="peopleAffected" className="text-sm font-medium">
-                          Total People Affected
-                        </Label>
-                        <Input
-                          {...register("peopleAffected")}
-                          type="number"
-                          min="0"
-                          placeholder="Total number of affected people"
                           className="h-12"
                         />
                       </div>
@@ -695,9 +734,7 @@ export default function ImpactSurveyPage() {
                           <div>
                             <input
                               ref={(el) => {
-                                if (el) {
-                                  ;(window as any).fileInput = el
-                                }
+                                if (el) (window as any).fileInput = el
                               }}
                               type="file"
                               multiple
@@ -719,44 +756,67 @@ export default function ImpactSurveyPage() {
                         </div>
                       </div>
 
-                      {/* Display uploaded files */}
+                      {/* Display uploaded files with editable descriptions */}
                       {watchedPhotos && watchedPhotos.length > 0 && (
                         <div className="space-y-3">
                           <h4 className="text-sm font-medium text-gray-900">
                             Uploaded Files ({watchedPhotos.length}):
                           </h4>
-                          <div className="grid gap-3">
+                          <div className="grid gap-10 relative mb-3">
                             {watchedPhotos.map((file, index) => (
                               <div
                                 key={index}
-                                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border"
+                                className="flex flex-col md:flex-row md:items-start justify-between p-3 bg-gray-50 rounded-lg border gap-3"
                               >
-                                <div className="flex items-center gap-3">
-                                  <Camera className="h-4 w-4 text-gray-500" />
-                                  <span className="text-sm text-gray-700 font-medium">{file.name}</span>
-                                  <span className="text-xs text-gray-500">
-                                    ({(file.size / 1024 / 1024).toFixed(1)} MB)
-                                  </span>
+                                {/* Left: Image Preview + Info */}
+                                <div className="flex flex-col gap-3 w-full h-30 md:w-1/3">
+                                  <img
+                                    src={URL.createObjectURL(file)}
+                                    alt={file.name}
+                                    className=" object-cover rounded-lg border h-[120px] bg-top"
+                                  />
+                                  <div className="flex flex-col text-center mb-3">
+                                    <span className="text-sm text-gray-700 font-medium">{file.name}</span>
+                                    <span className="text-xs text-gray-500">
+                                      ({(file.size / 1024 / 1024).toFixed(1)} MB)
+                                    </span>
+                                  </div>
                                 </div>
+
+                                {/* Middle: Textarea for description */}
+                                <Textarea
+                                  value={watch("newPhotoDescription")?.[index] || ""}
+                                  placeholder="Add description for this photo"
+                                  className="flex-1 h-full z-10"
+                                  onChange={(e) => {
+                                    const descriptions = [...(watch("newPhotoDescription") || [])]
+                                    descriptions[index] = e.target.value
+                                    setValue("newPhotoDescription", descriptions)
+                                  }}
+                                />
+
+                                {/* Right: Remove button */}
                                 <Button
                                   type="button"
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => removePhoto(index)}
-                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  className="w-7 h-7 bg-red-100 rounded-full text-red-600 hover:text-red-700 hover:bg-red-50"
                                 >
-                                  Remove
+                                  <X />
                                 </Button>
                               </div>
                             ))}
                           </div>
+
                         </div>
                       )}
                     </div>
+
                   </div>
                 </TabsContent>
 
-                <div className="flex justify-between items-center pt-6 border-t bg-gray-50 -mx-6 px-6 py-4 rounded-b-lg">
+                <div className="flex justify-between items-center pt-6 border-t">
                   <div className="flex gap-3">
                     {activeTab !== "disaster-info" && (
                       <Button

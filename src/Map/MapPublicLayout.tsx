@@ -2,9 +2,8 @@
 
 import React, { ReactNode, useState, useEffect } from "react";
 import MapNavbar from "./MapNavbar";
-import MapSidebar from "./MapSidebar";
-import MapView from "@/components/disaster/DisasterEventMap";
 import { getAllDisasterEvents, DisasterEvent } from "@/api/disasterEventApi";
+import MapViewPublic from "./DisasterEventMapPublic";
 
 export interface Filters {
   disasterType: string;
@@ -51,7 +50,7 @@ const MapPublicLayout: React.FC<MapLayoutProps> = ({ children, controls }) => {
       <div className="flex flex-1">
         <main className="flex-1 relative">
           <div className="absolute inset-0">
-            <MapView filters={filters} />
+            <MapViewPublic filters={filters} />
           </div>
 
           {controls && <div className="absolute top-4 right-4 z-50">{controls}</div>}

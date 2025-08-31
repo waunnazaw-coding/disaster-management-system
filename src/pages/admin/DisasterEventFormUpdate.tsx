@@ -48,7 +48,7 @@ interface EventFormUpdateDto {
     name: string;
     disasterTypeId: number;
     startDate: string | null;
-    status: string | "low";
+    status: string;
     severity: string;
     source?: string;
     description: string;
@@ -204,6 +204,7 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
 
         const form = new FormData();
 
+        // Append all other form fields.
         Object.entries(formData).forEach(([key, value]) => {
             if (
                 value != null &&
@@ -238,16 +239,15 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
         }
 
         if (formData.newPhotos && formData.newPhotos.length > 0) {
-            formData.newPhotos.forEach(file => {
-                form.append("NewPhotos", file);
+            formData.newPhotos.forEach((file, index) => {
+                if (file) {
+                    form.append("NewPhotos", file, file.name);
+                    form.append("NewPhotoDescription", formData.newPhotoDescription?.[index] ?? "");
+                }
             });
         }
 
-        if (formData.newPhotoDescription && formData.newPhotoDescription.length > 0) {
-            formData.newPhotoDescription.forEach(desc => {
-                form.append("NewPhotoDescription", desc ?? "");
-            });
-        }
+
 
         // Append existing impacts
         if (formData.existingImpacts && formData.existingImpacts.length > 0) {
@@ -343,7 +343,7 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
             <div>
                 <Label className="text-gray-500 text-sm">Severity</Label>
                 <Select
-                    value={formData.severity || ""}
+                    value={["Critical", "High", "Medium", "Low"].includes(formData.severity) ? formData.severity : ""}
                     onValueChange={value => updateForm("severity", value)}
                 >
                     <SelectTrigger>
@@ -356,6 +356,7 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
                         <SelectItem value="Low">Low</SelectItem>
                     </SelectContent>
                 </Select>
+
             </div>
 
             {/* Status */}
@@ -414,7 +415,7 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
                         formData.existingPhotos!.map((photo, index) => (
                             <div
                                 key={photo.id}
-                                className="relative group p-2 border rounded-md w-48 shadow-sm flex flex-col gap-2"
+                                className="relative group p-2 border rounded-md w-full shadow-sm flex flex-col gap-2"
                             >
                                 <img
                                     src={
@@ -423,12 +424,12 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
                                             : photo.filePath
                                     }
                                     alt="Existing"
-                                    className="h-28 w-full object-cover rounded"
+                                    className="h-full w-full object-cover rounded"
                                 />
 
                                 <input
                                     type="file"
-                                    accept="image/*"
+                                    accept="image/png, image/jpeg, image/gif"
                                     onChange={e => {
                                         const file = e.target.files?.[0];
                                         if (file) {
@@ -519,7 +520,7 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
                         return (
                             <div
                                 key={index}
-                                className="relative w-48 p-3 border rounded-md shadow-sm flex flex-col gap-2"
+                                className="relative w-full p-3 border rounded-md shadow-sm flex flex-col gap-2"
                             >
                                 <button
                                     type="button"
@@ -559,7 +560,7 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
                                         +
                                         <input
                                             type="file"
-                                            accept="image/*"
+                                            accept="image/png, image/jpeg, image/gif"
                                             style={{ display: "none" }}
                                             onChange={e => {
                                                 const newFile = e.target.files?.[0];
@@ -578,7 +579,7 @@ export default function DisasterEventUpdateForm({ eventId, onCancel, onSuccess }
                                     <img
                                         src={previewUrl as string}
                                         alt={`New Upload ${index + 1}`}
-                                        className="h-28 w-full object-cover rounded"
+                                        className="h-full w-full object-cover rounded"
                                     />
                                 )}
 
