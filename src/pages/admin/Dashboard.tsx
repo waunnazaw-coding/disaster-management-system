@@ -1,12 +1,6 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-
-interface ReportReminder {
-  id: number;
-  title: string;
-  updatedAt: string;
-  willDeleteAt: string;
-}
+import api from "@/api/axioInstance";
+import { ReportReminder } from "@/api/deletedReportsLogApi";
 
 const AdminDashboard = () => {
   const [willDeleteReminders, setWillDeleteReminders] = useState<ReportReminder[]>([]);
@@ -15,7 +9,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchReminders = async () => {
       try {
-        const res = await axios.get("/api/disasterreport/deletion-reminders");
+        const res = await api.get("/DeletedReportLogs/deletion-reminders");
         setWillDeleteReminders(res.data.willDelete || []);
         setRecentlyDeleted(res.data.recentlyDeleted || []);
       } catch (err) {
@@ -195,6 +189,8 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Pending Deletion Reports */}
       <div className="bg-white shadow rounded-lg mb-8">
         <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
           <h3 className="text-lg leading-6 font-medium text-gray-900">Pending Deletion Reports</h3>
@@ -207,7 +203,8 @@ const AdminDashboard = () => {
             <ul className="space-y-2">
               {willDeleteReminders.map(r => (
                 <li key={r.id} className="p-2 border rounded-md bg-yellow-50">
-                  <span className="font-medium">{r.title}</span> will be deleted on {new Date(r.willDeleteAt).toLocaleDateString()}
+                  <span className="font-medium">{r.reportName}</span> will be deleted on{" "}
+                  {r.willDeleteAt ? new Date(r.willDeleteAt).toLocaleDateString() : "N/A"}
                 </li>
               ))}
             </ul>
@@ -215,6 +212,7 @@ const AdminDashboard = () => {
         </div>
       </div>
 
+      {/* Recently Deleted Reports */}
       <div className="bg-white shadow rounded-lg mb-8">
         <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
           <h3 className="text-lg leading-6 font-medium text-gray-900">Recently Deleted Reports</h3>
@@ -227,7 +225,9 @@ const AdminDashboard = () => {
             <ul className="space-y-2">
               {recentlyDeleted.map(r => (
                 <li key={r.id} className="p-2 border rounded-md bg-red-50">
-                  <span className="font-medium">{r.title}</span> deleted on {new Date(r.updatedAt).toLocaleDateString()}
+                  <span className="font-medium">Report name: {r.reportName}, </span>
+                  <span className="font-medium">Status: {r.status}</span> has been deleted on{" "}
+                  {r.deletedAt ? new Date(r.deletedAt).toLocaleDateString() : "N/A"} by the system
                 </li>
               ))}
             </ul>

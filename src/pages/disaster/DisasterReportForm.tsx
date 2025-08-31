@@ -21,6 +21,14 @@ import DisasterMap from "@/components/locaiton/Map/DisasterMap";
 import api from "@/api/axioInstance";
 import { Megaphone, ArrowLeft, ArrowRight, FilePlus } from "lucide-react";
 import SuccessModal from "@/components/Modals/SuccessModal";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+
 
 interface DisasterEvent {
   id: number;
@@ -42,6 +50,7 @@ interface FormCreateDto {
   Source?: string;
   ReportPhotos: File[];
   NewPhotoDescription: string[];
+  StartDate?: string;
 }
 
 interface ImpactFormProps {
@@ -81,6 +90,7 @@ export default function DisasterReportForm({ onCancel, onSuccess }: ImpactFormPr
     ReportPhotos: [],
     NewPhotoDescription: [],
     Severity: "",
+    StartDate: new Date().toISOString().split("T")[0]
   });
 
   // Generate preview URLs for photos
@@ -214,6 +224,9 @@ export default function DisasterReportForm({ onCancel, onSuccess }: ImpactFormPr
       if (formData.DisasterEventId !== undefined) {
         form.append("DisasterEventId", formData.DisasterEventId.toString());
       }
+      if (formData.StartDate) {
+        form.append("StartDate", formData.StartDate);
+      }
       form.append("AddressDetail", formData.AddressDetail || "");
       form.append("Type", formData.Type);
       form.append("Title", formData.Title || "");
@@ -276,7 +289,7 @@ export default function DisasterReportForm({ onCancel, onSuccess }: ImpactFormPr
         <div className="max-w-3xl mx-auto p-6 shadow rounded">
           <h2 className="font-semibold text-lg mb-4">Step 1: Select Disaster Type</h2>
 
-          <div className="p-4 rounded-md space-y-2">
+          <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-6">
             {loadingTypes ? (
               // Skeleton loading cards
               [1, 2, 3].map((i) => (
@@ -303,8 +316,8 @@ export default function DisasterReportForm({ onCancel, onSuccess }: ImpactFormPr
                       setFormData((prev) => ({ ...prev, Type: type.name }))
                     }
                     className={`cursor-pointer mt-2 border ${formData.Type === type.name
-                        ? "border-blue-500 border-3"
-                        : "border-gray-300"
+                      ? "border-blue-500 border-3"
+                      : "border-gray-300"
                       }`}
                     style={
                       bgImage
@@ -381,16 +394,33 @@ export default function DisasterReportForm({ onCancel, onSuccess }: ImpactFormPr
           </div>
 
           <Label className="text-sm text-gray-500 mt-5">
-            Please provide the address detail of the disaster event.
+            Select the Start Date of the Disaster
             <span className="redstar">*</span>
           </Label>
-          <Textarea
-            name="AddressDetail"
-            value={formData.AddressDetail || ""}
-            onChange={onChange}
-            placeholder="Address"
-            className="w-full"
-          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full text-left"
+              >
+                {formData.StartDate
+                  ? format(new Date(formData.StartDate), "PPP")
+                  : "Pick a date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0">
+              <Calendar
+                mode="single"
+                selected={formData.StartDate ? new Date(formData.StartDate) : undefined}
+                onSelect={(date) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    StartDate: date ? date.toISOString().split("T")[0] : prev.StartDate,
+                  }))
+                }
+              />
+            </PopoverContent>
+          </Popover>
 
           <Label className="text-sm text-gray-500 mt-5">
             Please provide a title for the disaster event.
@@ -412,6 +442,18 @@ export default function DisasterReportForm({ onCancel, onSuccess }: ImpactFormPr
             value={formData.Description || ""}
             onChange={onChange}
             placeholder="Description"
+          />
+
+          <Label className="text-sm text-gray-500 mt-5">
+            Please provide the address detail of the disaster event.
+            <span className="redstar">*</span>
+          </Label>
+          <Textarea
+            name="AddressDetail"
+            value={formData.AddressDetail || ""}
+            onChange={onChange}
+            placeholder="Address"
+            className="w-full"
           />
 
           <Label className="text-sm text-gray-500 mt-5">
@@ -485,14 +527,14 @@ export default function DisasterReportForm({ onCancel, onSuccess }: ImpactFormPr
               <FilePlus className="mr-1" /> Add Photo
             </Button>
 
-            <div className="flex flex-wrap gap-4 mt-4">
+            <div className="gap-4 mt-4 w-full h-full">
               {formData.ReportPhotos.map((file, index) => {
                 const previewUrl = previewUrls[index];
 
                 return (
                   <div
                     key={index}
-                    className="relative w-48 p-3 border rounded-md shadow-sm flex flex-col gap-2"
+                    className="relative w-ful h-full p-3 border rounded-md shadow-sm flex flex-col gap-2"
                   >
                     <button
                       type="button"
@@ -519,7 +561,7 @@ export default function DisasterReportForm({ onCancel, onSuccess }: ImpactFormPr
                       <img
                         src={previewUrl || undefined}
                         alt={`Upload ${index + 1}`}
-                        className="h-28 w-full object-cover rounded"
+                        className="h-full w-full object-cover rounded"
                         loading="eager"
                       />
                     )}
@@ -528,7 +570,7 @@ export default function DisasterReportForm({ onCancel, onSuccess }: ImpactFormPr
                       placeholder={`Description for photo ${index + 1}`}
                       value={formData.NewPhotoDescription[index]}
                       onChange={(e) => updateDescription(index, e.target.value)}
-                      className="text-sm"
+                      className="text-sm h-ful w-full"
                     />
                   </div>
                 );

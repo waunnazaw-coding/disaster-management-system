@@ -176,12 +176,13 @@ const MapViewPublic: React.FC<MapViewProps> = ({ filters }) => {
         <span class="px-1 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-medium">${event.severity || "-"}</span>
       </div>
     </div>
-    <div class="p-2 space-y-3">
+    <div class="p-2">
       ${event.description ? `
         <p class="text-gray-700 text-sm leading-relaxed indent-5 bg-gray-50 rounded-lg line-clamp-2">
           ${event.description}
-          <button class="read-more-btn text-blue-500 hover:underline ml-1" data-id="${event.id}">Read more...</button>
-        </p>` : ""
+        </p>
+        <button class="read-more-btn text-blue-500 hover:underline text-end w-full mt-[-10px]" data-id="${event.id}">Read more...</button>
+        ` : ""
       }
       <div class="flex items-center justify-between text-xs text-blue-500">
         <div class="flex gap-1">

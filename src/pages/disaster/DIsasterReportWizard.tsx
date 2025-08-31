@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { AlertTriangle, FileText, ArrowRight, Zap } from "lucide-react";
 import DisasterReportForm from "./DisasterReportForm";
 import ImpactFormForUsers from "./ImpactFormForUsers";
 
@@ -11,36 +12,147 @@ export default function DisasterReportWizard() {
   const reset = () => setMode("none");
 
   return (
-    <div className="min-h-[60vh] flex items-center justify-center bg-gray-100 p-4">
-      <div className="w-full max-w-3xl bg-white rounded-xl shadow-md p-6">
+    <div className="bg-gradient-to-br flex items-center justify-center p-4 my-5">
+      <div className="w-full max-w-4xl">
         {mode === "none" && (
-          <>
-            <h1 className="text-2xl font-bold mb-6 text-center">
-              Choose Survey for Reporting Disaster
-            </h1>
-            <div className="flex gap-4">
-              <Button
-                onClick={() => setMode("occurrence")}
-                className="flex-1"
-              >
-                Disaster Occurrence Report
-              </Button>
-              <Button
-                onClick={() => setMode("impact")}
-                className="flex-1"
-                variant="outline"
-              >
-                Related disaster Impact
-              </Button>
+          <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+            {/* Header Section */}
+            <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-8 py-12 text-center text-white">
+              <div className="mb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-full mb-4">
+                  <AlertTriangle className="w-8 h-8" />
+                </div>
+              </div>
+              <h1 className="text-3xl font-bold mb-3">
+                Disaster Reporting System
+              </h1>
+              <p className="text-green-100 text-lg max-w-2xl mx-auto">
+                Choose the type of survey you'd like to submit.
+              </p>
             </div>
-          </>
+
+            {/* Content Section */}
+            <div className="px-8 py-12">
+              <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                
+                {/* Disaster Occurrence Card */}
+                <div
+                  className="group relative bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-8 border-2 border-red-100 hover:border-red-300 transition-all duration-300 cursor-pointer hover:shadow-lg transform hover:-translate-y-1"
+                  onClick={() => setMode("occurrence")}
+                >
+                  <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <ArrowRight className="w-5 h-5 text-red-500" />
+                  </div>
+
+                  <div className="flex items-center mb-4">
+                    <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mr-4">
+                      <Zap className="w-6 h-6 text-red-600" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-800">
+                      Disaster Occurrence
+                    </h3>
+                  </div>
+
+                  <p className="text-gray-600 mb-6 leading-relaxed">
+                    Submit a new disaster occurrence report. Include location, severity, and other essential details about the event.
+                  </p>
+
+                  <div className="space-y-2 mb-6">
+                    <div className="flex items-center text-sm text-gray-600">
+                      <div className="w-2 h-2 bg-red-400 rounded-full mr-2"></div>
+                      Event details and location
+                    </div>
+                    <div className="flex items-center text-sm text-gray-600">
+                      <div className="w-2 h-2 bg-red-400 rounded-full mr-2"></div>
+                      Severity assessment
+                    </div>
+                    <div className="flex items-center text-sm text-gray-600">
+                      <div className="w-2 h-2 bg-red-400 rounded-full mr-2"></div>
+                      Supporting evidence (photos, remarks)
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMode("occurrence");
+                    }}
+                    className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-medium transition-colors duration-200"
+                  >
+                    Submit Disaster Report
+                  </Button>
+                </div>
+
+                {/* Disaster Impact Card */}
+                <div
+                  className="group relative bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-8 border-2 border-blue-100 hover:border-blue-300 transition-all duration-300 cursor-pointer hover:shadow-lg transform hover:-translate-y-1"
+                  onClick={() => setMode("impact")}
+                >
+                  <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <ArrowRight className="w-5 h-5 text-blue-500" />
+                  </div>
+
+                  <div className="flex items-center mb-4">
+                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                      <FileText className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-800">
+                      Disaster Impact
+                    </h3>
+                  </div>
+
+                  <p className="text-gray-600 mb-6 leading-relaxed">
+                    Report the impact of an existing disaster. Document damages, affected populations, and other relevant information.
+                  </p>
+
+                  <div className="space-y-2 mb-6">
+                    <div className="flex items-center text-sm text-gray-600">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
+                      Damage assessment
+                    </div>
+                    <div className="flex items-center text-sm text-gray-600">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
+                      Affected populations
+                    </div>
+                    <div className="flex items-center text-sm text-gray-600">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
+                      Resource requirements
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMode("impact");
+                    }}
+                    variant="outline"
+                    className="w-full border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white py-3 rounded-lg font-medium transition-all duration-200"
+                  >
+                    Submit Impact Details
+                  </Button>
+                </div>
+              </div>
+
+              {/* Footer Info */}
+              <div className="mt-12 text-center">
+                <p className="text-gray-500 text-sm">
+                  Your reports help authorities coordinate effective disaster response and recovery.
+                </p>
+              </div>
+            </div>
+          </div>
         )}
 
         {mode === "occurrence" && (
-          <DisasterReportForm onCancel={reset} onSuccess={reset} />
+          <div>
+            <DisasterReportForm onCancel={reset} onSuccess={reset} />
+          </div>
         )}
+
         {mode === "impact" && (
-          <ImpactFormForUsers onCancel={reset} onSuccess={reset} />
+          <div>
+            <ImpactFormForUsers onCancel={reset} onSuccess={reset} />
+          </div>
         )}
       </div>
     </div>
