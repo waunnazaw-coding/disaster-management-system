@@ -172,7 +172,7 @@ export default function EmergencyContactsPage() {
             />
           </div>
           <Select value={selectedRegion} onValueChange={setSelectedRegion}>
-            <SelectTrigger className="h-11">
+            <SelectTrigger style={{height:"100%", width:"100%"}}>
               <SelectValue placeholder="Select region" />
             </SelectTrigger>
             <SelectContent>
@@ -184,7 +184,7 @@ export default function EmergencyContactsPage() {
             </SelectContent>
           </Select>
           <Select value={selectedType} onValueChange={setSelectedType}>
-            <SelectTrigger className="h-11">
+            <SelectTrigger style={{height:"100%", width:"100%"}}>
               <SelectValue placeholder="Select type" />
             </SelectTrigger>
             <SelectContent>

@@ -34,7 +34,7 @@ import { useNavigate } from "react-router-dom";
 import "@/styles/new.css";
 
 const disasterTypes = [
-  "All",
+  "All Type",
   "Earthquake",
   "Flood",
   "Hurricane",
@@ -120,13 +120,13 @@ function DisasterEventsForAdmin() {
             placeholder="Search by event title"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
-            className="bg-white px-3 py-2 rounded-lg text-sm flex-1 min-w-[200px] active:border-black"
+            className="bg-white px-3 py-2 rounded-lg border-2 text-sm flex-1 min-w-[200px] active:border-black"
           />
 
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="bg-white px-3 py-2 rounded-lg text-sm focus:border-black"
+            className="bg-white px-3 py-2 rounded-lg text-sm focus:border-black border-2"
           >
             {disasterTypes.map((type) => (
               <option key={type} value={type}>
@@ -140,7 +140,7 @@ function DisasterEventsForAdmin() {
             onChange={(e) =>
               setSortOrder(e.target.value as "newest" | "oldest")
             }
-            className="bg-white px-3 py-2 rounded-lg text-sm focus:border-black"
+            className="bg-white px-3 py-2 rounded-lg text-sm focus:border-black border-2"
           >
             <option value="newest">Newest → Oldest</option>
             <option value="oldest">Oldest → Newest</option>

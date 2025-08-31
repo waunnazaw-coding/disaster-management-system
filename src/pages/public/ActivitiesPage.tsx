@@ -1774,7 +1774,7 @@ const ActivitiesPage: React.FC = () => {
                       handleFilterChange()
                     }}
                   >
-                    <SelectTrigger className="h-12 rounded-xl border-gray-300 focus:border-amber-400 w-full">
+                    <SelectTrigger style={{height:"100%"}} className="rounded-xl border-gray-300 focus:border-amber-400 w-full">
                       <div className="flex items-center">
                         <Filter className="h-5 w-5 text-gray-400 mr-2 flex-shrink-0" />
                         <SelectValue placeholder="Activity Type" />
@@ -1800,7 +1800,7 @@ const ActivitiesPage: React.FC = () => {
                       handleFilterChange()
                     }}
                   >
-                    <SelectTrigger className="h-12 rounded-xl border-gray-300 focus:border-amber-400 w-full">
+                    <SelectTrigger style={{height:"100%"}} className="h-12 rounded-xl border-gray-300 focus:border-amber-400 w-full">
                       <div className="flex items-center">
                         <Users className="h-5 w-5 text-gray-400 mr-2 flex-shrink-0" />
                         <SelectValue placeholder="Relief Team" />
