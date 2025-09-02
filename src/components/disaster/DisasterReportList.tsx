@@ -93,20 +93,29 @@ export default function DisasterReportList() {
   const filteredEvents = events
     .filter(ev => statusFilter === "All" || ev.status === statusFilter)
     .sort((a, b) => {
-      // Priority sorting: Critical > High > Low > others
-      const severityOrder = { Critical: 0, High: 1, Low: 2 };
-      const aSeverity = severityOrder[a.severity as keyof typeof severityOrder] ?? 99;
-      const bSeverity = severityOrder[b.severity as keyof typeof severityOrder] ?? 99;
-
-      if (aSeverity !== bSeverity) {
-        return aSeverity - bSeverity;
-      }
-
-      // If same severity, sort by creation date (newest first)
+      // First: compare by date (newest first)
       const aDate = new Date(a.createdAt || 0).getTime();
       const bDate = new Date(b.createdAt || 0).getTime();
-      return bDate - aDate;
+
+      if (bDate !== aDate) {
+        return bDate - aDate; // newest first
+      }
+
+      // If same date → sort by severity
+      const severityOrder: Record<string, number> = {
+        Critical: 0,
+        High: 1,
+        Medium: 2,
+        Low: 3
+      };
+
+      const aSeverity = severityOrder[a.severity] ?? 99;
+      const bSeverity = severityOrder[b.severity] ?? 99;
+
+      return aSeverity - bSeverity; // Critical > High > Medium > Low
     });
+
+
 
   const handleApproveDisapprove = async (reportId: number, approve: boolean) => {
     setActionLoading(reportId);

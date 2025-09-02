@@ -19,6 +19,7 @@ import {
   RadioReceiver,
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
+import DisasterMap from "@/components/locaiton/Map/DisasterMap";
 import { toast } from "sonner";
 import { approveDisapproveReport } from "@/api/disasterReportApi";
 import api from "../../api/axioInstance";
@@ -36,6 +37,7 @@ interface EventDetails {
   title: string;
   description?: string;
   locationName: string;
+  locationGeoJson?: any;
   addressDetail?: string;
   severity: string;
   status: string;
@@ -206,13 +208,42 @@ const DisasterReportDetail: React.FC = () => {
                 event.status === "Rejected"
               }
             >
-              Disapprove
+              Reject
             </Button>
           </div>
         </div>
 
         {/* Card */}
         <Card className="shadow-xl rounded-2xl border bg-white p-6 space-y-6">
+          {/* Map or fallback */}
+          {event.locationGeoJson &&
+            (() => {
+              try {
+                const geo = JSON.parse(event.locationGeoJson);
+                // Check if it's a Point at [0,0] → no map data
+                if (
+                  geo.type === "Point" &&
+                  Array.isArray(geo.coordinates) &&
+                  geo.coordinates.length === 2 &&
+                  geo.coordinates[0] === 0.0 &&
+                  geo.coordinates[1] === 0.0
+                ) {
+                  return (
+                    <div className="w-full h-64 flex items-center justify-center text-gray-500 border rounded-lg bg-gray-100">
+                      No map area provided.
+                    </div>
+                  );
+                }
+                return <DisasterMap geojsonData={geo} viewOnly />;
+              } catch {
+                return (
+                  <div className="w-full h-64 flex items-center justify-center text-gray-500 border rounded-lg bg-gray-100">
+                    Invalid map data.
+                  </div>
+                );
+              }
+            })()}
+
           {/* Title + Status + Type */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
@@ -231,7 +262,7 @@ const DisasterReportDetail: React.FC = () => {
               <Badge variant="outline" className="bg-blue-100 text-blue-700">
                 {event.type || "N/A"}
               </Badge>
-               <Badge className={`${getSeverityColor(event.severity)} px-3 py-1`}>
+              <Badge className={`${getSeverityColor(event.severity)} px-3 py-1`}>
                 {event.severity}
               </Badge>
             </div>
@@ -239,11 +270,11 @@ const DisasterReportDetail: React.FC = () => {
 
           {/* Details Section */}
           <div className="grid md:grid-cols-2 gap-4 text-lg">
-            <div className="flex flex-wrap items-center gap-2 text-gray-700">
-              <MapPin className="h-full w-5 text-green-500" />
+            <div className="flex items-center gap-2 h-full text-gray-700">
+              <MapPin className="h-5 w-5 text-green-500" />
               <span>
-                <span className="font-semibold">Map Address:</span> 
-                <div>{event.locationName}</div>
+                <span className="font-semibold w-full">Map Address:</span>
+                <div className="text-wrap">{event.locationName}</div>
               </span>
             </div>
             <div className="flex items-center gap-2 text-gray-700">

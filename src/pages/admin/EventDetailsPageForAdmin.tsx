@@ -195,7 +195,7 @@ const EventDetailsPageForAdmin: React.FC = () => {
           <AlertTriangle className="text-red-500 w-16 h-16 mb-4 mx-auto animate-bounce" />
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Event Not Found</h2>
           <p className="text-gray-600 mb-6">The requested disaster event could not be located.</p>
-          <Button 
+          <Button
             className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg"
             onClick={() => navigate("/disasters")}
           >
@@ -219,21 +219,24 @@ const EventDetailsPageForAdmin: React.FC = () => {
             <ArrowLeft className="h-4 w-4" />
             <span className="font-medium">Back to Events</span>
           </Button>
-          <Button
-            className="flex items-center h-12 space-x-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-            onClick={() => navigate(`/admin/events/update/${event.id}`)}
-          >
-            <SquarePen className="h-4 w-4" />
-            <span className="font-medium">Edit Event</span>
-          </Button>
+          {event.status == "Active" && (
+            <Button
+              className="flex items-center h-12 space-x-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+              onClick={() => navigate(`/admin/events/update/${event.id}`)}
+            >
+              <SquarePen className="h-4 w-4" />
+              <span className="font-medium">Edit Event</span>
+            </Button>
+          )}
+
         </div>
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
+
           {/* Left Column - Main Details */}
           <div className="lg:col-span-2 space-y-6">
-            
+
             {/* Event Header Card */}
             <Card className=" overflow-hidden">
               {/* Map Section */}
@@ -276,7 +279,7 @@ const EventDetailsPageForAdmin: React.FC = () => {
                   <h1 className="text-4xl font-bold text-gray-900 mb-4">
                     {event.name}
                   </h1>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex items-center space-x-3 p-4 bg-green-50 rounded-xl border border-green-200">
                       <div className="bg-green-500 p-2 rounded-full">
@@ -287,7 +290,7 @@ const EventDetailsPageForAdmin: React.FC = () => {
                         <p className="text-gray-700">{event.address} {event.locationName}</p>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center space-x-3 p-4 bg-blue-50 rounded-xl border border-blue-200">
                       <div className="bg-blue-500 p-2 rounded-full">
                         <Calendar className="h-5 w-5 text-white" />
@@ -295,10 +298,10 @@ const EventDetailsPageForAdmin: React.FC = () => {
                       <div>
                         <p className="font-semibold text-blue-800 text-sm">Date</p>
                         <p className="text-gray-700">
-                          {new Date(event.startDate).toLocaleDateString('en-US', { 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric' 
+                          {new Date(event.startDate).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
                           })}
                         </p>
                       </div>
@@ -323,7 +326,7 @@ const EventDetailsPageForAdmin: React.FC = () => {
                   <div className="w-1 h-8 bg-gradient-to-b from-orange-500 to-orange-600 mr-4 rounded-full"></div>
                   <h2 className="text-2xl font-bold text-gray-900">Impact Assessment</h2>
                 </div>
-                
+
                 {normalizedImpactSummaries.length === 0 ? (
                   <div className="text-center py-8 bg-gray-50 rounded-2xl">
                     <Info className="w-12 h-12 text-gray-400 mx-auto mb-3" />
@@ -367,7 +370,7 @@ const EventDetailsPageForAdmin: React.FC = () => {
                   <div className="w-1 h-8 bg-gradient-to-b from-purple-500 to-purple-600 mr-4 rounded-full"></div>
                   <h2 className="text-2xl font-bold text-gray-900">Documentation Photos</h2>
                 </div>
-                
+
                 {event.reportPhotos && event.reportPhotos.length > 0 ? (
                   <div className="w-full flex flex-col gap-6">
                     {event.reportPhotos.map((photo) => (
@@ -399,12 +402,12 @@ const EventDetailsPageForAdmin: React.FC = () => {
 
           {/* Right Column - Metadata */}
           <div className="space-y-6">
-            
+
             {/* Event Metadata Card */}
             <Card className="shadow-2xl rounded-3xl border-0 bg-white">
               <CardContent className="p-6">
                 <h3 className="text-xl font-bold text-gray-900 mb-6">Event Metadata</h3>
-                
+
                 <div className="space-y-6">
                   {/* Creator */}
                   <div className="flex items-start space-x-4">
@@ -422,12 +425,12 @@ const EventDetailsPageForAdmin: React.FC = () => {
                         <Clock className="w-4 h-4 mr-1" />
                         {event.createdAt
                           ? new Date(event.createdAt).toLocaleString('en-US', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })
                           : "Date not available"}
                       </div>
                     </div>
@@ -450,12 +453,12 @@ const EventDetailsPageForAdmin: React.FC = () => {
                           <Clock className="w-4 h-4 mr-1" />
                           {event.updatedAt
                             ? new Date(event.updatedAt).toLocaleString('en-US', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })
                             : "Not updated"}
                         </div>
                       </div>

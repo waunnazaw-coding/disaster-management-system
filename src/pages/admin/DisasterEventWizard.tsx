@@ -13,7 +13,7 @@ export default function DisasterEventWizard() {
 
   return (
     <div className=" bg-gradient-to-br flex items-center justify-center p-4 my-5">
-      <div className="w-full max-w-4xl">
+      <div className="w-full max-w-7xl">
         {mode === "none" && (
           <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
             {/* Header Section */}

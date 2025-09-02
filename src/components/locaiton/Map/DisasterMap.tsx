@@ -533,57 +533,58 @@ const DisasterMap: React.FC<MapProps> = ({ geojsonData, onChangeGeojson, viewOnl
       )}
       <MapContainer mapRef={mapRef} />
 
-      <div className="w-full map-controls flex flex-wrap items-center gap-4">
-        <Card className="flex items-center mx-5 mt-5 p-2 w-full">
-          <CardContent className="flex items-center w-full gap-2 p-0">
-            <div className="flex flex-col w-full">
-              <Label htmlFor="lon" className="text-sm">Longitude</Label>
-              <Input
-                id="lon"
-                type="number"
-                placeholder="Longitude"
-                value={lon ?? ""}
-                onChange={(e) => setLon(parseFloat(e.target.value))}
-                className="w-full"
-              />
-            </div>
-
-            <div className="flex flex-col w-full">
-              <Label htmlFor="lat" className="text-sm">Latitude</Label>
-              <Input
-                id="lat"
-                type="number"
-                placeholder="Latitude"
-                value={lat ?? ""}
-                onChange={(e) => setLat(parseFloat(e.target.value))}
-                className="w-full"
-              />
-            </div>
-
-            {polygonArea !== null && (
-              <div className=" w-full text-sm font-medium">
-                Area: {polygonArea.toFixed(2)} m²
+      {!viewOnly && (
+        <div className="w-full map-controls flex flex-wrap items-center gap-4">
+          <Card className="flex items-center mx-5 mt-5 p-2 w-full">
+            <CardContent className="flex items-center w-full gap-2 p-0">
+              <div className="flex flex-col w-full">
+                <Label htmlFor="lon" className="text-sm">Longitude</Label>
+                <Input
+                  id="lon"
+                  type="number"
+                  placeholder="Longitude"
+                  value={lon ?? ""}
+                  onChange={(e) => setLon(parseFloat(e.target.value))}
+                  className="w-full"
+                />
               </div>
-            )}
-          </CardContent>
-          <div className="flex flex-col w-full">
-            <Label htmlFor="polygon-coords" className="text-sm">Polygon Coordinates</Label>
-            <textarea
-              id="polygon-coords"
-              placeholder="Enter coordinates as [[lon,lat],[lon,lat],...]"
-              className="w-full border rounded p-2 text-xs font-mono"
-              rows={3}
-              value={polygonText}
-              onChange={(e) => setPolygonText(e.target.value)}
-            />
 
-            <span className="text-xs text-gray-500 mt-1">
-              Example: [[92.8,20.2],[93.6,20.2],[93.6,19.4],[92.8,19.4],[92.8,20.2]]
-            </span>
-          </div>
-        </Card>
-      </div>
+              <div className="flex flex-col w-full">
+                <Label htmlFor="lat" className="text-sm">Latitude</Label>
+                <Input
+                  id="lat"
+                  type="number"
+                  placeholder="Latitude"
+                  value={lat ?? ""}
+                  onChange={(e) => setLat(parseFloat(e.target.value))}
+                  className="w-full"
+                />
+              </div>
 
+              {polygonArea !== null && (
+                <div className=" w-full text-sm font-medium">
+                  Area: {polygonArea.toFixed(2)} m²
+                </div>
+              )}
+            </CardContent>
+
+            <div className="flex flex-col w-full">
+              <Label htmlFor="polygon-coords" className="text-sm">Polygon Coordinates</Label>
+              <textarea
+                id="polygon-coords"
+                placeholder="Enter coordinates as [[lon,lat],[lon,lat],...]"
+                className="w-full border rounded p-2 text-xs font-mono"
+                rows={3}
+                value={polygonText}
+                onChange={(e) => setPolygonText(e.target.value)}
+              />
+              <span className="text-xs text-gray-500 mt-1">
+                Example: [[92.8,20.2],[93.6,20.2],[93.6,19.4],[92.8,19.4],[92.8,20.2]]
+              </span>
+            </div>
+          </Card>
+        </div>
+      )}
 
     </>
   );

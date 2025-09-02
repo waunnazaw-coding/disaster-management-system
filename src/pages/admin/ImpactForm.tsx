@@ -11,6 +11,7 @@ import { getAllActiveDisasterEvents } from "@/api/disasterEventApi";
 import api from "@/api/axioInstance";
 import { ArrowLeft, FilePlus2 } from "lucide-react";
 import SuccessModal from "@/components/Modals/SuccessModal";
+import PendingImpactsSidebar from "@/components/disaster/ImpactSidebar";
 
 interface ImpactObject {
     objectName: string;
@@ -253,6 +254,7 @@ export default function ImpactForm({ onCancel, onSuccess }: ImpactFormProps) {
             } else {
                 toast.error(response.data.message || "Failed to report impact");
             }
+
         } catch (error) {
             console.error('Submit error:', error);
             toast.error("Error submitting impact form");
@@ -312,194 +314,200 @@ export default function ImpactForm({ onCancel, onSuccess }: ImpactFormProps) {
     };
 
     return (
-        <div className="max-w-3xl mx-auto p-6 shadow-xl border-2 rounded">
-            <h1 className="text-2xl font-bold mb-4">Event Related Impacts</h1>
+        <div className="flex gap-6">
+            <div className="flex-1 max-w-3xl h-full mx-auto p-6 shadow-xl border-2 rounded">
+                <h1 className="text-2xl font-bold mb-4">Event Related Impacts</h1>
 
-            {!searchActive && (
-                <div className="mb-4 relative">
-                    <Label htmlFor="select" className="text-sm text-gray-600 font-medium mb-2 block">
-                        Select Disaster Event
-                    </Label>
-                    <div className="flex">
-                        <DisasterEventSelect
-                            disasterEvents={disasterEvents}
-                            value={impactData.DisasterEventId}
-                            onChange={(val) => setImpactData((prev) => ({ ...prev, DisasterEventId: val }))}
-                        />
-                        <Button
-                            variant="outline"
-                            className="h-12 px-4 text-gray-500 hover:bg-blue-600 hover:text-white hover:border-blue-500 transition-all duration-200 rounded border-2"
-                            onClick={() => setSearchActive(true)}
-                        >
-                            <Search />
-                        </Button>
+                {!searchActive && (
+                    <div className="mb-4 relative">
+                        <Label htmlFor="select" className="text-sm text-gray-600 font-medium mb-2 block">
+                            Select Disaster Event
+                        </Label>
+                        <div className="flex">
+                            <DisasterEventSelect
+                                disasterEvents={disasterEvents}
+                                value={impactData.DisasterEventId}
+                                onChange={(val) => setImpactData((prev) => ({ ...prev, DisasterEventId: val }))}
+                            />
+                            <Button
+                                variant="outline"
+                                className="h-12 px-4 text-gray-500 hover:bg-blue-600 hover:text-white hover:border-blue-500 transition-all duration-200 rounded border-2"
+                                onClick={() => setSearchActive(true)}
+                            >
+                                <Search />
+                            </Button>
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            {searchActive && (
-                <div className="mb-4 relative">
-                    <Label htmlFor="search" className="text-sm text-gray-600 font-medium mb-2 block">
-                        Search Disaster Event
-                    </Label>
-                    <div className="flex">
-                        <div className="flex-1 relative">
-                            <div className="relative">
-                                <Input
-                                    id="search"
-                                    placeholder="Type to search disaster events..."
-                                    value={searchTerm}
-                                    onChange={onSearchTermChange}
-                                    autoComplete="off"
-                                    className="h-12 pl-10 pr-4 border-2 rounded focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 text-gray-700 placeholder-gray-400"
-                                />
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                            </div>
+                {searchActive && (
+                    <div className="mb-4 relative">
+                        <Label htmlFor="search" className="text-sm text-gray-600 font-medium mb-2 block">
+                            Search Disaster Event
+                        </Label>
+                        <div className="flex">
+                            <div className="flex-1 relative">
+                                <div className="relative">
+                                    <Input
+                                        id="search"
+                                        placeholder="Type to search disaster events..."
+                                        value={searchTerm}
+                                        onChange={onSearchTermChange}
+                                        autoComplete="off"
+                                        className="h-12 pl-10 pr-4 border-2 rounded focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 text-gray-700 placeholder-gray-400"
+                                    />
+                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                </div>
 
-                            {searchLoading && (
-                                <div className="absolute top-full left-0 w-full mt-1 z-20">
-                                    <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3">
-                                        <div className="flex items-center space-x-2">
-                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
-                                            <p className="text-sm text-gray-500">Searching events...</p>
+                                {searchLoading && (
+                                    <div className="absolute top-full left-0 w-full mt-1 z-20">
+                                        <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3">
+                                            <div className="flex items-center space-x-2">
+                                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                                                <p className="text-sm text-gray-500">Searching events...</p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            )}
+                                )}
 
-                            {searchResults.length > 0 && !searchLoading && (
-                                <ul className="absolute bg-white border-2 border-gray-200 rounded-lg shadow-xl max-h-48 overflow-auto w-full mt-1 z-20">
-                                    <li className="px-3 py-2 bg-gray-50 border-b text-xs font-semibold text-gray-600 uppercase tracking-wide">
-                                        Available Events
-                                    </li>
-                                    {searchResults.map((event, index) => (
-                                        <li
-                                            key={event.id}
-                                            className={`px-4 py-3 cursor-pointer transition-all duration-150 border-b border-gray-100 last:border-b-0 ${impactData.DisasterEventId === event.id
+                                {searchResults.length > 0 && !searchLoading && (
+                                    <ul className="absolute bg-white border-2 border-gray-200 rounded-lg shadow-xl max-h-48 overflow-auto w-full mt-1 z-20">
+                                        <li className="px-3 py-2 bg-gray-50 border-b text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                                            Available Events
+                                        </li>
+                                        {searchResults.map((event, index) => (
+                                            <li
+                                                key={event.id}
+                                                className={`px-4 py-3 cursor-pointer transition-all duration-150 border-b border-gray-100 last:border-b-0 ${impactData.DisasterEventId === event.id
                                                     ? "bg-blue-50 text-blue-700 border-l-4 border-l-blue-500"
                                                     : "hover:bg-blue-50 hover:text-blue-600 text-gray-700"
-                                                } ${index === searchResults.length - 1 ? 'rounded-b-lg' : ''}`}
-                                            onClick={() => selectDisasterEvent(event.id, event.name ?? "")}
-                                        >
-                                            <div className="font-medium">{event.name}</div>
-                                            {event.description && (
-                                                <div className="text-xs text-gray-500 mt-1 truncate">
-                                                    {event.description}
-                                                </div>
-                                            )}
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-
-                            {!searchLoading &&
-                                searchResults.length === 0 &&
-                                debouncedSearchTerm.trim().length > 2 &&
-                                !hasSelectedEvent && (
-                                    <div className="absolute top-full left-0 w-full">
-                                        <p className="text-sm text-red-500 border-1 py-2 px-2 bg-gray-50">No results found</p>
-                                    </div>
+                                                    } ${index === searchResults.length - 1 ? 'rounded-b-lg' : ''}`}
+                                                onClick={() => selectDisasterEvent(event.id, event.name ?? "")}
+                                            >
+                                                <div className="font-medium">{event.name}</div>
+                                                {event.description && (
+                                                    <div className="text-xs text-gray-500 mt-1 truncate">
+                                                        {event.description}
+                                                    </div>
+                                                )}
+                                            </li>
+                                        ))}
+                                    </ul>
                                 )}
-                        </div>
 
-                        <Button
-                            variant="outline"
-                            className="h-12 px-4 text-gray-500 hover:bg-red-500 hover:text-white transition-all duration-200 rounded"
-                            onClick={clearSearch}
+                                {!searchLoading &&
+                                    searchResults.length === 0 &&
+                                    debouncedSearchTerm.trim().length > 2 &&
+                                    !hasSelectedEvent && (
+                                        <div className="absolute top-full left-0 w-full">
+                                            <p className="text-sm text-red-500 border-1 py-2 px-2 bg-gray-50">No results found</p>
+                                        </div>
+                                    )}
+                            </div>
+
+                            <Button
+                                variant="outline"
+                                className="h-12 px-4 text-gray-500 hover:bg-red-500 hover:text-white transition-all duration-200 rounded"
+                                onClick={clearSearch}
+                            >
+                                <X className="w-4 h-4" />
+                            </Button>
+                        </div>
+                    </div>
+                )}
+
+                <div className="space-y-4">
+                    <div>
+                        <Label htmlFor="Type" className="text-sm text-gray-500 mb-2">
+                            Impact Type
+                        </Label>
+                        <select
+                            id="Type"
+                            name="Type"
+                            value={impactData.Type}
+                            onChange={onImpactChange}
+                            className="block w-full rounded border border-gray-300 p-2"
                         >
-                            <X className="w-4 h-4" />
+                            <option value="">Select an impact type...</option>
+                            {IMPACT_TYPE_OPTIONS.map(({ value, label }) => (
+                                <option key={value} value={value}>
+                                    {label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="space-y-3">
+                        <Label className="text-sm text-gray-500">Impact Objects / People</Label>
+                        {impactData.Objects.map((obj, index) => (
+                            <div key={index} className="flex flex-col gap-1">
+                                <div className="flex gap-2 items-center">
+                                    <div className="flex-1">
+                                        <Input
+                                            placeholder={getObjectLabel()}
+                                            value={obj.objectName}
+                                            onChange={(e) => onObjectChange(index, "objectName", e.target.value)}
+                                        />
+                                        {hasTriedSubmit && obj.errors?.objectName && (
+                                            <p className="text-red-500 text-sm mt-1">{obj.errors.objectName}</p>
+                                        )}
+                                    </div>
+                                    <div className="flex-1">
+                                        <Input
+                                            placeholder={getValueLabel()}
+                                            value={obj.value}
+                                            onChange={(e) => onObjectChange(index, "value", e.target.value)}
+                                        />
+                                        {hasTriedSubmit && obj.errors?.value && (
+                                            <p className="text-red-500 text-sm mt-1">{obj.errors.value}</p>
+                                        )}
+                                    </div>
+                                    {impactData.Objects.length > 1 && (
+                                        <Button variant="destructive" onClick={() => removeObjectRow(index)}>
+                                            Remove
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                        <Button variant="outline" onClick={addObjectRow} className="hover:bg-blue-500 hover:text-white w-full">
+                            + Add Row
                         </Button>
                     </div>
-                </div>
-            )}
 
-            <div className="space-y-4">
-                <div>
-                    <Label htmlFor="Type" className="text-sm text-gray-500 mb-2">
-                        Impact Type
-                    </Label>
-                    <select
-                        id="Type"
-                        name="Type"
-                        value={impactData.Type}
-                        onChange={onImpactChange}
-                        className="block w-full rounded border border-gray-300 p-2"
-                    >
-                        <option value="">Select an impact type...</option>
-                        {IMPACT_TYPE_OPTIONS.map(({ value, label }) => (
-                            <option key={value} value={value}>
-                                {label}
-                            </option>
-                        ))}
-                    </select>
-                </div>
+                    <div className="flex justify-between mt-4">
+                        <Button variant="outline" onClick={onCancel}>
+                            <ArrowLeft className="mr-1" />
+                            Back
+                        </Button>
+                        <Button
+                            onClick={submitImpact}
+                            disabled={submitting || !impactData.Type || !impactData.DisasterEventId}
+                        >
+                            {submitting ? "Submitting..." : (
+                                <>
+                                    <FilePlus2 className="mr-1" />
+                                    Submit
+                                </>
+                            )}
+                        </Button>
 
-                <div className="space-y-3">
-                    <Label className="text-sm text-gray-500">Impact Objects / People</Label>
-                    {impactData.Objects.map((obj, index) => (
-                        <div key={index} className="flex flex-col gap-1">
-                            <div className="flex gap-2 items-center">
-                                <div className="flex-1">
-                                    <Input
-                                        placeholder={getObjectLabel()}
-                                        value={obj.objectName}
-                                        onChange={(e) => onObjectChange(index, "objectName", e.target.value)}
-                                    />
-                                    {hasTriedSubmit && obj.errors?.objectName && (
-                                        <p className="text-red-500 text-sm mt-1">{obj.errors.objectName}</p>
-                                    )}
-                                </div>
-                                <div className="flex-1">
-                                    <Input
-                                        placeholder={getValueLabel()}
-                                        value={obj.value}
-                                        onChange={(e) => onObjectChange(index, "value", e.target.value)}
-                                    />
-                                    {hasTriedSubmit && obj.errors?.value && (
-                                        <p className="text-red-500 text-sm mt-1">{obj.errors.value}</p>
-                                    )}
-                                </div>
-                                {impactData.Objects.length > 1 && (
-                                    <Button variant="destructive" onClick={() => removeObjectRow(index)}>
-                                        Remove
-                                    </Button>
-                                )}
-                            </div>
-                        </div>
-                    ))}
-                    <Button variant="outline" onClick={addObjectRow} className="hover:bg-blue-500 hover:text-white w-full">
-                        + Add Row
-                    </Button>
-                </div>
-
-                <div className="flex justify-between mt-4">
-                    <Button variant="outline" onClick={onCancel}>
-                        <ArrowLeft className="mr-1" />
-                        Back
-                    </Button>
-                    <Button
-                        onClick={submitImpact}
-                        disabled={submitting || !impactData.Type || !impactData.DisasterEventId}
-                    >
-                        {submitting ? "Submitting..." : (
-                            <>
-                                <FilePlus2 className="mr-1" />
-                                Submit
-                            </>
-                        )}
-                    </Button>
-
-                    <SuccessModal
-                        open={showSuccessModal}
-                        title="Impact has been recorded Successfully!"
-                        message=""
-                        onClose={() => {
-                            setShowSuccessModal(false);
-                            onSuccess(); // keep your existing flow
-                        }}
-                    />
+                        <SuccessModal
+                            open={showSuccessModal}
+                            title="Impact has been recorded Successfully!"
+                            message=""
+                            onClose={() => {
+                                setShowSuccessModal(false);
+                                onSuccess(); // keep your existing flow
+                            }}
+                        />
+                    </div>
                 </div>
             </div>
+
+            {/* Sidebar */}
+            <PendingImpactsSidebar />
         </div>
+
     );
 }
